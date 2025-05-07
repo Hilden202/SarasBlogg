@@ -1,0 +1,22 @@
+﻿.header-title {  
+   font-size: 73px;  
+   color: #333;  
+   font-weight: normal;  
+   font-family: 'Script MT', 'Brush Script MT', 'Segoe Script', cursive;  
+}
+
+.header-text {
+    font-size: 37px;
+    color: #333;
+    font-weight: normal;
+    font-family: 'Script MT', 'Brush Script MT', 'Segoe Script', cursive;
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    aspect-ratio: 2 / 1;
+    border-radius: 10px;
+    max-width: none;
+}

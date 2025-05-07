@@ -1,0 +1,68 @@
+﻿@page
+@model SarasBlogg.Pages.Admin.BloggAdmin.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Blogg</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Blogg.Id" />
+            <div class="form-group">
+                <span class="text-danger">*</span>
+                <label asp-for="Blogg.Title" class="control-label"></label>
+                <input asp-for="Blogg.Title" class="form-control" />
+                <span asp-validation-for="Blogg.Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <span class="text-danger">*</span>
+                <label asp-for="Blogg.Content" class="control-label"></label>
+                <input asp-for="Blogg.Content" class="form-control" />
+                <span asp-validation-for="Blogg.Content" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Blogg.Author" class="control-label"></label>
+                <input asp-for="Blogg.Author" class="form-control" />
+                <span asp-validation-for="Blogg.Author" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Blogg.Image" class="control-label"></label>
+                <input asp-for="Blogg.Image" class="form-control" />
+                <span asp-validation-for="Blogg.Image" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <span class="text-danger">*</span>
+                <label asp-for="Blogg.LaunchDate" class="control-label"></label>
+                <input asp-for="Blogg.LaunchDate" class="form-control" />
+                <span asp-validation-for="Blogg.LaunchDate" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Blogg.IsArchived" /> @Html.DisplayNameFor(model => model.Blogg.IsArchived)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Blogg.Hidden" /> @Html.DisplayNameFor(model => model.Blogg.Hidden)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

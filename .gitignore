@@ -1,0 +1,37 @@
+# Bygg- och output-filer
+bin/
+obj/
+
+# Visual Studio metadata
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.cache
+
+# NuGet-paket och cache
+*.nupkg
+.nuget/
+**/project.assets.json
+**/*.dgspec.json
+**/*.nuget.g.props
+**/*.nuget.g.targets
+**/*.nuget.cache
+
+# Appinställningar med känslig data
+appsettings.json
+appsettings.Development.json
+
+# Loggfiler och temporära filer
+*.log
+*.tmp
+
+# Entity Framework
+Migrations/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# Mac-specifika filer
+.DS_Store

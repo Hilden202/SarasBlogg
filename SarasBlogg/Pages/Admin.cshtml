@@ -1,0 +1,82 @@
+﻿@page
+@using Extensions
+@model SarasBlogg.Pages.AdminModel
+@{
+}
+
+<table>
+	@if (Model.Bloggs != null && Model.Bloggs.Any())
+	{
+		@for (int i = 0; i < Model.Bloggs.Count; i++)
+		{
+			<tr>
+				<td>
+					<form method="get">
+						<input type="hidden" name="deleteIndex" value="@Model.Bloggs[i].Id" />
+						<button type="submit" class="btn btn-outline-danger">Ta bort</button>
+					</form>
+				</td>
+				<td>
+					@if (Model.Bloggs[i].IsArchived)
+					{
+						<a asp-route-archiveId="@Model.Bloggs[i].Id" class="btn btn-outline-success">Publicera</a>
+					}
+					else
+					{
+						<a asp-route-archiveId="@Model.Bloggs[i].Id" class="btn btn-outline-warning">Arkivera</a>
+					}
+				</td>
+				<td>
+					<a asp-route-editId="@Model.Bloggs[i].Id" class="btn btn-outline-primary">Ändra</a>
+				</td>
+				<td><strong>Id:</strong> @Model.Bloggs[i].Id</td>
+				<td><strong>Title:</strong> @Model.Bloggs[i].Title</td>
+				<td><strong>Content:</strong> @Model.Bloggs[i].Content.LimitLength(10)</td>
+				<td><strong>Author:</strong> @Model.Bloggs[i].Author</td>
+				<td>
+					<strong>Launch Date:</strong>
+					<span style="color: @(Model.Bloggs[i].LaunchDate.Date > DateTime.Today ? "orange" : "green")">
+						@Model.Bloggs[i].LaunchDate.ToString("yyyy-MM-dd")
+					</span>
+				</td>
+				<td>
+					<img class="card-img-top admin-blog-img" src="~/img/@Model.Bloggs[i].Image" alt="Bloggbild" />
+				</td>
+
+			</tr>
+		}
+	}
+	else
+	{
+		<tr>
+			<td colspan="8">Ingen blogg finns att visa.</td>
+		</tr>
+	}
+
+</table>
+
+<form method="post" enctype="multipart/form-data">
+	<input asp-for="NewBlogg.Id" type="hidden" />
+	<label asp-for="NewBlogg.Title"></label>
+	<input asp-for="NewBlogg.Title" class="form-control" placeholder="Ange bloggtitel här" maxlength="100" />
+	<span asp-validation-for="NewBlogg.Title" class="text-danger"></span>
+	<br />
+	<label asp-for="NewBlogg.Content"></label>
+	<textarea asp-for="NewBlogg.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
+	<span asp-validation-for="NewBlogg.Content" class="text-danger"></span>
+	<br />
+	<label asp-for="NewBlogg.Author"></label>
+	<input asp-for="NewBlogg.Author" class="form-control" placeholder="Ange författare här" maxlength="100" />
+	<span asp-validation-for="NewBlogg.Author" class="text-danger"></span>
+	<br />
+	<label asp-for="NewBlogg.LaunchDate"></label>
+	<input asp-for="NewBlogg.LaunchDate" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+	<span asp-validation-for="NewBlogg.LaunchDate" class="text-danger"></span>
+	<br />
+	<label asp-for="NewBlogg.Image"></label>
+	<input asp-for="UploadedImage" class="form-control" />
+	<span asp-validation-for="NewBlogg.Image" class="text-danger"></span>
+	<br />
+	<input type="submit" value="Skapa ny blogg/spara ändringar" />
+
+</form>
