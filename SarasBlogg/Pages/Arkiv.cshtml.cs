@@ -18,7 +18,6 @@ namespace SarasBlogg.Pages
 
         public async Task OnGetAsync(int showId, int deleteId)
         {
-            //Bloggs = await _bloggManager.GetAllBloggs();
             Bloggs = await _context.Blogg.ToListAsync();
 
             if (showId != 0)
