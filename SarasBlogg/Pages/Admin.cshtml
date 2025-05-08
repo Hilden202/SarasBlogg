@@ -4,45 +4,44 @@
 @{
 }
 
-<table>
+<table class="m-6 p-6">
 	@if (Model.Bloggs != null && Model.Bloggs.Any())
 	{
-		@for (int i = 0; i < Model.Bloggs.Count; i++)
+		foreach (var blogg in Model.Bloggs.Where(b => !b.Hidden))
 		{
 			<tr>
 				<td>
 					<form method="get">
-						<input type="hidden" name="deleteIndex" value="@Model.Bloggs[i].Id" />
-						<button type="submit" class="btn btn-outline-danger">Ta bort</button>
+						<input type="hidden" name="hiddenId" value="@blogg.Id" />
+						<button type="submit" class="btn btn-outline-warning linebreaknormal">Dölj</button>
 					</form>
 				</td>
 				<td>
-					@if (Model.Bloggs[i].IsArchived)
+					@if (blogg.IsArchived)
 					{
-						<a asp-route-archiveId="@Model.Bloggs[i].Id" class="btn btn-outline-success">Publicera</a>
+						<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning">Arkiverad</a>
 					}
 					else
 					{
-						<a asp-route-archiveId="@Model.Bloggs[i].Id" class="btn btn-outline-warning">Arkivera</a>
+						<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success">Publicerad</a>
 					}
 				</td>
 				<td>
-					<a asp-route-editId="@Model.Bloggs[i].Id" class="btn btn-outline-primary">Ändra</a>
+					<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a>
 				</td>
-				<td><strong>Id:</strong> @Model.Bloggs[i].Id</td>
-				<td><strong>Title:</strong> @Model.Bloggs[i].Title</td>
-				<td><strong>Content:</strong> @Model.Bloggs[i].Content.LimitLength(10)</td>
-				<td><strong>Author:</strong> @Model.Bloggs[i].Author</td>
+				<td><strong>Id:</strong> @blogg.Id</td>
+				<td><strong>Title:</strong> @blogg.Title</td>
+				<td><strong>Content:</strong> @blogg.Content.LimitLength(10)</td>
+				<td><strong>Author:</strong> @blogg.Author</td>
 				<td>
 					<strong>Launch Date:</strong>
-					<span style="color: @(Model.Bloggs[i].LaunchDate.Date > DateTime.Today ? "orange" : "green")">
-						@Model.Bloggs[i].LaunchDate.ToString("yyyy-MM-dd")
+					<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
+						@blogg.LaunchDate.ToString("yyyy-MM-dd")
 					</span>
 				</td>
 				<td>
-					<img class="card-img-top admin-blog-img" src="~/img/@Model.Bloggs[i].Image" alt="Bloggbild" />
+					<img class="admin-blog-img" src="~/img/@blogg.Image" alt="Bloggbild" />
 				</td>
-
 			</tr>
 		}
 	}
@@ -52,8 +51,9 @@
 			<td colspan="8">Ingen blogg finns att visa.</td>
 		</tr>
 	}
-
 </table>
+<br />
+
 
 <form method="post" enctype="multipart/form-data">
 	<input asp-for="NewBlogg.Id" type="hidden" />
@@ -76,7 +76,59 @@
 	<label asp-for="NewBlogg.Image"></label>
 	<input asp-for="UploadedImage" class="form-control" />
 	<span asp-validation-for="NewBlogg.Image" class="text-danger"></span>
-	<br />
+	@if (!string.IsNullOrEmpty(Model.NewBlogg.Image))
+	{
+		<br />
+		<label>Nuvarande bild:</label>
+		<br />
+		<img class="admin-blog-img" id="currentImage" src="~/img/@Model.NewBlogg.Image" alt="Nuvarande bild" />
+	}
+	<br /><br />
 	<input type="submit" value="Skapa ny blogg/spara ändringar" />
 
 </form>
+<br />
+<table>
+	@if (Model.Bloggs != null && Model.Bloggs.Any())
+	{
+		foreach (var blogg in Model.Bloggs.Where(b => b.Hidden))
+		{
+			<tr>
+				<td>
+					<form method="get">
+						<input type="hidden" name="deleteId" value="@blogg.Id" />
+						<button type="submit" class="btn btn-outline-danger linebreaknormal">Ta bort</button>
+					</form>
+				</td>
+			<td>
+				@if (blogg.Hidden)
+				{
+					<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
+				}
+			</td>
+			<td><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
+			<td><strong>Id:</strong> @blogg.Id</td>
+			<td><strong>Title:</strong> @blogg.Title</td>
+			<td><strong>Content:</strong> @blogg.Content.LimitLength(10)</td>
+			<td><strong>Author:</strong> @blogg.Author</td>
+			<td>
+				<strong>Launch Date:</strong>
+				<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
+					@blogg.LaunchDate.ToString("yyyy-MM-dd")
+				</span>
+			</td>
+			<td>
+				<img class="card-img-top admin-blog-img" src="~/img/@blogg.Image" alt="Bloggbild" />
+			</td>
+			</tr>
+		}
+
+	}
+	else
+	{
+		<tr>
+			<td colspan="8">Ingen dolda bloggar finns att visa.</td>
+		</tr>
+	}
+</table>
+

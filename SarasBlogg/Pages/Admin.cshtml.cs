@@ -1,5 +1,3 @@
-using System.Dynamic;
-using System.Reflection.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -23,12 +21,23 @@ namespace SarasBlogg.Pages
         [BindProperty]
         public IFormFile UploadedImage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? deleteIndex, int? editId, int? archiveId)
+        public async Task<IActionResult> OnGetAsync(int? hiddenId, int deleteId, int? editId, int? archiveId)
         {
-            if (deleteIndex.HasValue && deleteIndex.Value != 0) // && User.FindFirstValue(ClaimTypes.NameIdentifier) == blogToBeDeleted.UserId
+            if (hiddenId.HasValue && hiddenId.Value != 0)
             {
-                var bloggToDelete = await _context.Blogg.FindAsync(deleteIndex.Value);
-                if (bloggToDelete != null)
+                var bloggToHide = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == hiddenId.Value);
+
+                if (bloggToHide != null)
+                {
+                    bloggToHide.Hidden = !bloggToHide.Hidden;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            if (deleteId != 0)
+            
+            {
+                Models.Blogg bloggToDelete = await _context.Blogg.FindAsync(deleteId);
+                if (bloggToDelete != null) // && User.FindFirstValue(ClaimTypes.NameIdentifier) == blogToBeDeleted.UserId
                 {
                     string fileName = "./wwwroot/img/" + bloggToDelete.Image;
                     if (System.IO.File.Exists(fileName))
@@ -69,7 +78,7 @@ namespace SarasBlogg.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            string fileName = "";
+            string fileName = NewBlogg.Image;
 
 
             if (ModelState.IsValid)
@@ -82,8 +91,8 @@ namespace SarasBlogg.Pages
                     {
                         await UploadedImage.CopyToAsync(fileStream);
                     }
-                    NewBlogg.Image = fileName;
                 }
+                    NewBlogg.Image = fileName;
 
                 if (NewBlogg.Id == 0)
                 {

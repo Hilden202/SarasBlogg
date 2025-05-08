@@ -10,7 +10,7 @@
 	<hr class="m-5 border" />
 </div>
 
-@if (Model.Blogg != null && Model.Blogg.IsArchived == true)
+@if (Model.Blogg != null && Model.Blogg.IsArchived == true && Model.Blogg.Hidden == false)
 {
 	<div class="card">
 		<img class="card-img-top" src="~/img/@Model.Blogg.Image" alt="Blog Image" />
@@ -28,7 +28,7 @@
 }
 else
 {
-	@foreach (var blogg in Model.Bloggs.Where(b => b.IsArchived == true && b.LaunchDate <= DateTime.Today))
+	@foreach (var blogg in Model.Bloggs.Where(b => b.IsArchived == true && b.Hidden == false && b.LaunchDate <= DateTime.Today))
 	{
 		<a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark">
 			<div class="card">

@@ -20,3 +20,18 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.cardsize {
+    with: 18rem;
+}
+
+.linebreak {
+    white-space: pre-wrap;
+}
+
+.linebreakormal {
+    white-space: nowrap;
+}
+.admin-blog-img {
+    max-height: 100px !important;
+}
