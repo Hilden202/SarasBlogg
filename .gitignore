@@ -27,7 +27,7 @@ appsettings.Development.json
 *.tmp
 
 # Entity Framework
-Migrations/
+#Migrations/
 
 # Rider / JetBrains
 .idea/
