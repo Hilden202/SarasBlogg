@@ -40,7 +40,7 @@
 					</span>
 				</td>
 				<td>
-					<img class="admin-blog-img" src="~/img/@blogg.Image" alt="Bloggbild" />
+					<img class="card-img-top admin-blog-img" src="~/img/@blogg.Image" alt="Bloggbild" />
 				</td>
 			</tr>
 		}
@@ -100,26 +100,26 @@
 						<button type="submit" class="btn btn-outline-danger linebreaknormal">Ta bort</button>
 					</form>
 				</td>
-			<td>
-				@if (blogg.Hidden)
-				{
-					<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
-				}
-			</td>
-			<td><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
-			<td><strong>Id:</strong> @blogg.Id</td>
-			<td><strong>Title:</strong> @blogg.Title</td>
-			<td><strong>Content:</strong> @blogg.Content.LimitLength(10)</td>
-			<td><strong>Author:</strong> @blogg.Author</td>
-			<td>
-				<strong>Launch Date:</strong>
-				<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
-					@blogg.LaunchDate.ToString("yyyy-MM-dd")
-				</span>
-			</td>
-			<td>
-				<img class="card-img-top admin-blog-img" src="~/img/@blogg.Image" alt="Bloggbild" />
-			</td>
+				<td>
+					@if (blogg.Hidden)
+					{
+						<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
+					}
+				</td>
+				<td><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
+				<td><strong>Id:</strong> @blogg.Id</td>
+				<td><strong>Title:</strong> @blogg.Title</td>
+				<td><strong>Content:</strong> @blogg.Content.LimitLength(10)</td>
+				<td><strong>Author:</strong> @blogg.Author</td>
+				<td>
+					<strong>Launch Date:</strong>
+					<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
+						@blogg.LaunchDate.ToString("yyyy-MM-dd")
+					</span>
+				</td>
+				<td>
+					<img class="card-img-top admin-blog-img" src="~/img/@blogg.Image" alt="Bloggbild" />
+				</td>
 			</tr>
 		}
 
