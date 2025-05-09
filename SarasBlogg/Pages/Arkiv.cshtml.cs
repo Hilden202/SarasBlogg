@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.Data;
+using SarasBlogg.ViewModels;
 
 namespace SarasBlogg.Pages
 {
@@ -13,18 +14,24 @@ namespace SarasBlogg.Pages
         {
             _context = context;
         }
-        public List<Models.Blogg> Bloggs { get; set; }
-        public Models.Blogg Blogg { get; set; }
+        //public List<Models.Blogg> Bloggs { get; set; }
+        //public Models.Blogg Blogg { get; set; }
+
+        public BloggViewModel ViewModel { get; set; } = new();
 
         public async Task OnGetAsync(int showId, int deleteId)
         {
-            Bloggs = await _context.Blogg.ToListAsync();
+            ViewModel.Bloggs = await _context.Blogg
+                .Where(b => b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today)
+                .ToListAsync();
+
+            ViewModel.IsArchiveView = true;
 
             if (showId != 0)
             {
-                Blogg = Bloggs.Where(b => b.Id == showId).FirstOrDefault();
+                ViewModel.Blogg = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == showId && b.IsArchived && !b.Hidden);
             }
-
         }
+
     }
 }

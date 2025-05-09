@@ -1,22 +1,10 @@
-﻿@page
-@using Extensions
-@model SarasBlogg.Pages.ArkivModel
+﻿@using SarasBlogg.Extensions
 @{
-	ViewData["Title"] = "Arkiv";
+    // Layout = "_Layout";
 }
-<div class="text-center">
-	<h1 class="header-title">@ViewData["Title"]</h1>
-	<p class="header-text">Utforska mina arkiverade blogginlägg.</p>
-	<hr class="m-5 border" />
-</div>
+@model SarasBlogg.ViewModels.BloggViewModel
 
-@if (Model.ViewModel.Blogg == null || (Model.ViewModel.Blogg.IsArchived && !Model.ViewModel.Blogg.Hidden))
-{
-	@await Html.PartialAsync("_BloggList", Model.ViewModel)
-}
-
-
-@* @if (Model.Blogg != null && Model.Blogg.IsArchived == true && Model.Blogg.Hidden == false)
+@if (Model.Blogg != null && !Model.Blogg.Hidden)
 {
 	<div class="card">
 		<img class="card-img-top" src="~/img/@Model.Blogg.Image" alt="Blog Image" />
@@ -24,17 +12,20 @@
 			<h3 class="card-title">@Model.Blogg.Title</h3>
 			<p class="card-text linebreak">@Model.Blogg.Content</p>
 			<p class="text-muted">
-				<strong>Författare:</strong> @Model.Blogg.Author<br>
+				<strong>Författare:</strong> @Model.Blogg.Author<br />
 				<strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToString("yyyy-MM-dd")
 			</p>
 		</div>
 		<button class="btn btn-outline-dark" onclick="showAll()">Tillbaka</button>
 	</div>
-
 }
 else
 {
-	@foreach (var blogg in Model.Bloggs.Where(b => b.IsArchived == true && b.Hidden == false && b.LaunchDate <= DateTime.Today))
+	var filteredBloggs = Model.IsArchiveView
+		? Model.Bloggs.Where(b => b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today)
+		: Model.Bloggs.Where(b => !b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today);
+
+	foreach (var blogg in filteredBloggs)
 	{
 		<a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark">
 			<div class="card">
@@ -48,9 +39,4 @@ else
 		</a>
 		<hr class="m-5 border" />
 	}
-} *@
-<script>
-	function showAll() {
-		window.location.href = '/Arkiv';
-	}
-</script>
+}

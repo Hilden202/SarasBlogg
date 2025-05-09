@@ -1,5 +1,6 @@
 ﻿@page
 @using Extensions
+@using SarasBlogg.ViewModels
 @model IndexModel
 @{
 	ViewData["Title"] = "Home page";
@@ -12,7 +13,13 @@
 </div>
 
 
-@if (Model.Blogg != null && Model.Blogg.IsArchived == false && Model.Blogg.Hidden == false) // TODO: Denna kod upprepas även i Arkiv.cshtml. Behöver skapa en typ av metod
+@if (Model.ViewModel.Blogg == null || (!Model.ViewModel.Blogg.IsArchived && !Model.ViewModel.Blogg.Hidden))
+{
+	@await Html.PartialAsync("_BloggList", Model.ViewModel)
+}
+
+
+@* @if (Model.Blogg != null && Model.Blogg.IsArchived == false && Model.Blogg.Hidden == false) // TODO: Denna kod upprepas även i Arkiv.cshtml. Behöver skapa en typ av metod
 {
 
 	<div class="card">
@@ -45,7 +52,7 @@ else
 		</a>
 		<hr class="m-5 border" />
 	}
-}
+} *@
 
 <script>
 	function showAll() {
