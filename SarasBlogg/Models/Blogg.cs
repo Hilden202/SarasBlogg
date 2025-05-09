@@ -27,5 +27,7 @@ namespace SarasBlogg.Models
         public bool IsArchived { get; set; } = false;
 
         public bool Hidden { get; set; } = false;
+
+        public string UserId { get; set; }
     }
 }

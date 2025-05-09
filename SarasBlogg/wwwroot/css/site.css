@@ -1,7 +1,42 @@
-.body-color {
-    background-color: bisque;
-}
 html {
+    /* Button styles for both light mode and dark mode */  
+    button {  
+       background-color: var(--btn-bg, #f8f9fa); /* Default light mode */  
+       color: var(--btn-text, #212529);  
+       border: 1px solid var(--btn-border, #ced4da);  
+       padding: 0.5rem 1rem;  
+       border-radius: 0.25rem;  
+       font-size: 1rem;  
+       cursor: pointer;  
+       transition: background-color 0.3s, color 0.3s, border-color 0.3s;  
+    }  
+
+    button:hover {  
+       background-color: var(--btn-hover-bg, #e2e6ea);  
+       border-color: var(--btn-hover-border, #dae0e5);  
+    }  
+
+    /* Dark mode variables */  
+    @media (prefers-color-scheme: dark) {  
+       :root {  
+           --btn-bg: #343a40;  
+           --btn-text: #f8f9fa;  
+           --btn-border: #495057;  
+           --btn-hover-bg: #495057;  
+           --btn-hover-border: #6c757d;  
+       }  
+    }  
+
+    /* Light mode variables */  
+    @media (prefers-color-scheme: light) {  
+       :root {  
+           --btn-bg: #f8f9fa;  
+           --btn-text: #212529;  
+           --btn-border: #ced4da;  
+           --btn-hover-bg: #e2e6ea;  
+           --btn-hover-border: #dae0e5;  
+       }  
+    }
   font-size: 14px;
 }
 

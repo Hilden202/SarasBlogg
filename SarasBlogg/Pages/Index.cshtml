@@ -2,6 +2,7 @@
 @using Extensions
 @using SarasBlogg.ViewModels
 @model IndexModel
+@inject SignInManager<IdentityUser> SignInManager
 @{
 	ViewData["Title"] = "Home page";
 }
@@ -11,7 +12,6 @@
 	<h3 class="header-text">När ingen ser mig då hittar jag mig</h3>
 	<hr class="m-5 border" />
 </div>
-
 
 @if (Model.ViewModel.Blogg == null || (!Model.ViewModel.Blogg.IsArchived && !Model.ViewModel.Blogg.Hidden))
 {
