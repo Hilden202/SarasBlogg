@@ -4,11 +4,6 @@
 @{
 	ViewData["Title"] = "Arkiv";
 }
-<div class="text-center">
-	<h1 class="header-title">@ViewData["Title"]</h1>
-	<p class="header-text">Utforska mina arkiverade blogginlägg.</p>
-	<hr class="m-5 border" />
-</div>
 
 @if (Model.ViewModel.Blogg == null || (Model.ViewModel.Blogg.IsArchived && !Model.ViewModel.Blogg.Hidden))
 {
