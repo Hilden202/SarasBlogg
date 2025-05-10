@@ -7,132 +7,143 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
-	<table class="m-6 p-6">
-		@if (Model.Bloggs != null && Model.Bloggs.Any())
-		{
-			foreach (var blogg in Model.Bloggs.Where(b => !b.Hidden))
-			{
-				<tr>
-					<td>
-						<form method="get">
-							<input type="hidden" name="hiddenId" value="@blogg.Id" />
-							<button type="submit" class="btn btn-outline-warning linebreaknormal">Dölj</button>
-						</form>
-					</td>
-					<td>
-						@if (blogg.IsArchived)
-						{
-							<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning">Arkiverad</a>
-						}
-						else
-						{
-							<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success">Publicerad</a>
-						}
-					</td>
-					<td>
-						<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a>
-					</td>
-					<td><strong>Id:</strong> @blogg.Id</td>
-					<td><strong>Title:</strong> @blogg.Title</td>
-					<td><strong>Content:</strong> @blogg.Content.LimitLength(10)</td>
-					<td><strong>Author:</strong> @blogg.Author</td>
-					<td>
-						<strong>Launch Date:</strong>
-						<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
-							@blogg.LaunchDate.ToString("yyyy-MM-dd")
-						</span>
-					</td>
-					<td>
-						<img class="card-img-top admin-blog-img" src="~/img/@blogg.Image" alt="Bloggbild" />
-					</td>
-				</tr>
-			}
-		}
-		else
-		{
-			<tr>
-				<td colspan="8">Ingen blogg finns att visa.</td>
-			</tr>
-		}
-	</table>
-	<br />
+    // LISTA PUBLICERADE BLOGGAR
+    if (Model.Bloggs != null && Model.Bloggs.Any(b => !b.Hidden))
+    {
+        <table class="m-6 p-6">
+            @foreach (var blogg in Model.Bloggs.Where(b => !b.Hidden))
+            {
+                <tr>
+                    <td>
+                        <form method="get">
+                            <input type="hidden" name="hiddenId" value="@blogg.Id" />
+                            <button type="submit" class="btn btn-outline-warning linebreaknormal">Dölj</button>
+                        </form>
+                    </td>
+                    <td>
+                        @if (blogg.IsArchived)
+                        {
+                            <a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning">Arkiverad</a>
+                        }
+                        else
+                        {
+                            <a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success">Publicerad</a>
+                        }
+                    </td>
+                    <td><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
+                    <td><strong>Id:</strong> @blogg.Id</td>
+                    <td><strong>Title:</strong> @blogg.Title</td>
+                    <td><strong>Content:</strong> @blogg.Content.LimitLength(10)</td>
+                    <td><strong>Author:</strong> @blogg.Author</td>
+                    <td>
+                        <strong>Launch Date:</strong>
+                        <span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
+                            @blogg.LaunchDate.ToString("yyyy-MM-dd")
+                        </span>
+                    </td>
+                    <td>
+                        <img class="card-img-top admin-blog-img" src="~/img/@blogg.Image" />
+                    </td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        <p>Ingen blogg finns att visa.</p>
+    }
 
-	<form method="post" enctype="multipart/form-data">
-		<input asp-for="NewBlogg.Id" type="hidden" />
-		<input asp-for="NewBlogg.UserId" type="hidden" />
-		<label asp-for="NewBlogg.Title"></label>
-		<input asp-for="NewBlogg.Title" class="form-control" placeholder="Ange bloggtitel här" maxlength="100" />
-		<span asp-validation-for="NewBlogg.Title" class="text-danger"></span>
-		<br />
-		<label asp-for="NewBlogg.Content"></label>
-		<textarea asp-for="NewBlogg.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
-		<span asp-validation-for="NewBlogg.Content" class="text-danger"></span>
-		<br />
-		<label asp-for="NewBlogg.Author"></label>
-		<input asp-for="NewBlogg.Author" class="form-control" placeholder="Ange författare här" maxlength="100" />
-		<span asp-validation-for="NewBlogg.Author" class="text-danger"></span>
-		<br />
-		<label asp-for="NewBlogg.LaunchDate"></label>
+    <br />
+
+    // FORMULÄR FÖR NY BLOGG / ÄNDRING
+    <form method="post" enctype="multipart/form-data">
+        <input asp-for="NewBlogg.Id" type="hidden" />
+        <input asp-for="NewBlogg.UserId" type="hidden" />
+        <label asp-for="NewBlogg.Title"></label>
+        <input asp-for="NewBlogg.Title" class="form-control" placeholder="Ange bloggtitel här" maxlength="100" />
+        <span asp-validation-for="NewBlogg.Title" class="text-danger"></span>
+        <br />
+        <label asp-for="NewBlogg.Content"></label>
+        <textarea asp-for="NewBlogg.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
+        <span asp-validation-for="NewBlogg.Content" class="text-danger"></span>
+        <br />
+        <label asp-for="NewBlogg.Author"></label>
+        <input asp-for="NewBlogg.Author" class="form-control" placeholder="Ange författare här" maxlength="100" />
+        <span asp-validation-for="NewBlogg.Author" class="text-danger"></span>
+        <br />
+        <label asp-for="NewBlogg.LaunchDate"></label>
         <input asp-for="NewBlogg.LaunchDate" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" value="@(Model.NewBlogg.LaunchDate == default ? DateTime.Today.ToString("yyyy-MM-dd") : Model.NewBlogg.LaunchDate.ToString("yyyy-MM-dd"))" />
-		<span asp-validation-for="NewBlogg.LaunchDate" class="text-danger"></span>
-		<br />
-		<label asp-for="NewBlogg.Image"></label>
-		<input asp-for="BloggImage" type="file" class="form-control" />
-		<span asp-validation-for="NewBlogg.Image" class="text-danger"></span>
-		@if (!string.IsNullOrEmpty(Model.NewBlogg.Image))
-		{
-			<br />
-			<label>Nuvarande bild:</label>
-			<br />
-			<img class="admin-blog-img" id="currentImage" src="~/img/@Model.NewBlogg.Image" />
-		}
-		<br /><br />
-		<input type="submit" class="btn btn-success" value="Skapa ny blogg/spara ändringar" />
-	</form>
+        <span asp-validation-for="NewBlogg.LaunchDate" class="text-danger"></span>
+        <br />
+        <!-- Bildhantering -->
+        <div>
+            @if (string.IsNullOrEmpty(Model.NewBlogg.Image))
+            {
+                <p>Ingen bild vald.</p>
+            }
+            else
+            {
+                <p>Nuvarande bild: @Model.NewBlogg.Image</p>
+            }
 
-	<br />
-	<table>
-		@if (Model.Bloggs != null && Model.Bloggs.Any())
-		{
-			foreach (var blogg in Model.Bloggs.Where(b => b.Hidden))
-			{
-				<tr>
-					<td>
-						<form method="get">
-							<input type="hidden" name="deleteId" value="@blogg.Id" />
-							<button type="submit" class="btn btn-outline-danger linebreaknormal">Ta bort</button>
-						</form>
-					</td>
-					<td>
-						@if (blogg.Hidden)
-						{
-							<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
-						}
-					</td>
-					<td><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
-					<td><strong>Id:</strong> @blogg.Id</td>
-					<td><strong>Title:</strong> @blogg.Title</td>
-					<td><strong>Content:</strong> @blogg.Content.LimitLength(10)</td>
-					<td><strong>Author:</strong> @blogg.Author</td>
-					<td>
-						<strong>Launch Date:</strong>
-						<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
-							@blogg.LaunchDate.ToString("yyyy-MM-dd")
-						</span>
-					</td>
-					<td>
-						<img class="card-img-top admin-blog-img" src="~/img/@blogg.Image" alt="Bloggbild" />
-					</td>
-				</tr>
-			}
+            <!-- Knapp för att byta bild -->
+            <button type="button" id="changeImageButton">Byt bild</button>
 
-		}
-		else
-		{
-			<tr>
-				<td colspan="8">Ingen dolda bloggar finns att visa.</td>
-			</tr>
-		}
-	</table>
+            <!-- Filuppladdningsfält (initialt dolt) -->
+            <input type="file" id="BloggImage" name="BloggImage" style="display:none;" />
+        </div>
+
+        <br /><br />
+        <input type="submit" class="btn btn-success" value="Skapa ny blogg/spara ändringar" />
+    </form>
+
+    <script>// Visa eller dölj filuppladdningsfältet när användaren trycker på "Byt bild"
+    document.getElementById("changeImageButton").addEventListener("click", function() {
+        var fileInput = document.getElementById("BloggImage");
+        // Växla visibiliteten för filuppladdningsfältet
+        fileInput.style.display = (fileInput.style.display === "none" || fileInput.style.display === "") ? "block" : "none";
+    });</script>
+
+    // LISTA DOLDA BLOGGAR
+    @if (Model.Bloggs != null && Model.Bloggs.Any(b => b.Hidden))
+    {
+        <table>
+            @foreach (var blogg in Model.Bloggs.Where(b => b.Hidden))
+            {
+                <tr>
+                    <td>
+                        <form method="get">
+                            <input type="hidden" name="deleteId" value="@blogg.Id" />
+                            <button type="submit" class="btn btn-outline-danger linebreaknormal">Ta bort</button>
+                        </form>
+                    </td>
+                    <td>
+                        <a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
+                    </td>
+                    <td><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
+                    <td><strong>Id:</strong> @blogg.Id</td>
+                    <td><strong>Title:</strong> @blogg.Title</td>
+                    <td><strong>Content:</strong> @blogg.Content.LimitLength(10)</td>
+                    <td><strong>Author:</strong> @blogg.Author</td>
+                    <td>
+                        <strong>Launch Date:</strong>
+                        <span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
+                            @blogg.LaunchDate.ToString("yyyy-MM-dd")
+                        </span>
+                    </td>
+                    <td>
+                        <img class="card-img-top admin-blog-img" src="~/img/@blogg.Image" alt="Bloggbild" />
+                    </td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        <p>Ingen dold blogg finns att visa.</p>
+    }
 }
-
+else
+{
+    <p class="text-danger">Du måste vara inloggad för att komma åt denna sida.</p>
+}

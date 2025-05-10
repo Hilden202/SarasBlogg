@@ -13,6 +13,7 @@ namespace SarasBlogg.Pages
         public AdminModel(ApplicationDbContext context)
         {
             _context = context;
+            NewBlogg = new Models.Blogg();
         }
         public List<Models.Blogg> Bloggs { get; set; }
         [BindProperty]
@@ -23,6 +24,10 @@ namespace SarasBlogg.Pages
 
         public async Task<IActionResult> OnGetAsync(int? hiddenId, int deleteId, int? editId, int? archiveId)
         {
+            if (NewBlogg == null)
+            {
+                NewBlogg = new Models.Blogg();
+            }
             if (hiddenId.HasValue && hiddenId.Value != 0)
             {
                 var bloggToHide = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == hiddenId.Value);
@@ -45,10 +50,10 @@ namespace SarasBlogg.Pages
                     await _context.SaveChangesAsync();
                 }
 
-                return RedirectToPage(); // undvik att forts‰tta ladda annan data i onˆdan
+                return RedirectToPage(); // undvik att fortsÔøΩtta ladda annan data i onÔøΩdan
             }
 
-            // H‰mta blogglista om inget delete har skett
+            // HÔøΩmta blogglista om inget delete har skett
             Bloggs = await _context.Blogg.ToListAsync();
 
             if (archiveId.HasValue && archiveId.Value != 0)
@@ -63,11 +68,11 @@ namespace SarasBlogg.Pages
 
             if (editId.HasValue && editId.Value != 0)
             {
-                NewBlogg = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == editId.Value);
-            }
-            else
-            {
-                NewBlogg = new Models.Blogg();
+                var bloggToEdit = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == editId.Value);
+                if (bloggToEdit != null)
+                {
+                    NewBlogg = bloggToEdit; // viktig √§ndring
+                }
             }
 
             return Page();
@@ -78,7 +83,7 @@ namespace SarasBlogg.Pages
             string fileName = NewBlogg.Image;
 
             if (BloggImage != null)
-                {
+            {
                 //Ta bort den gamla bilden om den finns
                 if (!string.IsNullOrEmpty(NewBlogg.Image))
                 {
@@ -87,33 +92,32 @@ namespace SarasBlogg.Pages
 
                 //Save the new image
                 fileName = Random.Shared.Next(0, 1000000).ToString() + "_" + BloggImage.FileName;
-                    using (var fileStream = new FileStream("./wwwroot/img/" + fileName, FileMode.Create))
-                    {
-                        await BloggImage.CopyToAsync(fileStream);
-                    }
-
-                NewBlogg.Image = fileName;
-                NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                using (var fileStream = new FileStream("./wwwroot/img/" + fileName, FileMode.Create))
+                {
+                    await BloggImage.CopyToAsync(fileStream);
                 }
-            //else
-            //{
-            //    // Om ingen bild valdes, behÂll den nuvarande bilden
-            //    NewBlogg.Image = NewBlogg.Image ?? ""; // Om bilden ‰r null, s‰tt till tom str‰ng
-            //}
+                NewBlogg.Image = fileName; // S√§tt den nya bildv√§gen
+            }
+            else
+            {
+                // Om ingen bild valts, beh√•ll den gamla bilden
+                NewBlogg.Image = NewBlogg.Image; // Bevara den gamla bildv√§gen om ingen ny bild √§r vald
+            }
 
+            NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (NewBlogg.Id == 0)
-                {
-                    _context.Blogg.Add(NewBlogg);
-                }
-                else
-                {
-                    _context.Blogg.Update(NewBlogg);
-                }
+            {
+                _context.Blogg.Add(NewBlogg);
+            }
+            else
+            {
+                _context.Blogg.Update(NewBlogg);
+            }
 
-                await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-                Bloggs = await _context.Blogg.ToListAsync();
+            Bloggs = await _context.Blogg.ToListAsync();
 
             return RedirectToPage(); // Reload the same page
         }
