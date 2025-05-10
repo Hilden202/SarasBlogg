@@ -1,8 +1,8 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.Data;
-using SarasBlogg.Models;
 
 namespace SarasBlogg.Pages
 {
@@ -19,7 +19,7 @@ namespace SarasBlogg.Pages
         public Models.Blogg NewBlogg { get; set; }
 
         [BindProperty]
-        public IFormFile UploadedImage { get; set; }
+        public IFormFile BloggImage { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? hiddenId, int deleteId, int? editId, int? archiveId)
         {
@@ -34,16 +34,13 @@ namespace SarasBlogg.Pages
                 }
             }
             if (deleteId != 0)
-            
+
             {
                 Models.Blogg bloggToDelete = await _context.Blogg.FindAsync(deleteId);
                 if (bloggToDelete != null) // && User.FindFirstValue(ClaimTypes.NameIdentifier) == blogToBeDeleted.UserId
                 {
-                    string fileName = "./wwwroot/img/" + bloggToDelete.Image;
-                    if (System.IO.File.Exists(fileName))
-                    {
-                        System.IO.File.Delete(fileName);
-                    }
+                    DeleteImage(bloggToDelete.Image); // Ta bort bilden om den finns
+
                     _context.Blogg.Remove(bloggToDelete);
                     await _context.SaveChangesAsync();
                 }
@@ -70,7 +67,7 @@ namespace SarasBlogg.Pages
             }
             else
             {
-                NewBlogg = new Blogg();
+                NewBlogg = new Models.Blogg();
             }
 
             return Page();
@@ -80,21 +77,32 @@ namespace SarasBlogg.Pages
         {
             string fileName = NewBlogg.Image;
 
-
-            if (ModelState.IsValid)
-            {
-                // Hantera save (ny eller uppdaterad blogg)
-                if (UploadedImage != null)
+            if (BloggImage != null)
                 {
-                    fileName = Random.Shared.Next(0, 1000000).ToString() + "_" + UploadedImage.FileName;
+                //Ta bort den gamla bilden om den finns
+                if (!string.IsNullOrEmpty(NewBlogg.Image))
+                {
+                    DeleteImage(NewBlogg.Image);
+                }
+
+                //Save the new image
+                fileName = Random.Shared.Next(0, 1000000).ToString() + "_" + BloggImage.FileName;
                     using (var fileStream = new FileStream("./wwwroot/img/" + fileName, FileMode.Create))
                     {
-                        await UploadedImage.CopyToAsync(fileStream);
+                        await BloggImage.CopyToAsync(fileStream);
                     }
-                }
-                    NewBlogg.Image = fileName;
 
-                if (NewBlogg.Id == 0)
+                NewBlogg.Image = fileName;
+                NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                }
+            //else
+            //{
+            //    // Om ingen bild valdes, behåll den nuvarande bilden
+            //    NewBlogg.Image = NewBlogg.Image ?? ""; // Om bilden är null, sätt till tom sträng
+            //}
+
+
+            if (NewBlogg.Id == 0)
                 {
                     _context.Blogg.Add(NewBlogg);
                 }
@@ -105,12 +113,24 @@ namespace SarasBlogg.Pages
 
                 await _context.SaveChangesAsync();
 
-                Bloggs = await _context.Blogg.ToListAsync(); // Hämta uppdaterad lista
+                Bloggs = await _context.Blogg.ToListAsync();
+
+            return RedirectToPage(); // Reload the same page
+        }
+        private void DeleteImage(string? imageName)
+        {
+            if (!string.IsNullOrEmpty(imageName))
+            {
+                string filePath = "./wwwroot/img/" + imageName;
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
             }
-
-            return RedirectToPage(); // Ladda om samma sida
-
-
         }
     }
 }
+
+
+
+

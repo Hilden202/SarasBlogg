@@ -11,7 +11,7 @@
     font-family: 'Script MT', 'Brush Script MT', 'Segoe Script', cursive;
 }
 
-/* Card Images */
+/* Card */
 .card img {
     width: 100%;
     height: auto;
@@ -78,19 +78,4 @@
     [data-bs-theme="light"] .header-title,
     [data-bs-theme="light"] .header-text {
         color: #333;
-    }
-
-    /**/
-.btn-toggle-mode {
-    background-color: var(--btn-bg-color, #f8f9fa); /* Light mode default */
-    color: var(--btn-text-color, #212529); /* Light mode default */
-    border: 1px solid var(--btn-border-color, #ced4da); /* Light mode default */
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-}
-
- .btn-toggle-mode:hover {
-        background-color: var(--btn-hover-bg-color, #e2e6ea); /* Light mode hover */
-        color: var(--btn-hover-text-color, #212529); /* Light mode hover */
     }

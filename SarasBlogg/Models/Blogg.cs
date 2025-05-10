@@ -16,6 +16,7 @@ namespace SarasBlogg.Models
         public string? Content { get; set; }
         [Display(Name = "Författare")]
         public string? Author { get; set; }
+
         [Display(Name = "Bild")]
         public string? Image { get; set; }
 
@@ -28,6 +29,6 @@ namespace SarasBlogg.Models
 
         public bool Hidden { get; set; } = false;
 
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
     }
 }

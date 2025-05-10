@@ -9,7 +9,7 @@
     {  
        <div class="card" onclick="showAll()" style="cursor: pointer;">  
            <div class="card-body">  
-               <img class="card-img-top mb-3" src="~/img/@Model.Blogg.Image" alt="Blog Image" />  
+               <img class="card-img-top mb-3" src="~/img/@Model.Blogg.Image"/>  
                <h3 class="card-title">@Model.Blogg.Title</h3>  
                <p class="card-text linebreak">@Model.Blogg.Content</p>  
                <p class="text-muted">  
@@ -30,7 +30,7 @@
 			<a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark">
 				<div class="card">
 					<div class="card-body">
-						<img class="card-img-top mb-3" src="~/img/@blogg.Image" alt="Blog Image" />
+						<img class="card-img-top mb-3" src="~/img/@blogg.Image"/>
 						<h5 class="card-title">@blogg.Title</h5>
 						<p class="card-text">@blogg.Content.LimitLength(120)</p>
 						<p class="text-muted"><small class="text-muted">Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")</small></p>
