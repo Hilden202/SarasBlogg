@@ -1,6 +1,5 @@
 ﻿@using SarasBlogg.Extensions
 @{
-	// Layout = "_Layout";
 }
 @model SarasBlogg.ViewModels.BloggViewModel
 
@@ -28,7 +27,7 @@
 		foreach (var blogg in filteredBloggs)
 		{
 			<a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark">
-				<div class="card">
+				<div class="card m-2 cardsize">
 					<div class="card-body">
 						<img class="card-img-top mb-3" src="~/img/@blogg.Image"/>
 						<h5 class="card-title">@blogg.Title</h5>

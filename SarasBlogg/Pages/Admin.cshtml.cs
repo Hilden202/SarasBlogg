@@ -44,16 +44,15 @@ namespace SarasBlogg.Pages
                 Models.Blogg bloggToDelete = await _context.Blogg.FindAsync(deleteId);
                 if (bloggToDelete != null) // && User.FindFirstValue(ClaimTypes.NameIdentifier) == blogToBeDeleted.UserId
                 {
-                    DeleteImage(bloggToDelete.Image); // Ta bort bilden om den finns
+                    DeleteImage(bloggToDelete.Image);
 
                     _context.Blogg.Remove(bloggToDelete);
                     await _context.SaveChangesAsync();
                 }
 
-                return RedirectToPage(); // undvik att forts�tta ladda annan data i on�dan
+                return RedirectToPage();
             }
 
-            // H�mta blogglista om inget delete har skett
             Bloggs = await _context.Blogg.ToListAsync();
 
             if (archiveId.HasValue && archiveId.Value != 0)
@@ -84,25 +83,20 @@ namespace SarasBlogg.Pages
 
             if (BloggImage != null)
             {
-                //Ta bort den gamla bilden om den finns
                 if (!string.IsNullOrEmpty(NewBlogg.Image))
                 {
                     DeleteImage(NewBlogg.Image);
                 }
 
-                //Save the new image
                 fileName = Random.Shared.Next(0, 1000000).ToString() + "_" + BloggImage.FileName;
                 using (var fileStream = new FileStream("./wwwroot/img/" + fileName, FileMode.Create))
                 {
                     await BloggImage.CopyToAsync(fileStream);
                 }
-                NewBlogg.Image = fileName; // Sätt den nya bildvägen
+
             }
-            else
-            {
-                // Om ingen bild valts, behåll den gamla bilden
-                NewBlogg.Image = NewBlogg.Image; // Bevara den gamla bildvägen om ingen ny bild är vald
-            }
+
+            NewBlogg.Image = fileName;
 
             NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -110,10 +104,23 @@ namespace SarasBlogg.Pages
             {
                 _context.Blogg.Add(NewBlogg);
             }
-            else
+            else //Detta var en klurig nöt då bilder hela tiden försvann annars->
             {
-                _context.Blogg.Update(NewBlogg);
-            }
+                var existingBlogg = await _context.Blogg.FindAsync(NewBlogg.Id);
+                if (existingBlogg == null)
+                {
+                    return NotFound();
+                }
+
+                // Behåll den gamla bilden om ingen ny laddats upp
+                if (string.IsNullOrEmpty(NewBlogg.Image))
+                {
+                    NewBlogg.Image = existingBlogg.Image;
+                }
+
+                // Uppdatera resten
+                _context.Entry(existingBlogg).CurrentValues.SetValues(NewBlogg);
+            }//<------------------------------------------------------------------
 
             await _context.SaveChangesAsync();
 

@@ -14,8 +14,6 @@ namespace SarasBlogg.Pages
         {
             _context = context;
         }
-        //public List<Models.Blogg> Bloggs { get; set; }
-        //public Models.Blogg Blogg { get; set; }
 
         public BloggViewModel ViewModel { get; set; } = new();
 
