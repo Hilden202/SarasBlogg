@@ -18,10 +18,82 @@
                 </div>
             </div>
         }
+        <!-- Tre-punkts knapp -->
+        <div class="mt-3 three-dots-container">
+            <button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center three-dots-btn"
+                    id="openFormBtn"
+                    type="button">
+                <span class="three-dots-icon">
+                    <span class="three-dot">&#x2022;</span>
+                    <span class="three-dot">&#x2022;</span>
+                    <span class="three-dot">&#x2022;</span>
+                </span>
+            </button>
+        </div>
+
+        <!-- Modal för formulär -->
+        <div class="modal fade" id="aboutMeFormModal" tabindex="-1" aria-labelledby="aboutMeFormModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="aboutMeFormModalLabel">Redigera Om Mig</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Stäng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" enctype="multipart/form-data">
+                            <input asp-for="AboutMe.Id" type="hidden" />
+                            <input asp-for="AboutMe.UserId" type="hidden" />
+                            <label asp-for="AboutMe.Title"></label>
+                            <input asp-for="AboutMe.Title" class="form-control" placeholder="Ange titel här" maxlength="100" />
+                            <span asp-validation-for="AboutMe.Title" class="text-danger"></span>
+                            <br />
+                            <label asp-for="AboutMe.Content"></label>
+                            <textarea asp-for="AboutMe.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
+                            <span asp-validation-for="AboutMe.Content" class="text-danger"></span>
+                            <br />
+                            <!-- Bildhantering -->
+                            <label asp-for="AboutMe.Image"></label>
+                            <input asp-for="AboutMeImage" class="form-control" />
+                            <span asp-validation-for="AboutMe.Image" class="text-danger"></span>
+                            <br />
+                            @if (!string.IsNullOrEmpty(Model.AboutMe.Image))
+                            {
+                                <div class="mb-3">
+                                    <label>Nuvarande bild:</label><br />
+                                    <img src="~/imgaboutme/@Model.AboutMe.Image" alt="Miniatyr" style="max-width: 150px; border-radius: 5px;" />
+                                </div>
+                            }
+                            <div>
+                                @if (string.IsNullOrEmpty(Model.AboutMe.Image))
+                                {
+                                    <p>Ingen bild vald.</p>
+                                }
+                                else
+                                {
+                                    <p>Nuvarande bild: @Model.AboutMe.Image</p>
+                                }
+                            </div>
+                            <br /><br />
+                            <input type="submit" class="btn btn-success" value="Spara ändringar" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    }
+}
 <script>
     function showAll() {
-        window.location.href = '/';
+        window.location.href = '/Privacy';
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var openFormBtn = document.getElementById('openFormBtn');
+        if (openFormBtn) {
+            openFormBtn.addEventListener('click', function () {
+                var modal = new bootstrap.Modal(document.getElementById('aboutMeFormModal'));
+                modal.show();
+            });
+        }
+    });
 </script>
