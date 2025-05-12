@@ -24,6 +24,8 @@ namespace SarasBlogg.Pages
         public async Task OnGetAsync()
         {
             AboutMe = await _context.AboutMe.FirstOrDefaultAsync();
+
+            AboutMe = AboutMe ?? new Models.AboutMe();
         }
 
         public async Task<IActionResult> OnPostAsync()

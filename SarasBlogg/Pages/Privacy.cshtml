@@ -8,7 +8,7 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <div class="row">
-        @if (Model.AboutMe != null)
+        @if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
         {
             <div class="card" onclick="showAll()" style="cursor: pointer;">
                 <div class="card-body">
@@ -17,6 +17,10 @@
                     <p class="card-text linebreak">@Model.AboutMe.Content</p>
                 </div>
             </div>
+        }
+        else
+        {
+            <p>Om mig-sektionen är ännu inte skapad.</p>
         }
         <!-- Tre-punkts knapp -->
         <div class="mt-3 three-dots-container">
