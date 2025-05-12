@@ -72,7 +72,7 @@
 		<span asp-validation-for="NewBlogg.Author" class="text-danger"></span>
 		<br />
 		<label asp-for="NewBlogg.LaunchDate"></label>
-		<input asp-for="NewBlogg.LaunchDate" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" value="@(Model.NewBlogg.LaunchDate == default ? DateTime.Today.ToString("yyyy-MM-dd") : Model.NewBlogg.LaunchDate.ToString("yyyy-MM-dd"))" />
+        <input asp-for="NewBlogg.LaunchDate" class="form-control" value="@(Model.NewBlogg.LaunchDate == default ? DateTime.Today.ToString("yyyy-MM-dd") : Model.NewBlogg.LaunchDate.ToString("yyyy-MM-dd"))" />
 		<span asp-validation-for="NewBlogg.LaunchDate" class="text-danger"></span>
 		<br />
 		<!-- Bildhantering -->

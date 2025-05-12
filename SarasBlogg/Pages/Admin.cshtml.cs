@@ -118,6 +118,10 @@ namespace SarasBlogg.Pages
                 {
                     NewBlogg.Image = existingBlogg.Image;
                 }
+                else if (!string.IsNullOrEmpty(NewBlogg.Image))
+                {
+                    DeleteImage(existingBlogg.Image);
+                }
 
                 // Uppdatera resten
                 _context.Entry(existingBlogg).CurrentValues.SetValues(NewBlogg);
