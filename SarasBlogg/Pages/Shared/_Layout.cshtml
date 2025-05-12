@@ -41,15 +41,19 @@
 							</li>
 						}   *@
 					</ul>  
+
                     <partial name="_LoginPartial"/>  
                     <button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button>
 				</div>  
 			</div>  
 		</nav>  
 		<div class="text-center">  
-			<h1 class="header-title">Sara Gustafsson</h1> <br />  
-			<h3 class="header-text">När ingen ser mig då hittar jag mig</h3>  
-			<hr class="m-5 border" />  
+            <h1 class="header-title">
+                <a asp-area="" asp-page="/Index">
+					<img class="sg-logo img-fluid" src="~/logga/sglogga.png" alt="Sara Gustafsson logotype" />
+                </a>
+            </h1> <br />
+			<h2 class="header-text">När ingen ser mig då hittar jag mig</h2>
 		</div>  
 		<nav class="navbar-expand-sm border-bottom">  
 			<div class="container d-flex justify-content-center">  

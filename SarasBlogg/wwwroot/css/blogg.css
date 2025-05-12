@@ -6,16 +6,21 @@
 }
 
 .header-text {
-    font-size: 37px;
+    font-size: 30px;
     font-weight: normal;
     font-family: 'Script MT', 'Brush Script MT', 'Segoe Script', cursive;
+    color: #C48A7D !important;
+    -webkit-text-stroke: 0.2px #000;
+    text-stroke: 0.2px #000;
 }
 
 .menutext {
     color: #C48A7D !important;
-    font-size: 18px !important;
+    font-size: 19px !important;
     font-family: 'Playfair Display', serif;
     text-decoration: none;
+    -webkit-text-stroke: 0.2px #000;
+    text-stroke: 0.2px #000;
 }
 
     .menutext:hover {
