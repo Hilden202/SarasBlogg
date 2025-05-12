@@ -55,6 +55,15 @@ namespace SarasBlogg.Pages
 
             Bloggs = await _context.Blogg.ToListAsync();
 
+            if (editId.HasValue && editId.Value != 0)
+            {
+                var bloggToEdit = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == editId.Value);
+                if (bloggToEdit != null)
+                {
+                    NewBlogg = bloggToEdit; // viktig ändring
+                }
+            }
+
             if (archiveId.HasValue && archiveId.Value != 0)
             {
                 var bloggToArchive = Bloggs.FirstOrDefault(b => b.Id == archiveId.Value);
@@ -65,16 +74,8 @@ namespace SarasBlogg.Pages
                 }
             }
 
-            if (editId.HasValue && editId.Value != 0)
-            {
-                var bloggToEdit = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == editId.Value);
-                if (bloggToEdit != null)
-                {
-                    NewBlogg = bloggToEdit; // viktig ändring
-                }
-            }
-
             return Page();
+
         }
 
         public async Task<IActionResult> OnPostAsync()
