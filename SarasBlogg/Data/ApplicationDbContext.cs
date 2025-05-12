@@ -16,5 +16,6 @@ namespace SarasBlogg.Data
         }
 
         public DbSet<Blogg> Blogg { get; set; } = default!;
+        public DbSet<AboutMe> AboutMe { get; set; } = default!;
     }
 }

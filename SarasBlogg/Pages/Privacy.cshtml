@@ -1,21 +1,27 @@
 ﻿@page
 @model PrivacyModel
+@inject SignInManager<IdentityUser> SignInManager
 @{
     ViewData["Title"] = "Om Mig";
 }
-<div class="text-center">
-    <img class="card-img-top" src="~/img/tree.png" alt="Main Image" />  <br />
-    <p>Use this page to detail your site's privacy policy.</p>
-</div>
 
-@* <div class="card">
-    <div class="card-body">
-        <img class="card-img-top mb-3" src="~/img/@Model.AboutMe.Image" />
-        <h3 class="card-title">@Model.AboutMe.Title</h3>
-        <p class="card-text linebreak">@Model.AboutMe.Content</p>
-        <p class="text-muted">
-            <strong>Författare:</strong> @Model.AboutMe.Author<br />
-            <strong>Publicerad:</strong> @Model.AboutMe.LaunchDate.ToString("yyyy-MM-dd")
-        </p>
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="row">
+        @if (Model.AboutMe != null)
+        {
+            <div class="card" onclick="showAll()" style="cursor: pointer;">
+                <div class="card-body">
+                    <img class="card-img-top mb-3" src="~/imgaboutme/@Model.AboutMe.Image" />
+                    <h3 class="card-title">@Model.AboutMe.Title</h3>
+                    <p class="card-text linebreak">@Model.AboutMe.Content</p>
+                </div>
+            </div>
+        }
     </div>
-</div>   *@
+    }
+<script>
+    function showAll() {
+        window.location.href = '/';
+    }
+</script>
