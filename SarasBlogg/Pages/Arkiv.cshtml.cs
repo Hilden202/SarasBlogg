@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.Data;
@@ -20,8 +19,8 @@ namespace SarasBlogg.Pages
         public async Task OnGetAsync(int showId, int deleteId)
         {
             ViewModel.Bloggs = await _context.Blogg
-                .Where(b => b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today)
-                .ToListAsync();
+                                .Where(b => b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today)
+                                .ToListAsync();
 
             ViewModel.IsArchiveView = true;
 

@@ -1,62 +1,65 @@
 html {
-    /* Button styles for both light mode and dark mode */  
-    button {  
-       background-color: var(--btn-bg, #f8f9fa); /* Default light mode */  
-       color: var(--btn-text, #212529);  
-       border: 1px solid var(--btn-border, #ced4da);  
-       padding: 0.5rem 1rem;  
-       border-radius: 0.25rem;  
-       font-size: 1rem;  
-       cursor: pointer;  
-       transition: background-color 0.3s, color 0.3s, border-color 0.3s;  
-    }  
+    /* Button styles for both light mode and dark mode */
+    button
 
-    button:hover {  
-       background-color: var(--btn-hover-bg, #e2e6ea);  
-       border-color: var(--btn-hover-border, #dae0e5);  
-    }  
+{
+    background-color: var(--btn-bg, #f8f9fa); /* Default light mode */
+    color: var(--btn-text, #212529);
+    border: 1px solid var(--btn-border, #ced4da);
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
 
-    /* Dark mode variables */  
-    @media (prefers-color-scheme: dark) {  
-       :root {  
-           --btn-bg: #343a40;  
-           --btn-text: #f8f9fa;  
-           --btn-border: #495057;  
-           --btn-hover-bg: #495057;  
-           --btn-hover-border: #6c757d;  
-       }  
-    }  
+button:hover {
+    background-color: var(--btn-hover-bg, #e2e6ea);
+    border-color: var(--btn-hover-border, #dae0e5);
+}
 
-    /* Light mode variables */  
-    @media (prefers-color-scheme: light) {  
-       :root {  
-           --btn-bg: #f8f9fa;  
-           --btn-text: #212529;  
-           --btn-border: #ced4da;  
-           --btn-hover-bg: #e2e6ea;  
-           --btn-hover-border: #dae0e5;  
-       }  
+/* Dark mode variables */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --btn-bg: #343a40;
+        --btn-text: #f8f9fa;
+        --btn-border: #495057;
+        --btn-hover-bg: #495057;
+        --btn-hover-border: #6c757d;
     }
-  font-size: 14px;
+}
+
+/* Light mode variables */
+@media (prefers-color-scheme: light) {
+    :root {
+        --btn-bg: #f8f9fa;
+        --btn-text: #212529;
+        --btn-border: #ced4da;
+        --btn-hover-bg: #e2e6ea;
+        --btn-hover-border: #dae0e5;
+    }
+}
+
+font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
 
 .cardsize {
@@ -70,8 +73,7 @@ body {
 .linebreakormal {
     white-space: nowrap;
 }
+
 .admin-blog-img {
     max-height: 100px !important;
 }
-
-
