@@ -16,7 +16,7 @@
 						<h3 class="card-title">@Model.AboutMe.Title</h3>
 						<p class="card-text linebreak">@Model.AboutMe.Content</p>
 
-						@if (!string.IsNullOrWhiteSpace(Model.AboutMe.ContactText))
+@* 						@if (!string.IsNullOrWhiteSpace(Model.AboutMe.ContactText))
 						{
 							<hr />
 							<p><strong>@Model.AboutMe.ContactText</strong></p>
@@ -30,7 +30,7 @@
 						@if (!string.IsNullOrWhiteSpace(Model.AboutMe.Instagram))
 						{
 							<p><strong>Instagram:</strong> <a href="https://instagram.com/@Model.AboutMe.Instagram.TrimStart('@')" target="_blank">@Model.AboutMe.Instagram</a></p>
-						}
+						} *@
 					</div>
 
 				</div>
@@ -95,7 +95,7 @@
 								}
 							</div>
 							<br /><br />
-							<!-- Kontakttext -->
+@* 							<!-- Kontakttext -->
 							<label asp-for="AboutMe.ContactText"></label>
 							<input asp-for="AboutMe.ContactText" class="form-control"/>
 							<span asp-validation-for="AboutMe.ContactText" class="text-danger"></span>
@@ -112,7 +112,7 @@
 							<input asp-for="AboutMe.Instagram" class="form-control"/>
 							<span asp-validation-for="AboutMe.Instagram" class="text-danger"></span>
 							<br />
-
+ *@
 							<input type="submit" class="btn btn-success" value="Spara ändringar" />
 						</form>
 					</div>

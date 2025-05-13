@@ -1,0 +1,45 @@
+﻿@page
+@model SarasBlogg.Pages.ContactModel
+@inject SignInManager<IdentityUser> SignInManager
+@{
+}
+
+<h2>Kontakt</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label asp-for="ContactMe.Name" class="control-label"></label>
+        <input asp-for="ContactMe.Name" class="form-control" />
+        <span asp-validation-for="ContactMe.Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ContactMe.Email" class="control-label"></label>
+        <input asp-for="ContactMe.Email" class="form-control" />
+        <span asp-validation-for="ContactMe.Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ContactMe.Subject" class="control-label"></label>
+        <input asp-for="ContactMe.Subject" class="form-control" />
+        <span asp-validation-for="ContactMe.Subject" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ContactMe.Message" class="control-label"></label>
+        <textarea asp-for="ContactMe.Message" class="form-control"></textarea>
+        <span asp-validation-for="ContactMe.Message" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">Skicka</button>
+</form>
+
+@if (SignInManager.IsSignedIn(User))
+{
+<ul>
+    <br />
+    @foreach (var item in Model.ContactMes)
+    {
+            <li class="list-group-item">
+                <strong>@item.Name</strong> - <em>@item.Subject - @item.Message</em><br />
+                
+            </li>
+    }
+</ul>
+}
