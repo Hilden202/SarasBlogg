@@ -21,5 +21,15 @@ namespace SarasBlogg.Models
 
         [DisplayName("Användare")]
         public string UserId { get; set; } = string.Empty;
+        [DisplayName("Kontakttext")]
+        public string ContactText { get; set; } = string.Empty;
+
+        [DisplayName("E-post")]
+        [EmailAddress(ErrorMessage = "Ogiltig e-postadress")]
+        public string Email { get; set; } = string.Empty;
+
+        [DisplayName("Instagram")]
+        public string Instagram { get; set; } = string.Empty;
+
     }
 }
