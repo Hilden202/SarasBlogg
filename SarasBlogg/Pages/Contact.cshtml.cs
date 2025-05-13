@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.Data;
+using SarasBlogg.Models;
 
 namespace SarasBlogg.Pages
 {
@@ -21,8 +22,20 @@ namespace SarasBlogg.Pages
             ContactMes = _context.ContactMe.ToList();
         }
 
-        public async Task<IActionResult> OnPostAsync(Models.ContactMe contactMe)
+        public async Task<IActionResult> OnPostAsync(Models.ContactMe contactMe, int deleteId)
         {
+            if (deleteId != 0)
+            {
+                var contactToDelete = await _context.ContactMe.FindAsync(deleteId);
+                if (contactToDelete != null)
+                {
+                    _context.ContactMe.Remove(contactToDelete);
+                    await _context.SaveChangesAsync();
+                    TempData["Message"] = "Meddelandet raderades.";
+                }
+
+                return RedirectToPage();
+            }
             if (ModelState.IsValid)
             {
                 _context.ContactMe.Add(contactMe);

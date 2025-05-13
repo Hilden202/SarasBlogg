@@ -29,14 +29,23 @@
     </div>
     <button type="submit" class="btn btn-success">Skicka</button>
 </form>
+    @if (TempData["Message"] != null)
+    {
+        <br /><div class="alert alert-success">@TempData["Message"]</div>
+    }
 
 @if (SignInManager.IsSignedIn(User))
 {
-<ul>
+    <ul>
     <br />
     @foreach (var item in Model.ContactMes)
     {
-            <li class="list-group-item">
+            <li class="list-group-item d-flex">
+                <form method="post" class="me-2">
+                    <input type="hidden" name="deleteId" value="@item.Id" />
+                    <button type="submit" class="btn btn-close linebreaknormal"></button>
+                </form>
+
                 <strong>@item.Name</strong> - <em>@item.Subject - @item.Message</em><br />
                 
             </li>
