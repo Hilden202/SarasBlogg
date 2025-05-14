@@ -4,118 +4,83 @@
 @{
 	ViewData["Title"] = "Om Mig";
 }
+<div class="row">
+	@if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
+	{
+		<div class="card" onclick="showAll()" style="cursor: pointer;">
+			<div class="card-body">
+				<img class="card-img-top mb-3" src="~/imgaboutme/@Model.AboutMe.Image" />
+				<h3 class="card-title">@Model.AboutMe.Title</h3>
+				<p class="card-text linebreak">@Model.AboutMe.Content</p>
+			</div>
 
+		</div>
+	}
+	else
+	{
+		<p>Om mig-sektionen är ännu inte skapad.</p>
+	}
+</div>
 @if (SignInManager.IsSignedIn(User))
 {
-	<div class="row">
-		@if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
-		{
-			<div class="card" onclick="showAll()" style="cursor: pointer;">
-				<div class="card-body">
-						<img class="card-img-top mb-3" src="~/imgaboutme/@Model.AboutMe.Image" />
-						<h3 class="card-title">@Model.AboutMe.Title</h3>
-						<p class="card-text linebreak">@Model.AboutMe.Content</p>
+	<!-- Tre-punkts knapp -->
+	<div class="mt-3 three-dots-container">
+		<button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center three-dots-btn"
+				id="openFormBtn"
+				type="button">
+			<span class="three-dots-icon">
+				<span class="three-dot">&#x2022;</span>
+				<span class="three-dot">&#x2022;</span>
+				<span class="three-dot">&#x2022;</span>
+			</span>
+		</button>
+	</div>
 
-@* 						@if (!string.IsNullOrWhiteSpace(Model.AboutMe.ContactText))
-						{
-							<hr />
-							<p><strong>@Model.AboutMe.ContactText</strong></p>
-						}
-
-						@if (!string.IsNullOrWhiteSpace(Model.AboutMe.Email))
-						{
-							<p><strong>E-post:</strong> <a href="mailto:@Model.AboutMe.Email">@Model.AboutMe.Email</a></p>
-						}
-
-						@if (!string.IsNullOrWhiteSpace(Model.AboutMe.Instagram))
-						{
-							<p><strong>Instagram:</strong> <a href="https://instagram.com/@Model.AboutMe.Instagram.TrimStart('@')" target="_blank">@Model.AboutMe.Instagram</a></p>
-						} *@
-					</div>
-
+	<!-- Modal för formulär -->
+	<div class="modal fade" id="aboutMeFormModal" tabindex="-1" aria-labelledby="aboutMeFormModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="aboutMeFormModalLabel">Redigera Om Mig</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Stäng"></button>
 				</div>
-		}
-		else
-		{
-			<p>Om mig-sektionen är ännu inte skapad.</p>
-		}
-		<!-- Tre-punkts knapp -->
-		<div class="mt-3 three-dots-container">
-			<button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center three-dots-btn"
-					id="openFormBtn"
-					type="button">
-				<span class="three-dots-icon">
-					<span class="three-dot">&#x2022;</span>
-					<span class="three-dot">&#x2022;</span>
-					<span class="three-dot">&#x2022;</span>
-				</span>
-			</button>
-		</div>
-
-		<!-- Modal för formulär -->
-		<div class="modal fade" id="aboutMeFormModal" tabindex="-1" aria-labelledby="aboutMeFormModalLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="aboutMeFormModalLabel">Redigera Om Mig</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Stäng"></button>
-					</div>
-					<div class="modal-body">
-						<form method="post" enctype="multipart/form-data">
-							<input asp-for="AboutMe.Id" type="hidden" />
-							<input asp-for="AboutMe.UserId" type="hidden" />
-							<label asp-for="AboutMe.Title"></label>
-							<input asp-for="AboutMe.Title" class="form-control" placeholder="Ange titel här" maxlength="100" />
-							<span asp-validation-for="AboutMe.Title" class="text-danger"></span>
-							<br />
-							<label asp-for="AboutMe.Content"></label>
-							<textarea asp-for="AboutMe.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
-							<span asp-validation-for="AboutMe.Content" class="text-danger"></span>
-							<br />
-							<!-- Bildhantering -->
-							<label asp-for="AboutMe.Image"></label>
-							<input asp-for="AboutMeImage" class="form-control" />
-							<span asp-validation-for="AboutMe.Image" class="text-danger"></span>
-							<br />
-							@if (!string.IsNullOrEmpty(Model.AboutMe.Image))
-							{
-								<div class="mb-3">
-									<label>Nuvarande bild:</label><br />
-									<img src="~/imgaboutme/@Model.AboutMe.Image" alt="Miniatyr" style="max-width: 150px; border-radius: 5px;" />
-								</div>
-							}
-							<div>
-								@if (string.IsNullOrEmpty(Model.AboutMe.Image))
-								{
-									<p>Ingen bild vald.</p>
-								}
-								else
-								{
-									<p>Nuvarande bild: @Model.AboutMe.Image</p>
-								}
+				<div class="modal-body">
+					<form method="post" enctype="multipart/form-data">
+						<input asp-for="AboutMe.Id" type="hidden" />
+						<input asp-for="AboutMe.UserId" type="hidden" />
+						<label asp-for="AboutMe.Title"></label>
+						<input asp-for="AboutMe.Title" class="form-control" placeholder="Ange titel här" maxlength="100" />
+						<span asp-validation-for="AboutMe.Title" class="text-danger"></span>
+						<br />
+						<label asp-for="AboutMe.Content"></label>
+						<textarea asp-for="AboutMe.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
+						<span asp-validation-for="AboutMe.Content" class="text-danger"></span>
+						<br />
+						<!-- Bildhantering -->
+						<label asp-for="AboutMe.Image"></label>
+						<input asp-for="AboutMeImage" class="form-control" />
+						<span asp-validation-for="AboutMe.Image" class="text-danger"></span>
+						<br />
+						@if (!string.IsNullOrEmpty(Model.AboutMe.Image))
+						{
+							<div class="mb-3">
+								<label>Nuvarande bild:</label><br />
+								<img src="~/imgaboutme/@Model.AboutMe.Image" alt="Miniatyr" style="max-width: 150px; border-radius: 5px;" />
 							</div>
-							<br /><br />
-@* 							<!-- Kontakttext -->
-							<label asp-for="AboutMe.ContactText"></label>
-							<input asp-for="AboutMe.ContactText" class="form-control"/>
-							<span asp-validation-for="AboutMe.ContactText" class="text-danger"></span>
-							<br />
-
-							<!-- E-post -->
-							<label asp-for="AboutMe.Email"></label>
-							<input asp-for="AboutMe.Email" class="form-control"/>
-							<span asp-validation-for="AboutMe.Email" class="text-danger"></span>
-							<br />
-
-							<!-- Instagram -->
-							<label asp-for="AboutMe.Instagram"></label>
-							<input asp-for="AboutMe.Instagram" class="form-control"/>
-							<span asp-validation-for="AboutMe.Instagram" class="text-danger"></span>
-							<br />
- *@
-							<input type="submit" class="btn btn-success" value="Spara ändringar" />
-						</form>
-					</div>
+						}
+						<div>
+							@if (string.IsNullOrEmpty(Model.AboutMe.Image))
+							{
+								<p>Ingen bild vald.</p>
+							}
+							else
+							{
+								<p>Nuvarande bild: @Model.AboutMe.Image</p>
+							}
+						</div>
+						<br /><br />
+						<input type="submit" class="btn btn-success" value="Spara ändringar" />
+					</form>
 				</div>
 			</div>
 		</div>
