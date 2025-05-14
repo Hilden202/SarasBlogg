@@ -22,6 +22,12 @@ obj/
 appsettings.json
 appsettings.Development.json
 
+# Ignorera img och imgaboutme i wwwroot
+wwwroot/img/
+wwwroot/imgaboutme/
+
+# Behåll wwwroot/logo (lägg INTE till den i .gitignore)
+
 # Loggfiler och temporära filer
 *.log
 *.tmp
