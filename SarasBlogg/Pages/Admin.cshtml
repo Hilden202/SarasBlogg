@@ -45,7 +45,13 @@
 							<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success">Publicerad</a>
 						}
 					</td>
-					<td class="text-center align-middle"><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
+					<td class="text-center align-middle">
+						<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a>
+
+					</td>
+
+
+
 
 					<td class="text-center align-middle border">@blogg.Id</td>
 					<td class="text-lg-start align-middle border">@blogg.Title</td>
@@ -73,6 +79,7 @@
 	<br />
 
 	// FORMULÄR FÖR NY BLOGG / ÄNDRING
+	<div id="editFormSection">
 	<form class="p-3 border rounded shadow-sm" method="post" enctype="multipart/form-data">
 		<input asp-for="NewBlogg.Id" type="hidden" />
 		<input asp-for="NewBlogg.UserId" type="hidden" />
@@ -112,6 +119,7 @@
 
 		<input asp-for="NewBlogg" type="submit" class="btn btn-success" value="Skapa ny blogg/spara ändringar" />
 	</form>
+	</div>
 	<br />
 
 	<hr class="m-1 border" />

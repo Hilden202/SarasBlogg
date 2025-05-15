@@ -26,8 +26,12 @@
 	<!-- Tre-punkts knapp -->
 	<div class="mt-3 three-dots-container">
 		<button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center three-dots-btn"
-		id="openFormBtn"
-		type="button">
+				type="button"
+
+		@* Använder Bootstraps inbyggda modal-funktioner istället för egen JavaScript *@
+				data-bs-toggle="modal"
+                data-bs-target="#aboutMeFormModal">
+
 			<span class="three-dots-icon">
 				<span class="three-dot">&#x2022;</span>
 				<span class="three-dot">&#x2022;</span>

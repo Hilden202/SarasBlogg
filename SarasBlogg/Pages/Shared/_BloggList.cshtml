@@ -5,9 +5,9 @@
 
 <div class="row">
     @if (Model.Blogg != null && !Model.Blogg.Hidden)  
-    {  
-       <div class="card" onclick="showAll()" style="cursor: pointer;">  
-           <div class="card-body">  
+    {
+		<div class="card" onclick="reloadCurrentPage()" style="cursor: pointer;">
+			<div class="card-body">  
                <img class="card-img-top mb-3" src="~/img/@Model.Blogg.Image"/>  
                <h3 class="card-title">@Model.Blogg.Title</h3>  
                <p class="card-text linebreak">@Model.Blogg.Content</p>  
