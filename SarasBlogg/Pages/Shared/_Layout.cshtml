@@ -98,38 +98,5 @@
 
 @await RenderSectionAsync("Scripts", required: false)  
 
-<!-- Tema-hantering med localStorage -->  
-<script>  
-	document.addEventListener("DOMContentLoaded", function () {  
-		const savedTheme = localStorage.getItem("theme") || "light";  
-		document.documentElement.setAttribute("data-bs-theme", savedTheme);  
-		updateToggleButtonText(savedTheme);  
-		updateThemeDependentLinks(savedTheme);  
-	});  
-
-	function toggleDarkMode() {  
-		const currentTheme = document.documentElement.getAttribute("data-bs-theme");  
-		const newTheme = currentTheme === "dark" ? "light" : "dark";  
-		document.documentElement.setAttribute("data-bs-theme", newTheme);  
-		localStorage.setItem("theme", newTheme);  
-		updateToggleButtonText(newTheme);  
-		updateThemeDependentLinks(newTheme);  
-	}  
-
-	function updateToggleButtonText(theme) {  
-		const button = document.getElementById("darkModeToggle");  
-		if (button) {  
-			button.textContent = theme === "dark" ? "☀️ Ljust läge" : "🌙 Mörkt läge";  
-		}  
-	}  
-
-	function updateThemeDependentLinks(theme) {  
-		const links = document.querySelectorAll(".theme-dependent");  
-		links.forEach(link => {  
-			link.style.color = theme === "dark" ? "white" : "black";  
-		});  
-	}  
-</script>  
-
 </body>  
 </html>

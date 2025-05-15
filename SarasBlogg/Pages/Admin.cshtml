@@ -9,6 +9,7 @@
 @if (SignInManager.IsSignedIn(User))
 {
 	// LISTA PUBLICERADE BLOGGAR
+	<h2>Lista Publicerade Bloggar</h2>
 	if (Model.Bloggs != null && Model.Bloggs.Any(b => !b.Hidden))
 	{
 		<table class="border table table-striped shadow-sm align-middle">
@@ -27,13 +28,14 @@
 			@foreach (var blogg in Model.Bloggs.Where(b => !b.Hidden))
 			{
 				<tr>
-					<td>
+
+					<td class="text-center align-middle">
 						<form method="get">
 							<input type="hidden" name="hiddenId" value="@blogg.Id" />
 							<button type="submit" class="btn btn-outline-warning">Dölj</button>
 						</form>
 					</td>
-					<td>
+					<td class ="text-center align-middle">
 						@if (blogg.IsArchived)
 						{
 							<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning">Arkiverad</a>
@@ -43,18 +45,19 @@
 							<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success">Publicerad</a>
 						}
 					</td>
-					<td><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
-					<td>@blogg.Id</td>
-					<td>@blogg.Title</td>
-					<td>@blogg.Content.LimitLength(10)</td>
-					<td>@blogg.Author</td>
-					<td>
+					<td class="text-center align-middle"><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
+
+					<td class="text-center align-middle border">@blogg.Id</td>
+					<td class="text-lg-start align-middle border">@blogg.Title</td>
+					<td class="text-lg-start align-middle border">@blogg.Content.LimitLength(10)</td>
+					<td class="text-center align-middle border">@blogg.Author</td>
+					<td class="text-center align-middle border">
 						<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
 							@blogg.LaunchDate.ToString("yyyy-MM-dd")
 						</span>
 					</td>
-					<td>
-						<img class="card-img-top admin-blog-img" src="~/img/@blogg.Image" />
+					<td class="text-center align-middle border">
+						<img class="card-img-top admin-blog-img " src="~/img/@blogg.Image" />
 					</td>
 				</tr>
 			}
@@ -115,6 +118,7 @@
 	<br />
 
 	// LISTA DOLDA BLOGGAR
+	<h2>Lista Dolda Bloggar</h2>
 	@if (Model.Bloggs != null && Model.Bloggs.Any(b => b.Hidden))
 	{
 		<table class="border table table-striped shadow-sm">
@@ -132,27 +136,28 @@
 			@foreach (var blogg in Model.Bloggs.Where(b => b.Hidden))
 			{
 				<tr>
-					<td>
+					<td class="text-center align-middle">
 						<form method="get">
 							<input type="hidden" name="deleteId" value="@blogg.Id" />
 							<button type="submit" class="btn btn-outline-danger linebreaknormal">Ta bort</button>
 						</form>
 					</td>
-					<td>
+					<td class="text-center align-middle">
 						<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
 					</td>
-					<td><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
-					<td>@blogg.Id</td>
-					<td>@blogg.Title</td>
-					<td>@blogg.Content.LimitLength(10)</td>
-					<td>@blogg.Author</td>
-					<td>
+					<td class="text-center align-middle"><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
+
+					<td class="text-center align-middle border">@blogg.Id</td>
+					<td class="text-lg-start align-middle border">@blogg.Title</td>
+					<td class="text-lg-start align-middle border">@blogg.Content.LimitLength(10)</td>
+					<td class="text-center align-middle border">@blogg.Author</td>
+					<td class="text-center align-middle border">
 						<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
 							@blogg.LaunchDate.ToString("yyyy-MM-dd")
 						</span>
 					</td>
-					<td>
-						<img class="card-img-bottom admin-blog-img" src="~/img/@blogg.Image" alt="Bloggbild" />
+					<td class="text-center align-middle border">
+						<img class="card-img-bottom admin-blog-img" src="~/img/@blogg.Image" />
 					</td>
 				</tr>
 			}

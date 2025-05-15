@@ -81,18 +81,3 @@
 		</div>
 	</div>
 }
-<script>
-	function showAll() {
-		window.location.href = '/Privacy';
-	}
-
-	document.addEventListener('DOMContentLoaded', function () {
-		var openFormBtn = document.getElementById('openFormBtn');
-		if (openFormBtn) {
-			openFormBtn.addEventListener('click', function () {
-				var modal = new bootstrap.Modal(document.getElementById('aboutMeFormModal'));
-				modal.show();
-			});
-		}
-	});
-</script>
