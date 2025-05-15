@@ -14,28 +14,6 @@ button:hover {
     border-color: var(--btn-hover-border, #dae0e5);
 }
 
-/* Dark mode variables */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --btn-bg: #343a40;
-        --btn-text: #f8f9fa;
-        --btn-border: #495057;
-        --btn-hover-bg: #495057;
-        --btn-hover-border: #6c757d;
-    }
-}
-
-/* Light mode variables */
-@media (prefers-color-scheme: light) {
-    :root {
-        --btn-bg: #f8f9fa;
-        --btn-text: #212529;
-        --btn-border: #ced4da;
-        --btn-hover-bg: #e2e6ea;
-        --btn-hover-border: #dae0e5;
-    }
-}
-
 html {
     font-size: 14px;
     position: relative;

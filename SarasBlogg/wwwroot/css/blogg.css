@@ -80,7 +80,7 @@
 
 
 /* Dark Mode */
-[data-bs-theme="dark"] .mynav {
+/*[data-bs-theme="dark"] .mynav {
     color: #e0e0e0;
 }
 
@@ -109,10 +109,10 @@
 
     [data-bs-theme="dark"] .mynavbar-light .mynavbar-mynav li:hover {
         color: #e0e0e0;
-    }
+    }*/
 
 /* Light Mode */
-[data-bs-theme="light"] .mynav {
+/*[data-bs-theme="light"] .mynav {
     color: #333;
 }
 
@@ -141,4 +141,4 @@
 
     [data-bs-theme="light"] .mynavbar-light .mynavbar-nav li:hover {
         color: #333;
-    }
+    }*/
