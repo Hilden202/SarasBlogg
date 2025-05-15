@@ -23,8 +23,8 @@ appsettings.json
 appsettings.Development.json
 
 # Ignorera img och imgaboutme i wwwroot
-wwwroot/img/
-wwwroot/imgaboutme/
+SarasBlogg/wwwroot/img/
+SarasBlogg/wwwroot/imgaboutme/
 
 # Behåll wwwroot/logo (lägg INTE till den i .gitignore)
 
@@ -33,7 +33,7 @@ wwwroot/imgaboutme/
 *.tmp
 
 # Entity Framework
-Migrations/
+SarasBlogg/Data/Migrations/
 
 # Rider / JetBrains
 .idea/
