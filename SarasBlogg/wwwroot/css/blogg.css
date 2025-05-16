@@ -44,10 +44,10 @@
     flex-grow: 1;
 }
 
-.cardsize {
+/*.cardsize {
    max-width: 65rem;
    margin: 0 auto;
-}
+}*/
 
 /* Option 3: Slight rotation and scale 
 .card:hover {
@@ -55,12 +55,12 @@
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }*/
 
-.bloggcard {
+/*.bloggcard {
     max-width: 65rem;
     display: block;
     margin-left: auto;
     margin-right: auto;
-}
+}*/
 
 .bloggimg {
     width: 100%;

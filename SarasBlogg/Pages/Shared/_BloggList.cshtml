@@ -3,7 +3,7 @@
 }
 @model SarasBlogg.ViewModels.BloggViewModel
 
-<div class="row">
+<div class="container-site">
     @if (Model.Blogg == null || Model.Blogg.Hidden)
     {
         var filteredBloggs = Model.IsArchiveView
@@ -13,9 +13,9 @@
         foreach (var blogg in filteredBloggs)
         {
             <a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark blogg-link" Id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
-                <div class="card m-2 cardsize shadow-lg card mx-auto">
+                <div class="card m-2 shadow-lg card mx-auto">
                     <div class="card-body">
-                        <img class="card-img-top mb-4 border shadow" src="~/img/@blogg.Image" />
+                        <img class="card-img-top mb-4 shadow-lg" src="~/img/@blogg.Image" />
                         <h5 class="card-title">@blogg.Title</h5>
                         <p class="card-text">@blogg.Content.LimitLength(120)</p>
                         <p class="text-muted"><small class="text-muted">Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")</small></p>
@@ -28,8 +28,8 @@
     else
     {
         <div class="card-body" id="bloggTopSection" onclick="reloadCurrentPage(@Model.Blogg.Id)" style="cursor: pointer;">
-            <div class="card-body bloggcard">
-                <img class="card-img-top mb-3 rounded shadow-sm object-fit-cover bloggimg" src="~/img/@Model.Blogg.Image" alt="Blogg image" />
+            <div class="card-body">
+                <img class="card-img-top mb-3 rounded shadow-lg object-fit-cover bloggimg" src="~/img/@Model.Blogg.Image" alt="Blogg image" />
                 <h3 class="card-title">@Model.Blogg.Title</h3>
                 <p class="card-text linebreak">@Model.Blogg.Content</p>
                 <p class="text-muted">

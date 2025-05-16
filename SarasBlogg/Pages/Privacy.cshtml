@@ -4,23 +4,21 @@
 @{
 	ViewData["Title"] = "Om Mig";
 }
-<div class="row">
+<div class="container-site">
 	@if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
 	{
-		<div class="card" onclick="showAll()" style="cursor: pointer;">
 			<div class="card-body">
 				<img class="card-img-top mb-3" src="~/imgaboutme/@Model.AboutMe.Image" />
 				<h3 class="card-title">@Model.AboutMe.Title</h3>
 				<p class="card-text linebreak">@Model.AboutMe.Content</p>
 			</div>
 
-		</div>
 	}
 	else
 	{
 		<p>Om mig-sektionen är ännu inte skapad.</p>
 	}
-</div>
+
 @if (SignInManager.IsSignedIn(User))
 {
 	<!-- Tre-punkts knapp -->
@@ -42,7 +40,7 @@
 
 	<!-- Modal för formulär -->
 	<div class="modal fade" id="aboutMeFormModal" tabindex="-1" aria-labelledby="aboutMeFormModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
+			<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="aboutMeFormModalLabel">Redigera Om Mig</h5>
@@ -85,3 +83,4 @@
 		</div>
 	</div>
 }
+</div>

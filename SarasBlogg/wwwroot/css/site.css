@@ -34,6 +34,13 @@ body {
     margin-bottom: 60px;
 }
 
+.container-site {
+    max-width: 66rem;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .linebreak {
     white-space: pre-wrap;
 }
