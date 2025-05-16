@@ -4,39 +4,39 @@
 @model SarasBlogg.ViewModels.BloggViewModel
 
 <div class="row">
-    @if (Model.Blogg != null && !Model.Blogg.Hidden)  
+    @if (Model.Blogg == null || Model.Blogg.Hidden)
     {
-		<div class="card-body" onclick="reloadCurrentPage()" style="cursor: pointer;">
-			<div class="card-body bloggcard">
-				<img class="card-img-top mb-3 rounded shadow-sm object-fit-cover bloggimg" src="~/img/@Model.Blogg.Image" alt="Blogg image" />
-               <h3 class="card-title">@Model.Blogg.Title</h3>  
-               <p class="card-text linebreak">@Model.Blogg.Content</p>  
-               <p class="text-muted">  
-                   <strong>Författare:</strong> @Model.Blogg.Author<br />  
-                   <strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToString("yyyy-MM-dd")  
-               </p>  
-           </div>  
-       </div>  
+        var filteredBloggs = Model.IsArchiveView
+            ? Model.Bloggs.Where(b => b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today)
+            : Model.Bloggs.Where(b => !b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today);
+
+        foreach (var blogg in filteredBloggs)
+        {
+            <a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark blogg-link" Id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
+                <div class="card m-2 cardsize shadow-lg card mx-auto">
+                    <div class="card-body">
+                        <img class="card-img-top mb-4 border shadow" src="~/img/@blogg.Image" />
+                        <h5 class="card-title">@blogg.Title</h5>
+                        <p class="card-text">@blogg.Content.LimitLength(120)</p>
+                        <p class="text-muted"><small class="text-muted">Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")</small></p>
+                    </div>
+                </div>
+            </a>
+            <hr class="m-5 border" />
+        }
     }
-	else
-	{
-		var filteredBloggs = Model.IsArchiveView
-		? Model.Bloggs.Where(b => b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today)
-		: Model.Bloggs.Where(b => !b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today);
-		
-		foreach (var blogg in filteredBloggs)
-		{
-			<a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark">
-				<div class="card m-2 cardsize shadow-lg card mx-auto">
-					<div class="card-body">
-						<img class="card-img-top mb-4 border shadow" src="~/img/@blogg.Image" />
-						<h5 class="card-title">@blogg.Title</h5>
-						<p class="card-text">@blogg.Content.LimitLength(120)</p>
-						<p class="text-muted"><small class="text-muted">Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")</small></p>
-					</div>
-				</div>
-			</a>
-			<hr class="m-5 border" />
-		}
-	}
+    else
+    {
+        <div class="card-body" id="bloggTopSection" onclick="reloadCurrentPage(@Model.Blogg.Id)" style="cursor: pointer;">
+            <div class="card-body bloggcard">
+                <img class="card-img-top mb-3 rounded shadow-sm object-fit-cover bloggimg" src="~/img/@Model.Blogg.Image" alt="Blogg image" />
+                <h3 class="card-title">@Model.Blogg.Title</h3>
+                <p class="card-text linebreak">@Model.Blogg.Content</p>
+                <p class="text-muted">
+                    <strong>Författare:</strong> @Model.Blogg.Author<br />
+                    <strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToString("yyyy-MM-dd")
+                </p>
+            </div>
+        </div>
+    }
 </div>

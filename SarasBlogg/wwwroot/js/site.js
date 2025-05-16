@@ -38,20 +38,38 @@ function updateThemeDependentLinks(theme) {
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>
 
-// För att gå tillbaka till föregående sida
-function reloadCurrentPage() {
-    window.location.href = window.location.pathname;
-}
+    // För att gå tillbaka till föregående sida med id
+    function reloadCurrentPage(id) {
+        window.location.href = window.location.pathname + "?reload=" + id;
+    }
+
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>
 
-// För att scrolla till editFormSection om editId finns i URL:en på Admin sidan
-window.addEventListener('DOMContentLoaded', function () {
+// Funktion för att scrolla till ett element om en query-param finns i URL:en
+function scrollToSectionIfParamExists(paramName, options = {}) {
     const params = new URLSearchParams(window.location.search);
-    if (params.has('editId')) {
-        const editForm = document.getElementById('editFormSection');
-        if (editForm) {
-            editForm.scrollIntoView({ behavior: 'smooth' });
-        }
+    if (!paramName || !params.has(paramName)) return;
+
+    const value = params.get(paramName);
+    let section = null;
+
+    if (options.prefix) {
+        section = document.getElementById(options.prefix + "-" + value);
+    } else if (options.id) {
+        section = document.getElementById(options.id);
     }
+
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+    scrollToSectionIfParamExists('showId', { id: 'bloggTopSection' });
+    scrollToSectionIfParamExists('editId', { id: 'editFormSection' });
+    scrollToSectionIfParamExists('reload', { prefix: 'reloadPageFormSection' });
+
+    // Lägg till fler anrop här om du vill stödja fler parametrar/element
+    // scrollToSectionIfParamExists('anotherParam', { id/prefix: 'anotherSectionId'});
 });
