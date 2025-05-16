@@ -40,7 +40,7 @@ function updateThemeDependentLinks(theme) {
 
     // För att gå tillbaka till föregående sida med id
     function reloadCurrentPage(id) {
-        window.location.href = window.location.pathname + "?reload=" + id;
+        window.location.href = window.location.pathname + "?reloadId=" + id;
     }
 
 
@@ -68,7 +68,7 @@ function scrollToSectionIfParamExists(paramName, options = {}) {
 window.addEventListener('DOMContentLoaded', function () {
     scrollToSectionIfParamExists('showId', { id: 'bloggTopSection' });
     scrollToSectionIfParamExists('editId', { id: 'editFormSection' });
-    scrollToSectionIfParamExists('reload', { prefix: 'reloadPageFormSection' });
+    scrollToSectionIfParamExists('reloadId', { prefix: 'reloadPageFormSection' });
 
     // Lägg till fler anrop här om du vill stödja fler parametrar/element
     // scrollToSectionIfParamExists('anotherParam', { id/prefix: 'anotherSectionId'});
