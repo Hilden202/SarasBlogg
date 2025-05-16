@@ -6,9 +6,9 @@
 <div class="row">
     @if (Model.Blogg != null && !Model.Blogg.Hidden)  
     {
-		<div class="card" onclick="reloadCurrentPage()" style="cursor: pointer;">
-			<div class="card-body">  
-               <img class="card-img-top mb-3" src="~/img/@Model.Blogg.Image"/>  
+		<div class="card-body" onclick="reloadCurrentPage()" style="cursor: pointer;">
+			<div class="card-body bloggcard">
+				<img class="card-img-top mb-3 rounded shadow-sm object-fit-cover bloggimg" src="~/img/@Model.Blogg.Image" alt="Blogg image" />
                <h3 class="card-title">@Model.Blogg.Title</h3>  
                <p class="card-text linebreak">@Model.Blogg.Content</p>  
                <p class="text-muted">  
@@ -27,7 +27,7 @@
 		foreach (var blogg in filteredBloggs)
 		{
 			<a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark">
-				<div class="card m-2 cardsize shadow-lg">
+				<div class="card m-2 cardsize shadow-lg card mx-auto">
 					<div class="card-body">
 						<img class="card-img-top mb-4 border shadow" src="~/img/@blogg.Image" />
 						<h5 class="card-title">@blogg.Title</h5>

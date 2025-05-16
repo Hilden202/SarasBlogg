@@ -16,46 +16,54 @@
 			<thead>
 				<tr>
 					<th class="text-center align-middle border d-none d-md-table-cell" colspan="3">Knappar</th>
-					<th class="text-center align-middle border d-md-none" colspan="1">Knappar</th>
-                    <th class="text-center align-middle border">Id</th>
-                    <th class="text-center align-middle border">Titel</th>
-                    <th class="text-center align-middle border">Innehåll</th>
-                    <th class="text-center align-middle border">Författare</th>
-                    <th class="text-center align-middle border">Lanserings Datum</th>
-                    <th class="text-center align-middle border">Bild</th>
+					<th class="text-center align-middle border d-table-cell d-md-none" colspan="1">Knappar</th>
+					<th class="text-center align-middle border">Id</th>
+					<th class="text-center align-middle border">Titel</th>
+					<th class="text-center align-middle border">Innehåll</th>
+					<th class="text-center align-middle border">Författare</th>
+					<th class="text-center align-middle border">Lanserings Datum</th>
+					<th class="text-center align-middle border">Bild</th>
 				</tr>
 			</thead>
+			<tbody>
 			@foreach (var blogg in Model.Bloggs.Where(b => !b.Hidden))
 			{
 				<tr>
-
-					<td class="text-center align-middle">
-						<form method="get">
+					<td class="text-center align-middle d-none d-md-table-cell" colspan="3">
+						<form method="get" class="d-inline">
 							<input type="hidden" name="hiddenId" value="@blogg.Id" />
 							<button type="submit" class="btn btn-outline-warning">Dölj</button>
 						</form>
-					</td>
-					<td class ="text-center align-middle">
 						@if (blogg.IsArchived)
 						{
-							<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning">Arkiverad</a>
+							<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning ms-1">Arkiverad</a>
 						}
 						else
 						{
-							<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success">Publicerad</a>
+							<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success ms-1">Publicerad</a>
 						}
+						<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary ms-1">Ändra</a>
 					</td>
-					<td class="text-center align-middle">
-						<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a>
-
+					<td class="text-center align-middle d-table-cell d-md-none">
+						<div class="d-flex flex-column gap-1">
+							<form method="get">
+								<input type="hidden" name="hiddenId" value="@blogg.Id" />
+								<button type="submit" class="btn btn-outline-warning w-100">Dölj</button>
+							</form>
+							@if (blogg.IsArchived)
+							{
+								<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning w-100">Arkiverad</a>
+							}
+							else
+							{
+								<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success w-100">Publicerad</a>
+							}
+							<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
+						</div>
 					</td>
-
-
-
-
 					<td class="text-center align-middle border">@blogg.Id</td>
 					<td class="text-lg-start align-middle border">@blogg.Title</td>
-					<td class="text-lg-start align-middle border">@blogg.Content.LimitLength(10)</td>
+					<td class="text-lg-start align-middle border">@blogg.Content?.LimitLength(10)</td>
 					<td class="text-center align-middle border">@blogg.Author</td>
 					<td class="text-center align-middle border">
 						<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
@@ -67,6 +75,7 @@
 					</td>
 				</tr>
 			}
+			</tbody>
 		</table>
 	}
 	else
@@ -141,6 +150,7 @@
 					<th class="text-center align-middle border">Bild</th>
 				</tr>
 			</thead>
+			<tbody>
 			@foreach (var blogg in Model.Bloggs.Where(b => b.Hidden))
 			{
 				<tr>
@@ -157,7 +167,7 @@
 
 					<td class="text-center align-middle border">@blogg.Id</td>
 					<td class="text-lg-start align-middle border">@blogg.Title</td>
-					<td class="text-lg-start align-middle border">@blogg.Content.LimitLength(10)</td>
+					<td class="text-lg-start align-middle border">@blogg.Content?.LimitLength(10)</td>
 					<td class="text-center align-middle border">@blogg.Author</td>
 					<td class="text-center align-middle border">
 						<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
@@ -169,6 +179,7 @@
 					</td>
 				</tr>
 			}
+			</tbody>
 		</table>
 	}
 	else

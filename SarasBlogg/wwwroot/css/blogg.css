@@ -1,5 +1,4 @@
-﻿/* Header Title and Text */
-.header-title {
+﻿.header-title {
     font-size: 73px;
     font-weight: normal;
     font-family: 'Dancing Script', 'Script MT', 'Brush Script MT', 'Segoe Script', cursive;
@@ -27,15 +26,12 @@
         font-weight: bold;
     }
 
-/* Card */
 .card img {
+    height: 250px;
     width: 100%;
-    height: auto;
     object-fit: cover;
-    aspect-ratio: 2 / 1;
-    border-radius: 10px;
-    max-width: none;
 }
+
 
 .card {
     display: flex;
@@ -49,18 +45,41 @@
 }
 
 .cardsize {
-   max-width: 80rem;
+   max-width: 65rem;
    margin: 0 auto;
 }
+
+/* Option 3: Slight rotation and scale 
+.card:hover {
+    transform: scale(1.05) rotate(-1deg);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}*/
+
+.bloggcard {
+    max-width: 65rem;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.bloggimg {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    aspect-ratio: 2 / 1;
+    border-radius: 10px;
+    max-width: none;
+}
+
 
 .mynav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    list-style: none; /* Removes bullet points */
-    margin: 0; /* Removes default margin */
-    padding-left: 0; /* Removes default padding */
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
 }
 
 .mynavbar {
