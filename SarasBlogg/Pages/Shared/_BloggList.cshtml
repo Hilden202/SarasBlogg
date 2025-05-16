@@ -38,5 +38,25 @@
                 </p>
             </div>
         </div>
+        @if (Model.AllComments != null && Model.AllComments.Any((c => c.BloggId == Model.Blogg.Id)))
+        {
+            <div class="comments-section mt-4">
+                <h5>Kommentarer</h5>
+                @foreach (var comment in Model.AllComments)
+                {
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <strong>@comment.Name</strong> <span class="text-muted">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
+                            <p>@comment.Content</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">Inga kommentarer ännu.</p>
+        }
+
     }
 </div>
