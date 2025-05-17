@@ -73,3 +73,20 @@ window.addEventListener('DOMContentLoaded', function () {
     // Lägg till fler anrop här om du vill stödja fler parametrar/element
     // scrollToSectionIfParamExists('anotherParam', { id/prefix: 'anotherSectionId'});
 });
+
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+let lastScrollTop = 0;
+const stickyPanel = document.getElementById('stickyBackPanel');
+
+window.addEventListener('scroll', function () {
+    let st = window.pageYOffset || document.documentElement.scrollTop;
+    if (st < lastScrollTop) {
+        // Scrollar uppåt — visa panelen
+        stickyPanel.style.display = 'block';
+    } else {
+        // Scrollar nedåt — dölj panelen
+        stickyPanel.style.display = 'none';
+    }
+    lastScrollTop = st <= 0 ? 0 : st; // Förhindra negativa värden
+});
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
