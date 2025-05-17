@@ -63,13 +63,13 @@
 @if (Model.Blogg != null)
 {
 	<div id="stickyBackPanel" class="sticky-back-panel" style="display:none;">
-		<div id="stickyBackPanel" class="sticky-back-panel d-flex align-items-center" style="display:none;">
-				<button onclick="reloadCurrentPage(@Model.Blogg.Id)" class="btn btn-dark me-2" style="cursor: pointer; font-weight: bold;" enabled>
-                &lt;
-            </button>
-            <button class="btn btn-dark" style="cursor: pointer; opacity: 0.5;" disabled>
-                &gt;
-            </button>
-        </div>
+		<div class="container d-flex justify-content-start align-items-center" style="max-width: 1200px; margin: 0 auto; padding: 0 30px;">
+			<button onclick="reloadCurrentPage(@Model.Blogg.Id)" class="btn btn-dark me-2" style="cursor: pointer; font-weight: bold;">
+				&lt;
+			</button>
+			<button class="btn btn-dark" style="cursor: pointer; opacity: 0.5;" disabled>
+				&gt;
+			</button>
+		</div>
 	</div>
 }
