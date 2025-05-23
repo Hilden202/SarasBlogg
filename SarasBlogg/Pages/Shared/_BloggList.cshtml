@@ -21,7 +21,11 @@
 						<img class="card-img-top mb-4 shadow-lg" src="~/img/@blogg.Image" />
 						<h5 class="card-title">@blogg.Title</h5>
 						<p class="card-text">@blogg.Content.LimitLength(120)</p>
-						<p class="text-muted"><small class="text-muted">Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")</small></p>
+						<p class="text-muted"><small class="text-muted">Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")
+								<br />
+                                @Model.Comments?.Count(c => c.BloggId == blogg.Id)
+                                @(Model.Comments?.Count(c => c.BloggId == blogg.Id) == 1 ? "Kommentar" : "Kommentarer")
+							</small></p>
 					</div>
 				</div>
 			</a>
@@ -39,13 +43,14 @@
 					<strong>Författare:</strong> @Model.Blogg.Author<br />
 					<strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToString("yyyy-MM-dd")
 				</p>
+                <hr class="mb-3" />
 			</div>
 		</div>
 		@if (Model.Comments != null && Model.Comments.Any((c => c.BloggId == Model.Blogg.Id)))
 		{
-			<div class="comments-section mt-4">
+            <div class="comments-section mt-4">
 				<h5>Kommentarer</h5>
-                @foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id))
+                @foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id)) // går säkert göra mer dry Todo
                 {
                     <div class="card mb-2">
                         <div class="card-body">
