@@ -12,14 +12,14 @@ namespace SarasBlogg.DAL
 
             using(var client = new HttpClient())
             {
-                client.BaseAddress = BaseAdress;
+                //client.BaseAddress = BaseAdress;
                 //HttpResponseMessage response = await client.GetAsync("api/Comment");
                 //if (response.IsSuccessStatusCode)
                 //{
                 //    string responsString = await response.Content.ReadAsStringAsync();
                 //    comments = JsonSerializer.Deserialize<List<Models.Comment>>(responsString);
                 //}
-                    return comments;
+                return comments;
             }
         }
     }

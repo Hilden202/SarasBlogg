@@ -75,18 +75,18 @@ window.addEventListener('DOMContentLoaded', function () {
 });
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-let lastScrollTop = 0;
-const stickyPanel = document.getElementById('stickyBackPanel');
+//let lastScrollTop = 0;
+//const stickyPanel = document.getElementById('stickyBackPanel');
 
-window.addEventListener('scroll', function () {
-    let st = window.pageYOffset || document.documentElement.scrollTop;
-    if (st < lastScrollTop) {
-        // Scrollar uppåt — visa panelen
-        stickyPanel.style.display = 'block';
-    } else {
-        // Scrollar nedåt — dölj panelen
-        stickyPanel.style.display = 'none';
-    }
-    lastScrollTop = st <= 0 ? 0 : st; // Förhindra negativa värden
-});
+//window.addEventListener('scroll', function () {
+//    let st = window.pageYOffset || document.documentElement.scrollTop;
+//    if (st < lastScrollTop) {
+//        // Scrollar uppåt — visa panelen
+//        stickyPanel.style.display = 'block';
+//    } else {
+//        // Scrollar nedåt — dölj panelen
+//        stickyPanel.style.display = 'none';
+//    }
+//    lastScrollTop = st <= 0 ? 0 : st; // Förhindra negativa värden
+//});
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
