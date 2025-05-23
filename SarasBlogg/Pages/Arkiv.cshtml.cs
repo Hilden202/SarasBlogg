@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using SarasBlogg.DAL;
 using SarasBlogg.Data;
 using SarasBlogg.ViewModels;
 
@@ -28,6 +29,8 @@ namespace SarasBlogg.Pages
             {
                 ViewModel.Blogg = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == showId && b.IsArchived && !b.Hidden);
             }
+
+            ViewModel.AllComments = await CommentManager.GetAllComments();
         }
 
     }
