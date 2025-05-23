@@ -27,7 +27,7 @@
         <textarea asp-for="ContactMe.Message" class="form-control"></textarea>
         <span asp-validation-for="ContactMe.Message" class="text-danger"></span>
     </div><br />
-    <button type="submit" class="btn btn-success">Skicka</button>
+    <input type="submit" value="Skicka" />
 </form>
     @if (TempData["Message"] != null)
     {

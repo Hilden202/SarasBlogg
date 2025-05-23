@@ -31,11 +31,11 @@ namespace SarasBlogg.Pages
             }
 
             ViewModel.Comments = await DAL.CommentAPIManager.GetAllCommentsAsync();
-            if (id != 0)
-            {
-                ViewModel.Comment = await DAL.CommentAPIManager.GetCommentAsync(id);
+            //if (id != 0)
+            //{
+            //    ViewModel.Comment = await DAL.CommentAPIManager.GetCommentAsync(id);
 
-            }
+            //}
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -46,13 +46,13 @@ namespace SarasBlogg.Pages
                 {
                     await DAL.CommentAPIManager.SaveCommentAsync(ViewModel.Comment);
                 }
-                else
-                {
-                    await DAL.CommentAPIManager.UpdateCommentAsync(ViewModel.Comment);
-                }
+                //else
+                //{
+                //    await DAL.CommentAPIManager.UpdateCommentAsync(ViewModel.Comment);
+                //}
             }
 
-            return RedirectToPage("./Arkiv", new { showId = ViewModel.Comment?.BloggId });
+            return RedirectToPage("./Arkiv", new { showId = ViewModel.Comment?.BloggId }); // laddar om inlägget i arkivet
         }
 
     }

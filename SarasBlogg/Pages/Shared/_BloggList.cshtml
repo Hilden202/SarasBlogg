@@ -50,9 +50,9 @@
 		{
             <div class="comments-section mt-4">
 				<h5>Kommentarer</h5>
-                @foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id)) // går säkert göra mer dry Todo
+                @foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id).Reverse()) // går säkert göra mer dry Todo
                 {
-                    <div class="card mb-2">
+                    <div class="">
                         <div class="card-body">
                             <strong>@comment.Name</strong> <span class="text-muted">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
                             <p>@comment.Content</p>
@@ -60,20 +60,22 @@
                     </div>
                 }
 			</div>
+				<hr class="mb-3" />
+			<h5>Ny Kommentar</h5>
 		}
 		else
 		{
 			<p class="text-muted">Inga kommentarer ännu.</p>
 		}
-		<form method="post">
-			<label asp-for="Comment.Name"></label>
-			<input asp-for="Comment.Name" />
+		<form method="post" class="p-3 border rounded shadow-sm">
+			<label asp-for="Comment.Name" class="border"></label>
+			<input asp-for="Comment.Name" class="form-control" placeholder="Ange ditt namn" />
 			<br />
-			<label asp-for="Comment.Email"></label>
-			<input asp-for="Comment.Email" />
-			<br />
+@* 			<label asp-for="Comment.Email"></label>
+			<input asp-for="Comment.Email" class="form-control" placeholder="Ange din mailadress" />
+			<br /> *@
 			<label asp-for="Comment.Content"></label>
-			<textarea asp-for="Comment.Content" rows="4" cols="50"></textarea>
+			<textarea asp-for="Comment.Content" rows="4" cols="50" class="form-control" placeholder="Skriv en kommentar"></textarea>
 			<br />
 			<input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
 			<input type="hidden" asp-for="Comment.CreatedAt" value="@DateTime.UtcNow" />

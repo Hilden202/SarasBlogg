@@ -70,6 +70,7 @@ window.addEventListener('DOMContentLoaded', function () {
     scrollToSectionIfParamExists('editId', { id: 'editFormSection' });
     scrollToSectionIfParamExists('reloadId', { prefix: 'reloadPageFormSection' });
 
+
     // Lägg till fler anrop här om du vill stödja fler parametrar/element
     // scrollToSectionIfParamExists('anotherParam', { id/prefix: 'anotherSectionId'});
 });
