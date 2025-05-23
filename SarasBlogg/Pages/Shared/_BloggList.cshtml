@@ -1,4 +1,5 @@
 ﻿@using SarasBlogg.Extensions
+@using SarasBlogg.Models
 @{
 }
 @model SarasBlogg.ViewModels.BloggViewModel
@@ -6,9 +7,11 @@
 <div class="container-site">
 	@if (Model.Blogg == null || Model.Blogg.Hidden)
 	{
-		var filteredBloggs = Model.IsArchiveView
-		? Model.Bloggs.Where(b => b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today)
-		: Model.Bloggs.Where(b => !b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today);
+		var filteredBloggs = (Model.Bloggs ?? new List<Blogg>())
+		.Where(b => (Model.IsArchiveView ? b.IsArchived : !b.IsArchived)
+		&& !b.Hidden
+		&& b.LaunchDate <= DateTime.Today);
+
 
 		foreach (var blogg in filteredBloggs)
 		{
@@ -38,38 +41,38 @@
 				</p>
 			</div>
 		</div>
-		@if (Model.AllComments != null && Model.AllComments.Any((c => c.BloggId == Model.Blogg.Id)))
+		@if (Model.Comments != null && Model.Comments.Any((c => c.BloggId == Model.Blogg.Id)))
 		{
 			<div class="comments-section mt-4">
 				<h5>Kommentarer</h5>
-				@foreach (var comment in Model.AllComments)
-				{
-					<div class="card mb-2">
-						<div class="card-body">
-							<strong>@comment.Name</strong> <span class="text-muted">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
-							<p>@comment.Content</p>
-						</div>
-					</div>
-				}
+                @foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id))
+                {
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <strong>@comment.Name</strong> <span class="text-muted">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
+                            <p>@comment.Content</p>
+                        </div>
+                    </div>
+                }
 			</div>
 		}
 		else
 		{
 			<p class="text-muted">Inga kommentarer ännu.</p>
 		}
-
+		<form method="post">
+			<label asp-for="Comment.Name"></label>
+			<input asp-for="Comment.Name" />
+			<br />
+			<label asp-for="Comment.Email"></label>
+			<input asp-for="Comment.Email" />
+			<br />
+			<label asp-for="Comment.Content"></label>
+			<textarea asp-for="Comment.Content" rows="4" cols="50"></textarea>
+			<br />
+			<input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
+			<input type="hidden" asp-for="Comment.CreatedAt" value="@DateTime.UtcNow" />
+			<input type="submit" value="Skicka kommentar" />
+		</form>
 	}
 </div>
-@* @if (Model.Blogg != null)
-{
-	<div id="stickyBackPanel" class="sticky-back-panel" style="display:none;">
-		<div class="container d-flex justify-content-start align-items-center" style="max-width: 1200px; margin: 0 auto; padding: 0 30px;">
-			<button onclick="reloadCurrentPage(@Model.Blogg.Id)" class="btn btn-dark me-2" style="cursor: pointer; font-weight: bold;">
-				&lt;
-			</button>
-			<button class="btn btn-dark" style="cursor: pointer; opacity: 0.5;" disabled>
-				&gt;
-			</button>
-		</div>
-	</div>
-} *@
