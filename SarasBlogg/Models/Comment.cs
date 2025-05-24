@@ -7,7 +7,7 @@ namespace SarasBlogg.Models
     public class Comment
     {
         [JsonPropertyName("id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [JsonPropertyName("name")]
         [DisplayName("Namn*")]

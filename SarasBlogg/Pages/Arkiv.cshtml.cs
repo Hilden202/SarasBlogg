@@ -40,17 +40,17 @@ namespace SarasBlogg.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (ModelState.IsValid)
-            {
-                if (ViewModel.Comment?.Id == 0)
-                {
+            //if (ModelState.IsValid)
+            //{
+            //    if (ViewModel.Comment?.Id == null)
+            //    {
                     await DAL.CommentAPIManager.SaveCommentAsync(ViewModel.Comment);
-                }
+                //}
                 //else
                 //{
                 //    await DAL.CommentAPIManager.UpdateCommentAsync(ViewModel.Comment);
                 //}
-            }
+            //}
 
             return RedirectToPage("./Arkiv", new { showId = ViewModel.Comment?.BloggId }); // laddar om inlägget i arkivet
         }
