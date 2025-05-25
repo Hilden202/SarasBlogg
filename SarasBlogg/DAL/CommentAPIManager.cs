@@ -22,21 +22,21 @@ namespace SarasBlogg.DAL
                 return comments;
             }
         }
-        //public static async Task<Models.Comment> GetCommentAsync(int id)
-        //{
-        //    Models.Comment comment = new();
-        //    using (var client = new HttpClient())
-        //    {
-        //        client.BaseAddress = BaseAddress;
-        //        HttpResponseMessage response = await client.GetAsync("aopi/Comment/" + id);
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            string responsString = await response.Content.ReadAsStringAsync();
-        //            comment = JsonSerializer.Deserialize<Models.Comment>(responsString);
-        //        }
-        //        return comment;
-        //    }
-        //}
+        public static async Task<Models.Comment> GetCommentAsync(int id)
+        {
+            Models.Comment comment = new();
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = BaseAddress;
+                HttpResponseMessage response = await client.GetAsync("api/Comment/" + id);
+                if (response.IsSuccessStatusCode)
+                {
+                    string responsString = await response.Content.ReadAsStringAsync();
+                    comment = JsonSerializer.Deserialize<Models.Comment>(responsString);
+                }
+                return comment;
+            }
+        }
 
         public static async Task SaveCommentAsync(Models.Comment comment)
         {
@@ -59,5 +59,14 @@ namespace SarasBlogg.DAL
         //        HttpResponseMessage response = await client.PutAsync("api/Comment/" + comment.Id, httpContent);
         //    }
         //}
+
+        public static async Task DeleteCommentAsync(int id)
+        {
+            using(var client = new HttpClient())
+            {
+                client.BaseAddress = BaseAddress;
+                HttpResponseMessage response = await client.DeleteAsync("api/Comment/" + id);
+            }
+        }
     }
 }

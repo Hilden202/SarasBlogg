@@ -1,5 +1,6 @@
 ﻿@using SarasBlogg.Extensions
 @using SarasBlogg.Models
+@inject SignInManager<IdentityUser> SignInManager
 @{
 }
 @model SarasBlogg.ViewModels.BloggViewModel
@@ -23,8 +24,8 @@
 						<p class="card-text">@blogg.Content.LimitLength(120)</p>
 						<p class="text-muted"><small class="text-muted">Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")
 								<br />
-                                @Model.Comments?.Count(c => c.BloggId == blogg.Id)
-                                @(Model.Comments?.Count(c => c.BloggId == blogg.Id) == 1 ? "Kommentar" : "Kommentarer")
+								@Model.Comments?.Count(c => c.BloggId == blogg.Id)
+								@(Model.Comments?.Count(c => c.BloggId == blogg.Id) == 1 ? "Kommentar" : "Kommentarer")
 							</small></p>
 					</div>
 				</div>
@@ -43,19 +44,25 @@
 					<strong>Författare:</strong> @Model.Blogg.Author<br />
 					<strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToString("yyyy-MM-dd")
 				</p>
-                <hr class="mb-3" />
+				<hr class="mb-3" />
 			</div>
 		</div>
 		@if (Model.Comments != null && Model.Comments.Any((c => c.BloggId == Model.Blogg.Id)))
 		{
-            <div class="comments-section mt-4">
+			<div class="comments-section mt-4">
 				<h5>Kommentarer</h5>
-                @foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id).Reverse()) // går säkert göra mer dry Todo
-                {
-                    <div class="">
-                        <div class="card-body">
-                            <strong>@comment.Name</strong> <span class="text-muted">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
-                            <p>@comment.Content</p>
+				@foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id).Reverse()) // går säkert göra mer dry Todo
+				{
+					<div>
+						<div class="card-body">
+							<strong>@comment.Name</strong> <span class="text-muted">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
+							<p>@comment.Content</p>
+							@if (SignInManager.IsSignedIn(User))
+							{
+							<form method="post" asp-route-deleteCommentId="@comment.Id">
+								<button type="submit" class="btn btn-link p-0 m-0 align-baseline">Ta bort</button>
+							</form>
+							}
                         </div>
                     </div>
                 }
@@ -68,7 +75,7 @@
 			<p class="text-muted">Inga kommentarer ännu.</p>
 		}
 		<form method="post" class="p-3 border rounded shadow-sm">
-			<label asp-for="Comment.Name" class="border"></label>
+			<label asp-for="Comment.Name"></label>
 			<input asp-for="Comment.Name" class="form-control" placeholder="Ange ditt namn" />
 			<br />
 @* 			<label asp-for="Comment.Email"></label>
