@@ -1,195 +1,209 @@
 ﻿@page
 @using Extensions
 @model SarasBlogg.Pages.AdminModel
-@inject SignInManager<IdentityUser> SignInManager
+@inject SignInManager<ApplicationUser> SignInManager
 @{
 	<br />
 }
 
-	<div class="container-site">
-@if (SignInManager.IsSignedIn(User))
-{
-	// LISTA PUBLICERADE BLOGGAR
-	<h2>Lista Publicerade Bloggar</h2>
-	if (Model.Bloggs != null && Model.Bloggs.Any(b => !b.Hidden))
+<div class="container-site">
+	@if (SignInManager.IsSignedIn(User))
 	{
-		<table class="border table table-striped shadow-sm align-middle">
-			<thead>
-				<tr>
-					<th class="text-center align-middle border d-none d-md-table-cell" colspan="3">Knappar</th>
-					<th class="text-center align-middle border d-table-cell d-md-none" colspan="1">Knappar</th>
-					<th class="text-center align-middle border">Id</th>
-					<th class="text-center align-middle border">Titel</th>
-					<th class="text-center align-middle border">Innehåll</th>
-					<th class="text-center align-middle border">Författare</th>
-					<th class="text-center align-middle border">Lanserings Datum</th>
-					<th class="text-center align-middle border">Bild</th>
-				</tr>
-			</thead>
-			<tbody>
-			@foreach (var blogg in Model.Bloggs.Where(b => !b.Hidden))
-			{
-				<tr>
-					<td class="text-center align-middle d-none d-md-table-cell" colspan="3">
-						<form method="get" class="d-inline">
-							<input type="hidden" name="hiddenId" value="@blogg.Id" />
-							<button type="submit" class="btn btn-outline-warning">Dölj</button>
-						</form>
-						@if (blogg.IsArchived)
-						{
-							<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning ms-1">Arkiverad</a>
-						}
-						else
-						{
-							<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success ms-1">Publicerad</a>
-						}
-						<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary ms-1">Ändra</a>
-					</td>
-					<td class="text-center align-middle d-table-cell d-md-none">
-						<div class="d-flex flex-column gap-1">
-							<form method="get">
-								<input type="hidden" name="hiddenId" value="@blogg.Id" />
-								<button type="submit" class="btn btn-outline-warning w-100">Dölj</button>
-							</form>
-							@if (blogg.IsArchived)
-							{
-								<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning w-100">Arkiverad</a>
-							}
-							else
-							{
-								<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success w-100">Publicerad</a>
-							}
-							<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
-						</div>
-					</td>
-					<td class="text-center align-middle border">@blogg.Id</td>
-					<td class="text-lg-start align-middle border">@blogg.Title</td>
-					<td class="text-lg-start align-middle border">@blogg.Content?.LimitLength(10)</td>
-					<td class="text-center align-middle border">@blogg.Author</td>
-					<td class="text-center align-middle border">
-						<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
-							@blogg.LaunchDate.ToString("yyyy-MM-dd")
-						</span>
-					</td>
-					<td class="text-center align-middle border">
-						<img class="card-img-top admin-blog-img " src="~/img/@blogg.Image" />
-					</td>
-				</tr>
-			}
-			</tbody>
-		</table>
-	}
-	else
-	{
-		<p>Ingen blogg finns att visa.</p>
-	}
-
-	<br />
-	<hr class="m-1 border" />
-	<br />
-
-	// FORMULÄR FÖR NY BLOGG / ÄNDRING
-	<div id="editFormSection">
-	<form class="p-3 border rounded shadow-sm" method="post" enctype="multipart/form-data">
-		<input asp-for="NewBlogg.Id" type="hidden" />
-		<input asp-for="NewBlogg.UserId" type="hidden" />
-		<label asp-for="NewBlogg.Title"></label>
-		<input asp-for="NewBlogg.Title" class="form-control" placeholder="Ange bloggtitel här" maxlength="100" />
-		<span asp-validation-for="NewBlogg.Title" class="text-danger"></span>
-		<br />
-		<label asp-for="NewBlogg.Content"></label>
-		<textarea asp-for="NewBlogg.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
-		<span asp-validation-for="NewBlogg.Content" class="text-danger"></span>
-		<br />
-		<label asp-for="NewBlogg.Author"></label>
-		<input asp-for="NewBlogg.Author" class="form-control" placeholder="Ange författare här" maxlength="100" />
-		<span asp-validation-for="NewBlogg.Author" class="text-danger"></span>
-		<br />
-		<label asp-for="NewBlogg.LaunchDate"></label>
-		<input asp-for="NewBlogg.LaunchDate" class="form-control" value="@(Model.NewBlogg.LaunchDate == default ? DateTime.Today.ToString("yyyy-MM-dd") : Model.NewBlogg.LaunchDate.ToString("yyyy-MM-dd"))" />
-		<span asp-validation-for="NewBlogg.LaunchDate" class="text-danger"></span>
-		<br />
-		<!-- Bildhantering -->
-		<label asp-for="NewBlogg.Image"></label>
-		<input asp-for="BloggImage" class="form-control" />
-		<span asp-validation-for="NewBlogg.Image" class="text-danger"></span>
-		<br />
-		@if (!string.IsNullOrEmpty(Model.NewBlogg.Image))
-		{
-			<div class="mb-3">
-				<label>Nuvarande bild: </label><br />
-				<img src="~/img/@Model.NewBlogg.Image" alt="Miniatyr" style="max-width: 150px; border-radius: 5px;" />
+		<nav class="border-bottom">
+			<div class="container d-flex justify-content-center">
+				<ul class="mynav">
+					<li class="nav-item me-3">
+						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin">Bloggar</a>
+					</li>
+					<li class="nav-item me-3">
+						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin">Roller</a>
+					</li>
+				</ul>
 			</div>
+		</nav>
+
+
+		// LISTA PUBLICERADE BLOGGAR
+		<h2>Lista Publicerade Bloggar</h2>
+		if (Model.Bloggs != null && Model.Bloggs.Any(b => !b.Hidden))
+		{
+			<table class="border table table-striped shadow-sm align-middle">
+				<thead>
+					<tr>
+						<th class="text-center align-middle border d-none d-md-table-cell" colspan="3">Knappar</th>
+						<th class="text-center align-middle border d-table-cell d-md-none" colspan="1">Knappar</th>
+						<th class="text-center align-middle border">Id</th>
+						<th class="text-center align-middle border">Titel</th>
+						<th class="text-center align-middle border">Innehåll</th>
+						<th class="text-center align-middle border">Författare</th>
+						<th class="text-center align-middle border">Lanserings Datum</th>
+						<th class="text-center align-middle border">Bild</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var blogg in Model.Bloggs.Where(b => !b.Hidden))
+					{
+						<tr>
+							<td class="text-center align-middle d-none d-md-table-cell" colspan="3">
+								<form method="get" class="d-inline">
+									<input type="hidden" name="hiddenId" value="@blogg.Id" />
+									<button type="submit" class="btn btn-outline-warning">Dölj</button>
+								</form>
+								@if (blogg.IsArchived)
+								{
+									<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning ms-1">Arkiverad</a>
+								}
+								else
+								{
+									<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success ms-1">Publicerad</a>
+								}
+								<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary ms-1">Ändra</a>
+							</td>
+							<td class="text-center align-middle d-table-cell d-md-none">
+								<div class="d-flex flex-column gap-1">
+									<form method="get">
+										<input type="hidden" name="hiddenId" value="@blogg.Id" />
+										<button type="submit" class="btn btn-outline-warning w-100">Dölj</button>
+									</form>
+									@if (blogg.IsArchived)
+									{
+										<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning w-100">Arkiverad</a>
+									}
+									else
+									{
+										<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success w-100">Publicerad</a>
+									}
+									<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
+								</div>
+							</td>
+							<td class="text-center align-middle border">@blogg.Id</td>
+							<td class="text-lg-start align-middle border">@blogg.Title</td>
+							<td class="text-lg-start align-middle border">@blogg.Content?.LimitLength(10)</td>
+							<td class="text-center align-middle border">@blogg.Author</td>
+							<td class="text-center align-middle border">
+								<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
+									@blogg.LaunchDate.ToString("yyyy-MM-dd")
+								</span>
+							</td>
+							<td class="text-center align-middle border">
+								<img class="card-img-top admin-blog-img " src="~/img/@blogg.Image" />
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
 		}
 		else
 		{
-			<p>Ingen bild vald.</p>
+			<p>Ingen blogg finns att visa.</p>
 		}
-		<label>@Model.NewBlogg.Image </label><br /><br />
 
-		<input asp-for="NewBlogg" type="submit" class="btn btn-success" value="Skapa ny blogg/spara ändringar" />
-	</form>
-	</div>
-	<br />
+		<br />
+		<hr class="m-1 border" />
+		<br />
 
-	<hr class="m-1 border" />
-	<br />
+		// FORMULÄR FÖR NY BLOGG / ÄNDRING
+		<div id="editFormSection">
+			<form class="p-3 border rounded shadow-sm" method="post" enctype="multipart/form-data">
+				<input asp-for="NewBlogg.Id" type="hidden" />
+				<input asp-for="NewBlogg.UserId" type="hidden" />
+				<label asp-for="NewBlogg.Title"></label>
+				<input asp-for="NewBlogg.Title" class="form-control" placeholder="Ange bloggtitel här" maxlength="100" />
+				<span asp-validation-for="NewBlogg.Title" class="text-danger"></span>
+				<br />
+				<label asp-for="NewBlogg.Content"></label>
+				<textarea asp-for="NewBlogg.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
+				<span asp-validation-for="NewBlogg.Content" class="text-danger"></span>
+				<br />
+				<label asp-for="NewBlogg.Author"></label>
+				<input asp-for="NewBlogg.Author" class="form-control" placeholder="Ange författare här" maxlength="100" />
+				<span asp-validation-for="NewBlogg.Author" class="text-danger"></span>
+				<br />
+				<label asp-for="NewBlogg.LaunchDate"></label>
+				<input asp-for="NewBlogg.LaunchDate" class="form-control" value="@(Model.NewBlogg.LaunchDate == default ? DateTime.Today.ToString("yyyy-MM-dd") : Model.NewBlogg.LaunchDate.ToString("yyyy-MM-dd"))" />
+				<span asp-validation-for="NewBlogg.LaunchDate" class="text-danger"></span>
+				<br />
+				<!-- Bildhantering -->
+				<label asp-for="NewBlogg.Image"></label>
+				<input asp-for="BloggImage" class="form-control" />
+				<span asp-validation-for="NewBlogg.Image" class="text-danger"></span>
+				<br />
+				@if (!string.IsNullOrEmpty(Model.NewBlogg.Image))
+				{
+					<div class="mb-3">
+						<label>Nuvarande bild: </label><br />
+						<img src="~/img/@Model.NewBlogg.Image" alt="Miniatyr" style="max-width: 150px; border-radius: 5px;" />
+					</div>
+				}
+				else
+				{
+					<p>Ingen bild vald.</p>
+				}
+				<label>@Model.NewBlogg.Image </label><br /><br />
 
-	// LISTA DOLDA BLOGGAR
-	<h2>Lista Dolda Bloggar</h2>
-	@if (Model.Bloggs != null && Model.Bloggs.Any(b => b.Hidden))
-	{
-		<table class="border table table-striped shadow-sm">
-			<thead>
-				<tr>
-					<th class="text-center align-middle border" colspan="3">Knappar</th>
-					<th class="text-center align-middle border">Id</th>
-					<th class="text-center align-middle border">Titel</th>
-					<th class="text-center align-middle border">Innehåll</th>
-					<th class="text-center align-middle border">Författare</th>
-					<th class="text-center align-middle border">Lanserings Datum</th>
-					<th class="text-center align-middle border">Bild</th>
-				</tr>
-			</thead>
-			<tbody>
-			@foreach (var blogg in Model.Bloggs.Where(b => b.Hidden))
-			{
-				<tr>
-					<td class="text-center align-middle">
-						<form method="get">
-							<input type="hidden" name="deleteId" value="@blogg.Id" />
-							<button type="submit" class="btn btn-outline-danger linebreaknormal">Ta bort</button>
-						</form>
-					</td>
-					<td class="text-center align-middle">
-						<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
-					</td>
-					<td class="text-center align-middle"><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
+				<input asp-for="NewBlogg" type="submit" class="btn btn-success" value="Skapa ny blogg/spara ändringar" />
+			</form>
+		</div>
+		<br />
 
-					<td class="text-center align-middle border">@blogg.Id</td>
-					<td class="text-lg-start align-middle border">@blogg.Title</td>
-					<td class="text-lg-start align-middle border">@blogg.Content?.LimitLength(10)</td>
-					<td class="text-center align-middle border">@blogg.Author</td>
-					<td class="text-center align-middle border">
-						<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
-							@blogg.LaunchDate.ToString("yyyy-MM-dd")
-						</span>
-					</td>
-					<td class="text-center align-middle border">
-						<img class="card-img-bottom admin-blog-img" src="~/img/@blogg.Image" />
-					</td>
-				</tr>
-			}
-			</tbody>
-		</table>
+		<hr class="m-1 border" />
+		<br />
+
+		// LISTA DOLDA BLOGGAR
+		<h2>Lista Dolda Bloggar</h2>
+		@if (Model.Bloggs != null && Model.Bloggs.Any(b => b.Hidden))
+		{
+			<table class="border table table-striped shadow-sm">
+				<thead>
+					<tr>
+						<th class="text-center align-middle border" colspan="3">Knappar</th>
+						<th class="text-center align-middle border">Id</th>
+						<th class="text-center align-middle border">Titel</th>
+						<th class="text-center align-middle border">Innehåll</th>
+						<th class="text-center align-middle border">Författare</th>
+						<th class="text-center align-middle border">Lanserings Datum</th>
+						<th class="text-center align-middle border">Bild</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var blogg in Model.Bloggs.Where(b => b.Hidden))
+					{
+						<tr>
+							<td class="text-center align-middle">
+								<form method="get">
+									<input type="hidden" name="deleteId" value="@blogg.Id" />
+									<button type="submit" class="btn btn-outline-danger linebreaknormal">Ta bort</button>
+								</form>
+							</td>
+							<td class="text-center align-middle">
+								<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
+							</td>
+							<td class="text-center align-middle"><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
+
+							<td class="text-center align-middle border">@blogg.Id</td>
+							<td class="text-lg-start align-middle border">@blogg.Title</td>
+							<td class="text-lg-start align-middle border">@blogg.Content?.LimitLength(10)</td>
+							<td class="text-center align-middle border">@blogg.Author</td>
+							<td class="text-center align-middle border">
+								<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
+									@blogg.LaunchDate.ToString("yyyy-MM-dd")
+								</span>
+							</td>
+							<td class="text-center align-middle border">
+								<img class="card-img-bottom admin-blog-img" src="~/img/@blogg.Image" />
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
+		else
+		{
+			<p>Ingen dold blogg finns att visa.</p>
+		}
 	}
 	else
 	{
-		<p>Ingen dold blogg finns att visa.</p>
+		<p class="text-danger">Du måste vara inloggad för att komma åt denna sida.</p>
 	}
-}
-else
-{
-	<p class="text-danger">Du måste vara inloggad för att komma åt denna sida.</p>
-}
-		</div>
+</div>
