@@ -40,11 +40,11 @@ namespace SarasBlogg.Pages
                 // Ta bort gammal bild från databasen (om den finns)
                 if (currentAboutMe != null && !string.IsNullOrEmpty(currentAboutMe.Image))
                 {
-                    _fileHelper.DeleteImage(currentAboutMe.Image, "imgaboutme");
+                    _fileHelper.DeleteImage(currentAboutMe.Image, "img/aboutme");
                 }
 
                 // Spara ny bild
-                var newFileName = await _fileHelper.SaveImageAsync(AboutMeImage, "imgaboutme");
+                var newFileName = await _fileHelper.SaveImageAsync(AboutMeImage, "img/aboutme");
                 AboutMe.Image = newFileName;
             }
             else

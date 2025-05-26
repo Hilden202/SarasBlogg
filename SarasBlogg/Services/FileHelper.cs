@@ -6,7 +6,7 @@
         {
             if (file == null) return null;
 
-            string fileName = $"{Random.Shared.Next(0, 1000000)}_{file.FileName}";
+            string fileName = Random.Shared.Next(0, 1000000) + "_" + file.FileName;
             string filePath = Path.Combine("wwwroot", folder, fileName);
 
             Directory.CreateDirectory(Path.GetDirectoryName(filePath)!); // säkerställ mapp finns

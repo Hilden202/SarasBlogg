@@ -3,17 +3,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.Data;
+using SarasBlogg.Services;
 
 namespace SarasBlogg.Pages
 {
     public class AdminModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IFileHelper _fileHelper;
 
-        public AdminModel(ApplicationDbContext context)
+        public AdminModel(ApplicationDbContext context, IFileHelper fileHelper)
         {
             _context = context;
             NewBlogg = new Models.Blogg();
+            _fileHelper = fileHelper;
         }
         public List<Models.Blogg> Bloggs { get; set; }
         [BindProperty]
@@ -44,7 +47,7 @@ namespace SarasBlogg.Pages
                 Models.Blogg bloggToDelete = await _context.Blogg.FindAsync(deleteId);
                 if (bloggToDelete != null) // && User.FindFirstValue(ClaimTypes.NameIdentifier) == blogToBeDeleted.UserId
                 {
-                    DeleteImage(bloggToDelete.Image);
+                    _fileHelper.DeleteImage(bloggToDelete.Image, "img/blogg");
 
                     _context.Blogg.Remove(bloggToDelete);
                     await _context.SaveChangesAsync();
@@ -80,24 +83,28 @@ namespace SarasBlogg.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            string fileName = NewBlogg.Image;
-
+            var currentBlogg = await _context.Blogg.FindAsync(NewBlogg.Id);
+            //if (currentBlogg == null)
             if (BloggImage != null)
             {
-                if (!string.IsNullOrEmpty(NewBlogg.Image))
+                // Ta bort gammal bild från databasen (om den finns)
+                if (currentBlogg != null && !string.IsNullOrEmpty(currentBlogg.Image))
                 {
-                    DeleteImage(NewBlogg.Image);
+                    _fileHelper.DeleteImage(currentBlogg.Image, "img/blogg");
                 }
 
-                fileName = Random.Shared.Next(0, 1000000).ToString() + "_" + BloggImage.FileName;
-                using (var fileStream = new FileStream("./wwwroot/img/" + fileName, FileMode.Create))
-                {
-                    await BloggImage.CopyToAsync(fileStream);
-                }
-
+                // Spara ny bild
+                var newFileName = await _fileHelper.SaveImageAsync(BloggImage, "img/blogg");
+                NewBlogg.Image = newFileName;
             }
-
-            NewBlogg.Image = fileName;
+            else
+            {
+                // Om ingen ny bild laddats upp och det finns en existerande post, behåll bilden
+                if (currentBlogg != null)
+                {
+                    NewBlogg.Image = currentBlogg.Image;
+                }
+            }
 
             NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -105,45 +112,22 @@ namespace SarasBlogg.Pages
             {
                 _context.Blogg.Add(NewBlogg);
             }
-            else //Detta var en klurig nöt då bilder hela tiden försvann annars->
+            else
             {
-                var existingBlogg = await _context.Blogg.FindAsync(NewBlogg.Id);
-                if (existingBlogg == null)
+                if (currentBlogg == null)
                 {
                     return NotFound();
                 }
 
-                // Behåll den gamla bilden om ingen ny laddats upp
-                if (string.IsNullOrEmpty(NewBlogg.Image))
-                {
-                    NewBlogg.Image = existingBlogg.Image;
-                }
-                else if (!string.IsNullOrEmpty(NewBlogg.Image))
-                {
-                    DeleteImage(existingBlogg.Image);
-                }
-
-                // Uppdatera resten
-                _context.Entry(existingBlogg).CurrentValues.SetValues(NewBlogg);
-            }//<------------------------------------------------------------------
+                _context.Entry(currentBlogg).CurrentValues.SetValues(NewBlogg);
+            }
 
             await _context.SaveChangesAsync();
 
-            Bloggs = await _context.Blogg.ToListAsync();
+            return RedirectToPage();
 
-            return RedirectToPage(); // Reload the same page
         }
-        private void DeleteImage(string? imageName)
-        {
-            if (!string.IsNullOrEmpty(imageName))
-            {
-                string filePath = "./wwwroot/img/" + imageName;
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                }
-            }
-        }
+
     }
 }
 

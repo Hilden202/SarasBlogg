@@ -22,11 +22,18 @@ obj/
 appsettings.json
 appsettings.Development.json
 
-# Ignorera img och imgaboutme i wwwroot
-SarasBlogg/wwwroot/img/
-SarasBlogg/wwwroot/imgaboutme/
+# Ignorera bilder i wwwroot/img/blogg och wwwroot/img/aboutme, men behåll mapparna
+SarasBlogg/wwwroot/img/blogg/*
+SarasBlogg/wwwroot/img/aboutme/*
 
-# Behåll wwwroot/logo (lägg INTE till den i .gitignore)
+# Behåll mappar
+!SarasBlogg/wwwroot/img/
+!SarasBlogg/wwwroot/img/blogg/
+!SarasBlogg/wwwroot/img/aboutme/
+!SarasBlogg/wwwroot/img/logo/
+
+# Tillåt loggan i logo-mappen
+!SarasBlogg/wwwroot/img/logo/sglogga.PNG
 
 # Loggfiler och temporära filer
 *.log
