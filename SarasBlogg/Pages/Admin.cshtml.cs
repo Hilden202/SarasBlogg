@@ -84,7 +84,6 @@ namespace SarasBlogg.Pages
         public async Task<IActionResult> OnPostAsync()
         {
             var currentBlogg = await _context.Blogg.FindAsync(NewBlogg.Id);
-            //if (currentBlogg == null)
             if (BloggImage != null)
             {
                 // Ta bort gammal bild från databasen (om den finns)
