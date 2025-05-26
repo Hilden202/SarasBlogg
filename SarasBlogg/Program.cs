@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.Data;
+using SarasBlogg.Services;
 
 namespace SarasBlogg
 {
@@ -20,7 +21,7 @@ namespace SarasBlogg
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddRazorPages();
 
-
+            builder.Services.AddScoped<IFileHelper, FileHelper>();
 
             var app = builder.Build();
 

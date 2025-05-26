@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.Data;
+using SarasBlogg.Services;
 
 namespace SarasBlogg.Pages
 {
     public class PrivacyModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IFileHelper _fileHelper;
 
-        public PrivacyModel(ApplicationDbContext context)
+        public PrivacyModel(ApplicationDbContext context, IFileHelper fileHelper)
         {
             _context = context;
+            _fileHelper = fileHelper;
         }
 
         [BindProperty]
@@ -30,27 +33,29 @@ namespace SarasBlogg.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Hantera filnamn för bild
-            string fileName = AboutMe.Image;
+            var currentAboutMe = await _context.AboutMe.FindAsync(AboutMe.Id);
 
             if (AboutMeImage != null)
             {
-                // Ta bort gammal bild om det finns
-                if (!string.IsNullOrEmpty(AboutMe.Image))
+                // Ta bort gammal bild från databasen (om den finns)
+                if (currentAboutMe != null && !string.IsNullOrEmpty(currentAboutMe.Image))
                 {
-                    DeleteImage(AboutMe.Image);
+                    _fileHelper.DeleteImage(currentAboutMe.Image, "imgaboutme");
                 }
 
-                // Skapa nytt filnamn och spara bild
-                fileName = $"{Random.Shared.Next(0, 1000000)}_{AboutMeImage.FileName}";
-                var filePath = Path.Combine("wwwroot", "imgaboutme", fileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                // Spara ny bild
+                var newFileName = await _fileHelper.SaveImageAsync(AboutMeImage, "imgaboutme");
+                AboutMe.Image = newFileName;
+            }
+            else
+            {
+                // Om ingen ny bild laddats upp och det finns en existerande post, behåll bilden
+                if (currentAboutMe != null)
                 {
-                    await AboutMeImage.CopyToAsync(fileStream);
+                    AboutMe.Image = currentAboutMe.Image;
                 }
             }
 
-            AboutMe.Image = fileName;
             AboutMe.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (AboutMe.Id == 0)
@@ -59,40 +64,17 @@ namespace SarasBlogg.Pages
             }
             else
             {
-                var existingAboutMe = await _context.AboutMe.FindAsync(AboutMe.Id);
-                if (existingAboutMe == null)
+                if (currentAboutMe == null)
                 {
                     return NotFound();
                 }
 
-                // Behåll den gamla bilden om ingen ny laddats upp
-                if (AboutMeImage == null)
-                {
-                    AboutMe.Image = existingAboutMe.Image;
-                }
-                else if (!string.IsNullOrEmpty(existingAboutMe.Image))
-                {
-                    DeleteImage(existingAboutMe.Image);
-                }
-
-                _context.Entry(existingAboutMe).CurrentValues.SetValues(AboutMe);
+                _context.Entry(currentAboutMe).CurrentValues.SetValues(AboutMe);
             }
 
             await _context.SaveChangesAsync();
 
             return RedirectToPage();
-        }
-
-        private void DeleteImage(string? imageName)
-        {
-            if (!string.IsNullOrEmpty(imageName))
-            {
-                var filePath = Path.Combine("wwwroot", "imgaboutme", imageName);
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                }
-            }
         }
     }
 
