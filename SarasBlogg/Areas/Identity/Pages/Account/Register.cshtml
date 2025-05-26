@@ -27,6 +27,19 @@
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Name" class="form-control" aria-required="true" placeholder="Namn" />
+                <label asp-for="Input.Name">Ditt namn</label>
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.BirthYear" class="form-control" aria-required="true" placeholder="Födelseår" />
+                <label asp-for="Input.BirthYear">Fördelseår</label>
+                <span asp-validation-for="Input.BirthYear" class="text-danger"></span>
+            </div>
+
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </form>
     </div>

@@ -98,6 +98,12 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            [Required]
+            [Display(Name = "Namn")]
+            public string Name { get; set; }
+            [Display(Name = "Födelseår")]
+            public int? BirthYear { get; set; }
         }
 
 
@@ -114,6 +120,9 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
+
+                user.Name = Input.Name; // nytt namn
+                user.BirthYear = Input.BirthYear; // nytt födelseår
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
