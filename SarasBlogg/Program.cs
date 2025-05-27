@@ -20,7 +20,23 @@ namespace SarasBlogg
             builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>() // Lägg till roller
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            builder.Services.AddRazorPages();
+
+            // Identitetsroller för mappar >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            builder.Services.AddAuthorization(options =>
+            {
+            options.AddPolicy("SkaVaraSuperAdmin", policy => policy.RequireRole("superadmin"));
+            options.AddPolicy("SkaVaraAdmin", policy => policy.RequireRole("superadmin", "admin"));
+
+            });
+
+            //builder.Services.AddRazorPages();
+
+            builder.Services.AddRazorPages(options =>
+            {
+                options.Conventions.AuthorizePage("/Admin", "SkaVaraAdmin");
+                options.Conventions.AuthorizePage("/RoleAdmin", "SkaVaraSuperAdmin");
+            });
+            // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
             builder.Services.AddScoped<IFileHelper, FileHelper>();
 
