@@ -1,26 +1,30 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var userName = user?.Name ?? user?.UserName;
+}
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-            <a class="nav-link theme-dependent" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hej @User.Identity?.Name!</a>
+        <a class="nav-link theme-dependent" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hej @userName!</a>
     </li>
     <li class="nav-item">
         <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">
-                <button type="submit" class="nav-link btn btn-link theme-dependent">Logout</button>
+            <button type="submit" class="nav-link btn btn-link theme-dependent">Logout</button>
         </form>
     </li>
 }
 else
 {
     <li class="nav-item">
-            <a class="nav-link theme-dependent" asp-area="Identity" asp-page="/Account/Register">Registrera</a>
+        <a class="nav-link theme-dependent" asp-area="Identity" asp-page="/Account/Register">Registrera</a>
     </li>
     <li class="nav-item">
-            <a class="nav-link theme-dependent" asp-area="Identity" asp-page="/Account/Login">Logga in</a>
+        <a class="nav-link theme-dependent" asp-area="Identity" asp-page="/Account/Login">Logga in</a>
     </li>
 }
 </ul>

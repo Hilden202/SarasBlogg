@@ -22,11 +22,14 @@
 						<img class="card-img-top mb-4 shadow-lg" src="~/img/blogg/@blogg.Image" />
 						<h5 class="card-title">@blogg.Title</h5>
 						<p class="card-text">@blogg.Content.LimitLength(120)</p>
-						<p class="text-muted"><small class="text-muted">Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")
+						<p class="text-muted">
+							<small class="text-muted">
+								Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")
 								<br />
 								@Model.Comments?.Count(c => c.BloggId == blogg.Id)
 								@(Model.Comments?.Count(c => c.BloggId == blogg.Id) == 1 ? "Kommentar" : "Kommentarer")
-							</small></p>
+							</small>
+						</p>
 					</div>
 				</div>
 			</a>
@@ -57,17 +60,17 @@
 						<div class="card-body">
 							<strong>@comment.Name</strong> <span class="text-muted">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
 							<p>@comment.Content</p>
-							@if (SignInManager.IsSignedIn(User))
+							@if (User.IsInRole("admin") || User.IsInRole("superadmin"))
 							{
-							<form method="post" asp-route-deleteCommentId="@comment.Id">
-								<button type="submit" class="btn btn-link p-0 m-0 align-baseline">Ta bort</button>
-							</form>
+								<form method="post" asp-route-deleteCommentId="@comment.Id">
+									<button type="submit" class="btn btn-link p-0 m-0 align-baseline">Ta bort</button>
+								</form>
 							}
-                        </div>
-                    </div>
-                }
+						</div>
+					</div>
+				}
 			</div>
-				<hr class="mb-3" />
+			<hr class="mb-3" />
 			<h5>Ny Kommentar</h5>
 		}
 		else
@@ -78,7 +81,7 @@
 			<label asp-for="Comment.Name"></label>
 			<input asp-for="Comment.Name" class="form-control" placeholder="Ange ditt namn" />
 			<br />
-@* 			<label asp-for="Comment.Email"></label>
+			@* 			<label asp-for="Comment.Email"></label>
 			<input asp-for="Comment.Email" class="form-control" placeholder="Ange din mailadress" />
 			<br /> *@
 			<label asp-for="Comment.Content"></label>

@@ -1,0 +1,54 @@
+﻿@page
+@model SarasBlogg.Pages.RoleAdmin.IndexModel
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+}
+<div class="container-site">
+	@if (User.IsInRole("admin") || User.IsInRole("superadmin"))
+	{
+		<nav class="border-bottom">
+			<div class="container d-flex justify-content-center">
+				<ul class="mynav">
+					<li class="nav-item me-3">
+						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin">Bloggar</a>
+					</li>
+					<li class="nav-item me-3">
+						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/RoleAdmin/Index">Roller</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		<table class="border table table-striped shadow-sm align-middle">
+			<tr>
+				<th>Username</th>
+				@foreach (var role in Model.Roles)
+				{
+					<th>@role.Name</th>
+				}
+			</tr>
+			@foreach (var user in Model.Users)
+			{
+				<tr>
+					<td>@user.UserName</td>
+					@foreach (var role in Model.Roles)
+					{
+						if (await Model._userManager.IsInRoleAsync(user, role.Name))
+						{
+							<td><a href="?RemoveUserId=@user.Id&RoleName=@role.Name">Ja</a></td>
+						}
+						else
+						{
+							<td><a href="?AddUserId=@user.Id&RoleName=@role.Name">Nej</a></td>
+						}
+					}
+				</tr>
+			}
+		</table>
+
+		<form method="post">
+			<label for="RoleName">Ny Roll</label>
+			<input type="text" name="RoleName" id="RoleName" />
+			<input type="submit" value="Skapa ny roll" />
+		</form>
+	}
+</div>

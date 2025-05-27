@@ -7,49 +7,51 @@
 <h2>Kontakta mig</h2>
 
 <form class="p-1 p-4 border rounded shadow-sm" method="post">
-    <div class="mb-3">
-        <label asp-for="ContactMe.Name" class="control-label"></label>
-        <input asp-for="ContactMe.Name" class="form-control" />
-        <span asp-validation-for="ContactMe.Name" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="ContactMe.Email" class="control-label"></label>
-        <input asp-for="ContactMe.Email" class="form-control" />
-        <span asp-validation-for="ContactMe.Email" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="ContactMe.Subject" class="control-label"></label>
-        <input asp-for="ContactMe.Subject" class="form-control" />
-        <span asp-validation-for="ContactMe.Subject" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="ContactMe.Message" class="control-label"></label>
-        <textarea asp-for="ContactMe.Message" class="form-control"></textarea>
-        <span asp-validation-for="ContactMe.Message" class="text-danger"></span>
-    </div><br />
-    <input type="submit" value="Skicka" />
+	<div class="mb-3">
+		<label asp-for="ContactMe.Name" class="control-label"></label>
+		<input asp-for="ContactMe.Name" class="form-control" />
+		<span asp-validation-for="ContactMe.Name" class="text-danger"></span>
+	</div>
+	<div class="mb-3">
+		<label asp-for="ContactMe.Email" class="control-label"></label>
+		<input asp-for="ContactMe.Email" class="form-control" />
+		<span asp-validation-for="ContactMe.Email" class="text-danger"></span>
+	</div>
+	<div class="mb-3">
+		<label asp-for="ContactMe.Subject" class="control-label"></label>
+		<input asp-for="ContactMe.Subject" class="form-control" />
+		<span asp-validation-for="ContactMe.Subject" class="text-danger"></span>
+	</div>
+	<div class="mb-3">
+		<label asp-for="ContactMe.Message" class="control-label"></label>
+		<textarea asp-for="ContactMe.Message" class="form-control"></textarea>
+		<span asp-validation-for="ContactMe.Message" class="text-danger"></span>
+	</div><br />
+	<input type="submit" value="Skicka" />
 </form>
-    @if (TempData["Message"] != null)
-    {
-        <br /><div class="alert alert-success">@TempData["Message"]</div>
-    }
+	@if (TempData["Message"] != null)
+	{
+			<br />
 
-@if (SignInManager.IsSignedIn(User))
-{
-    <ul>
-    <br />
+		<div class="alert alert-success">@TempData["Message"]</div>
+	}
 
-    @foreach (var item in Model.ContactMes)
-    {
-            <li class="list-group-item d-flex">
-                <form method="post" class="me-2">
-                    <input type="hidden" name="deleteId" value="@item.Id" />
-                    <button type="submit" class="btn btn-close linebreaknormal"></button>
-                </form>
+	@if (User.IsInRole("admin") || User.IsInRole("superadmin"))
+	{
+		<ul>
+		<br />
 
-                <strong>@item.Name</strong> - <em>@item.Subject - @item.Message</em><br />
-            </li>
-    }
-</ul>
-}
+			@foreach (var item in Model.ContactMes)
+			{
+					<li class="list-group-item d-flex">
+						<form method="post" class="me-2">
+							<input type="hidden" name="deleteId" value="@item.Id" />
+							<button type="submit" class="btn btn-close linebreaknormal"></button>
+						</form>
+
+						<strong>@item.Name</strong> - <em>@item.Subject - @item.Message</em><br />
+					</li>
+			}
+	</ul>
+	}
 </div>

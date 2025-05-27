@@ -1,19 +1,23 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.Data;
-using SarasBlogg.Models;
 using SarasBlogg.ViewModels;
 
 namespace SarasBlogg.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        //public ApplicationUser MyUser { get; set; }
 
-        public IndexModel(ApplicationDbContext context)
+        private readonly ApplicationDbContext _context;
+        //private UserManager<ApplicationUser> _userManager;
+
+        public IndexModel(ApplicationDbContext context/*, UserManager<ApplicationUser> userManager*/)
         {
             _context = context;
+            //_userManager = userManager;
         }
         [BindProperty]
         public BloggViewModel ViewModel { get; set; } = new();
@@ -40,6 +44,8 @@ namespace SarasBlogg.Pages
             //    ViewModel.Comment = await DAL.CommentAPIManager.GetCommentAsync(id);
 
             //}
+
+            //MyUser = await _userManager.GetUserAsync(User);
         }
 
         public async Task<IActionResult> OnPostAsync(int deleteCommentId)

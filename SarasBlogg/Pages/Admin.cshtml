@@ -3,11 +3,10 @@
 @model SarasBlogg.Pages.AdminModel
 @inject SignInManager<ApplicationUser> SignInManager
 @{
-	<br />
 }
 
 <div class="container-site">
-	@if (SignInManager.IsSignedIn(User))
+	@if (Model.IsAdmin || Model.IsSuperAdmin)
 	{
 		<nav class="border-bottom">
 			<div class="container d-flex justify-content-center">
@@ -15,9 +14,12 @@
 					<li class="nav-item me-3">
 						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin">Bloggar</a>
 					</li>
+					@if(Model.IsSuperAdmin)
+					{
 					<li class="nav-item me-3">
-						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin">Roller</a>
+						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/RoleAdmin/Index">Roller</a>
 					</li>
+					}
 				</ul>
 			</div>
 		</nav>

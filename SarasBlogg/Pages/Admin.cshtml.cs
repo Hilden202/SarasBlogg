@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -7,16 +9,22 @@ using SarasBlogg.Services;
 
 namespace SarasBlogg.Pages
 {
+    [Authorize(Roles = "admin, superadmin")]
     public class AdminModel : PageModel
     {
         private readonly ApplicationDbContext _context;
         private readonly IFileHelper _fileHelper;
 
-        public AdminModel(ApplicationDbContext context, IFileHelper fileHelper)
+        private RoleManager<IdentityRole> _roleManager;
+        public UserManager<ApplicationUser> _userManager;
+
+        public AdminModel(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, ApplicationDbContext context, IFileHelper fileHelper)
         {
             _context = context;
             NewBlogg = new Models.Blogg();
             _fileHelper = fileHelper;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
         public List<Models.Blogg> Bloggs { get; set; }
         [BindProperty]
@@ -24,9 +32,18 @@ namespace SarasBlogg.Pages
 
         [BindProperty]
         public IFormFile BloggImage { get; set; }
+        public bool IsAdmin { get; set; }
+        public bool IsSuperAdmin { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? hiddenId, int deleteId, int? editId, int? archiveId)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser != null)
+            {
+                IsAdmin = await _userManager.IsInRoleAsync(currentUser, "admin");
+                IsSuperAdmin = await _userManager.IsInRoleAsync(currentUser, "superadmin");
+            }
+
             if (NewBlogg == null)
             {
                 NewBlogg = new Models.Blogg();
@@ -105,7 +122,7 @@ namespace SarasBlogg.Pages
                 }
             }
 
-            NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Kanske inte behövs men intresseant att se under test.
 
             if (NewBlogg.Id == 0)
             {
