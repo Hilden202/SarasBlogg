@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SarasBlogg.DAL;
 using SarasBlogg.Data;
 using SarasBlogg.Services;
 
@@ -40,7 +41,7 @@ namespace SarasBlogg
             });
             // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-            builder.Services.AddScoped<IFileHelper, FileHelper>();
+            builder.Services.AddScoped<IFileHelper, FileHelper>(); // Tjänst för att hantera filer (t.ex. bilder)
 
             var app = builder.Build();
 
