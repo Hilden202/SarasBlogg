@@ -20,8 +20,10 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using SarasBlogg.Data;
 
+
 namespace SarasBlogg.Areas.Identity.Pages.Account
 {
+    [Authorize(Policy = "SkaVaraSuperAdmin")]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
