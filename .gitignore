@@ -48,3 +48,5 @@ SarasBlogg/Data/Migrations/
 
 # Mac-specifika filer
 .DS_Store
+
+secrets.json

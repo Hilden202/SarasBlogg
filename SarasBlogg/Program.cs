@@ -11,6 +11,8 @@ namespace SarasBlogg
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
+
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -42,6 +44,8 @@ namespace SarasBlogg
 
             var app = builder.Build();
 
+            CreateAdminUserAsync(app).GetAwaiter().GetResult(); // nödvändigt för att skapa admin-användaren innan appen startar
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -67,5 +71,41 @@ namespace SarasBlogg
 
             app.Run();
         }
+        public static async Task CreateAdminUserAsync(WebApplication app)
+        {
+            // Hämta UserManager och RoleManager från DI
+            using var scope = app.Services.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+            string adminEmail = config["AdminUser:Email"];
+            string adminPassword = config["AdminUser:Password"];
+            string superAdminRole = "superadmin";
+
+            // Skapa rollen superadmin om den inte finns
+            if (!await roleManager.RoleExistsAsync(superAdminRole))
+            {
+                await roleManager.CreateAsync(new IdentityRole(superAdminRole));
+            }
+
+            // Kolla om admin-användaren finns, annars skapa den
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
+            {
+                adminUser = new ApplicationUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, superAdminRole);
+                }
+                else
+                {
+                    // Hantera fel, t.ex. logga det eller kasta exception
+                    throw new Exception("Misslyckades skapa admin-användaren: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+                }
+            }
+        }
+
     }
 }
