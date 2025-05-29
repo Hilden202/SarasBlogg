@@ -60,7 +60,7 @@
 						<div class="card-body">
 							<strong>@comment.Name</strong> <span class="text-muted">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
 							<p>@comment.Content</p>
-							@if (User.IsInRole("admin") || User.IsInRole("superadmin"))
+							@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
 							{
 								<form method="post" asp-route-deleteCommentId="@comment.Id">
 									<button type="submit" class="btn btn-link p-0 m-0 align-baseline">Ta bort</button>
