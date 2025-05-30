@@ -59,7 +59,6 @@
 							<!-- Bildhantering -->
 							<label asp-for="AboutMe.Image"></label>
 							<input asp-for="AboutMeImage" class="form-control" />
-							<span asp-validation-for="AboutMe.Image" class="text-danger"></span>
 							<br />
 							@if (!string.IsNullOrEmpty(Model.AboutMe.Image))
 							{
@@ -82,3 +81,6 @@
 		</div>
 	}
 </div>
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}

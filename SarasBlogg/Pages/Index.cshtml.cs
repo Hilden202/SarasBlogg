@@ -21,7 +21,7 @@ namespace SarasBlogg.Pages
         }
         [BindProperty]
         public BloggViewModel ViewModel { get; set; } = new();
-        
+
 
         public async Task OnGetAsync(int showId, int id)
         {
@@ -61,20 +61,21 @@ namespace SarasBlogg.Pages
                 }
 
             }
-            //if (ModelState.IsValid)
-            //{
-            //    if (ViewModel.Comment?.Id == null)
-            //    {
-            await DAL.CommentAPIManager.SaveCommentAsync(ViewModel.Comment);
-                //}
-                //else
-                //{
-                //    await DAL.CommentAPIManager.UpdateCommentAsync(ViewModel.Comment);
-                //}
-            //}
+            if (ModelState.IsValid)
+            {
+                if (ViewModel.Comment?.Id == null)
+                {
+                    await DAL.CommentAPIManager.SaveCommentAsync(ViewModel.Comment);
+                    //}
+                    //else
+                    //{
+                    //    await DAL.CommentAPIManager.UpdateCommentAsync(ViewModel.Comment);
+                    //}
+                }
 
+            }
             return RedirectToPage("./Index", new { showId = ViewModel.Comment?.BloggId });
-        }
 
+        }
     }
 }

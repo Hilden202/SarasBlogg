@@ -14,7 +14,7 @@
 		&& b.LaunchDate <= DateTime.Today);
 
 
-		foreach (var blogg in filteredBloggs)
+		foreach (var blogg in filteredBloggs.Reverse())
 		{
 			<a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark blogg-link" Id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
 				<div class="card m-2 shadow-lg card mx-auto">
@@ -77,15 +77,17 @@
 		{
 			<p class="text-muted">Inga kommentarer ännu.</p>
 		}
-		<form method="post" class="p-3 border rounded shadow-sm">
+		<form method="post" id="commentForm" class="p-3 border rounded shadow-sm">
 			<label asp-for="Comment.Name"></label>
 			<input asp-for="Comment.Name" class="form-control" placeholder="Ange ditt namn" />
+				<span asp-validation-for="Comment.Name" class="text-danger"></span>
 			<br />
 			@* 			<label asp-for="Comment.Email"></label>
 			<input asp-for="Comment.Email" class="form-control" placeholder="Ange din mailadress" />
 			<br /> *@
 			<label asp-for="Comment.Content"></label>
 			<textarea asp-for="Comment.Content" rows="4" cols="50" class="form-control" placeholder="Skriv en kommentar"></textarea>
+				<span asp-validation-for="Comment.Content" class="text-danger"></span>
 			<br />
 			<input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
 			<input type="hidden" asp-for="Comment.CreatedAt" value="@DateTime.UtcNow" />
@@ -93,3 +95,6 @@
 		</form>
 	}
 </div>
+@section Scripts {
+			<partial name="_ValidationScriptsPartial" />
+}

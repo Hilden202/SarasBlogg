@@ -13,14 +13,16 @@ namespace SarasBlogg.Models
 
         [Required(ErrorMessage = "Du behöver skriva något här")]
         [DisplayName("Innehåll")]
+
         public string? Content { get; set; }
         [Display(Name = "Författare")]
+        [Required(ErrorMessage = "Ange författare")]
         public string? Author { get; set; }
 
         [Display(Name = "Bild")]
         public string? Image { get; set; }
 
-        [Required(ErrorMessage = "Ange ett lanseringsdatum")]
+        [Required(ErrorMessage = "Du måste välja ett lanseringsdatum")]
         [DisplayName("Lansering Datum")]
         [DataType(DataType.Date)]
         public DateTime LaunchDate { get; set; }

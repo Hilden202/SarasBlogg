@@ -69,6 +69,7 @@ window.addEventListener('DOMContentLoaded', function () {
     scrollToSectionIfParamExists('showId', { id: 'bloggTopSection' });
     scrollToSectionIfParamExists('editId', { id: 'editFormSection' });
     scrollToSectionIfParamExists('reloadId', { prefix: 'reloadPageFormSection' });
+    scrollToSectionIfParamExists('commentedId', { id: 'commentForm' });
 
     // Lägg till fler anrop här om du vill stödja fler parametrar/element
     // scrollToSectionIfParamExists('anotherParam', { id/prefix: 'anotherSectionId'});

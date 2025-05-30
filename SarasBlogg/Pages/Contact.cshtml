@@ -3,7 +3,12 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @{
 }
-<div class="container-site"
+
+
+
+
+<div class="container-site">
+	<img class="card-img-top mb-3" src="~/img/logo/kontaktaoss.jpg" alt="kontaktaoss logotype" />
 <h2>Kontakta mig</h2>
 
 <form class="p-1 p-4 border rounded shadow-sm" method="post">
@@ -49,9 +54,12 @@
 							<button type="submit" class="btn btn-close linebreaknormal"></button>
 						</form>
 
-						<strong>@item.Name</strong> - <em>@item.Subject - @item.Message</em><br />
+					<strong>@item.Name</strong> - <em>@item.Subject - @item.Message - <a href="mailto:@item.Email">@item.Email</a></em><br />
 					</li>
 			}
 	</ul>
 	}
 </div>
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+            }
