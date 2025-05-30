@@ -74,7 +74,7 @@ namespace SarasBlogg.Pages
                 }
 
             }
-            return RedirectToPage("./Index", new { showId = ViewModel.Comment?.BloggId });
+            return RedirectToPage("./Index", new { showId = ViewModel.Comment?.BloggId, commentId = ViewModel.Comment?.BloggId });
 
         }
     }

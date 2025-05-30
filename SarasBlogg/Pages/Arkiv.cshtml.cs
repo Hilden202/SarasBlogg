@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.Data;
@@ -47,31 +47,25 @@ namespace SarasBlogg.Pages
                 if (comment != null)
                 {
                     await DAL.CommentAPIManager.DeleteCommentAsync(deleteCommentId);
-                    return RedirectToPage("./Arkiv", new { showId = comment.BloggId });
+                    return RedirectToPage("./Index", new { showId = comment.BloggId });
                 }
+
             }
-            // ? Lägg till denna kontroll
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                // Ladda om innehållet igen så modellen har data för återvisning
-                ViewModel.Bloggs = await _context.Blogg
-                    .Where(b => b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today)
-                    .ToListAsync();
-
-                if (ViewModel.Comment?.BloggId != 0)
+                if (ViewModel.Comment?.Id == null)
                 {
-                    ViewModel.Blogg = await _context.Blogg.FirstOrDefaultAsync(b =>
-                        b.Id == ViewModel.Comment.BloggId &&
-                        b.IsArchived && !b.Hidden);
+                    await DAL.CommentAPIManager.SaveCommentAsync(ViewModel.Comment);
+                    //}
+                    //else
+                    //{
+                    //    await DAL.CommentAPIManager.UpdateCommentAsync(ViewModel.Comment);
+                    //}
                 }
 
-                ViewModel.Comments = await DAL.CommentAPIManager.GetAllCommentsAsync();
-
-                return Page(); // återvisa formuläret med valideringsfel
             }
+            return RedirectToPage("./Arkiv", new { showId = ViewModel.Comment?.BloggId, commentId = ViewModel.Comment?.BloggId });
 
-            await DAL.CommentAPIManager.SaveCommentAsync(ViewModel.Comment);
-            return RedirectToPage("./Arkiv", new { showId = ViewModel.Comment?.BloggId, commentedId = ViewModel.Comment?.BloggId });
         }
 
     }

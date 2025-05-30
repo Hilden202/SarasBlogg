@@ -59,13 +59,13 @@
 					<div>
 						<div class="card-body">
 							<strong>@comment.Name</strong> <span class="text-muted">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
-							<p>@comment.Content</p>
-							@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
-							{
-								<form method="post" asp-route-deleteCommentId="@comment.Id">
-									<button type="submit" class="btn btn-link p-0 m-0 align-baseline">Ta bort</button>
-								</form>
-							}
+                            @if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
+                            {
+                                <form method="post" asp-route-deleteCommentId="@comment.Id" class="d-inline ms-2">
+                                    <input type="submit" value="Ta bort"/>
+                                </form>
+                            }
+                            <p>@comment.Content</p>
 						</div>
 					</div>
 				}
@@ -80,14 +80,14 @@
 		<form method="post" id="commentForm" class="p-3 border rounded shadow-sm">
 			<label asp-for="Comment.Name"></label>
 			<input asp-for="Comment.Name" class="form-control" placeholder="Ange ditt namn" />
-				<span asp-validation-for="Comment.Name" class="text-danger"></span>
+			<span asp-validation-for="Comment.Name" class="text-danger"></span>
 			<br />
-			@* 			<label asp-for="Comment.Email"></label>
+			@*<label asp-for="Comment.Email"></label>
 			<input asp-for="Comment.Email" class="form-control" placeholder="Ange din mailadress" />
 			<br /> *@
 			<label asp-for="Comment.Content"></label>
 			<textarea asp-for="Comment.Content" rows="4" cols="50" class="form-control" placeholder="Skriv en kommentar"></textarea>
-				<span asp-validation-for="Comment.Content" class="text-danger"></span>
+			<span asp-validation-for="Comment.Content" class="text-danger"></span>
 			<br />
 			<input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
 			<input type="hidden" asp-for="Comment.CreatedAt" value="@DateTime.UtcNow" />
@@ -95,6 +95,3 @@
 		</form>
 	}
 </div>
-@section Scripts {
-			<partial name="_ValidationScriptsPartial" />
-}

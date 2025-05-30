@@ -24,6 +24,13 @@ namespace SarasBlogg.Pages
 
         public async Task<IActionResult> OnPostAsync(Models.ContactMe contactMe, int deleteId)
         {
+            if (ModelState.IsValid)
+            {
+                _context.ContactMe.Add(contactMe);
+                await _context.SaveChangesAsync();
+                TempData["addMessage"] = "Tack för ditt meddelande!";
+                return RedirectToPage("./Contact", new { contactId = "1" });
+            }
             if (deleteId != 0)
             {
                 var contactToDelete = await _context.ContactMe.FindAsync(deleteId);
@@ -31,17 +38,10 @@ namespace SarasBlogg.Pages
                 {
                     _context.ContactMe.Remove(contactToDelete);
                     await _context.SaveChangesAsync();
-                    TempData["Message"] = "Meddelandet raderades.";
+                    TempData["deleteMessage"] = "Meddelandet raderades.";
                 }
 
-                return RedirectToPage();
-            }
-            if (ModelState.IsValid)
-            {
-                _context.ContactMe.Add(contactMe);
-                await _context.SaveChangesAsync();
-                TempData["Message"] = "Tack för ditt meddelande!";
-                return RedirectToPage();
+                return RedirectToPage("./Contact", new { contactId = "1" });
             }
             return Page();
         }

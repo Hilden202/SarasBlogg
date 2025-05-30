@@ -1,30 +1,30 @@
-﻿<!DOCTYPE html>  
-<html lang="en" data-bs-theme="light">  
+﻿<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-<head>  
-	<meta charset="utf-8" />  
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />  
-	<title>@ViewData["Title"] - SarasBlogg</title>  
-	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />  
-	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />  
-	<link rel="stylesheet" href="~/css/blogg.css" asp-append-version="true" />  
-	<link rel="stylesheet" href="~/SarasBlogg.styles.css" asp-append-version="true" />  
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">  
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>  
-</head>  
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - SarasBlogg</title>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/blogg.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/SarasBlogg.styles.css" asp-append-version="true" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
 <body>
-	<header>  
-		<nav class="navbar navbar-expand-sm">  
-			<div class="container">  
-				<a class="navbar-brand" asp-area="" asp-page="/Index">SarasBlogg</a>  
-				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"  
-				aria-expanded="false" aria-label="Toggle navigation">  
-					<span class="navbar-toggler-icon"></span>  
-				</button>  
-				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">  
+	<header>
+		<nav class="navbar navbar-expand-sm">
+			<div class="container">
+				<a class="navbar-brand" asp-area="" asp-page="/Index">SarasBlogg</a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+						aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 					<ul class="navbar-nav flex-grow-1 justify-content-center">
-					@*@if (SignInManager.IsSignedIn(User))  
+						@*@if (SignInManager.IsSignedIn(User))  
 						{  
 							<li class="nav-item">  
 								<div class="alert alert-success text-center">  
@@ -47,28 +47,28 @@
 							<partial name="_LoginPartial" />
 						</div>
 					}
-                    <button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button> @*Se script i site.js*@
-				</div>  
-			</div>  
-		</nav>  
-		<div class="text-center">  
-            <h1 class="header-title">
-                <a asp-area="" asp-page="/Index">
+					<button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button> @*Se script i site.js*@
+				</div>
+			</div>
+		</nav>
+		<div class="text-center">
+			<h1 class="header-title">
+				<a asp-area="" asp-page="/Index">
 					<img class="sg-logo img-fluid" src="~/img/logo/sglogga.png" alt="Sara Gustafsson logotype" />
-                </a>
-            </h1> <br />
+				</a>
+			</h1> <br />
 			<h2 class="header-text">När ingen ser mig då hittar jag mig</h2>
-		</div>  
-		<nav class="navbar-expand-sm border-bottom">  
-			<div class="container d-flex justify-content-center">  
-				<ul class="mynav">  
-					<li class="nav-item me-3">  
+		</div>
+		<nav class="navbar-expand-sm border-bottom">
+			<div class="container d-flex justify-content-center">
+				<ul class="mynav">
+					<li class="nav-item me-3">
 						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Index">Blogg</a>
-					</li>  
-					<li class="nav-item me-3">  
+					</li>
+					<li class="nav-item me-3">
 						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Privacy">Om mig</a>
-					</li>  
-					<li class="nav-item me-3">  
+					</li>
+					<li class="nav-item me-3">
 						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Arkiv">Arkiv</a>
 					</li>
 					<li class="nav-item me-3">
@@ -80,28 +80,29 @@
 							<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin">Admin</a>
 						</li>
 					}
-				</ul>  
-          </div>  
-       </nav>  
-</header>  
-<br />
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<br />
 
-<div class="container">  
-	<main role="main" class="pb-3">  
-		@RenderBody()  
-	</main>  
-</div>  
-<footer class="border-top footer text-muted">  
-	<div class="container">  
-		&copy; 2025 - SarasBlogg  
-	</div>  
-</footer>  
+	<div class="container">
+		<main role="main" class="pb-3">
+			@RenderBody()
+		</main>
+	</div>
+	<footer class="border-top footer text-muted">
+		<div class="container">
+			&copy; 2025 - SarasBlogg
+		</div>
+	</footer>
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>  
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>  
-<script src="~/js/site.js" asp-append-version="true"></script>  
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
 
-@await RenderSectionAsync("Scripts", required: false)  
+	@await RenderSectionAsync("Scripts", required: false)
+	<partial name="_ValidationScriptsPartial" />
 
-</body>  
+</body>
 </html>

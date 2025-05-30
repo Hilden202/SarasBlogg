@@ -34,11 +34,17 @@
 	</div><br />
 	<input type="submit" value="Skicka" />
 </form>
-	@if (TempData["Message"] != null)
+	@if (TempData["addMessage"] != null)
 	{
 			<br />
 
-		<div class="alert alert-success">@TempData["Message"]</div>
+		<div class="alert alert-success">@TempData["addMessage"]</div>
+	}
+	@if (TempData["deleteMessage"] != null)
+	{
+		<br />
+
+		<div class="alert alert-danger">@TempData["deleteMessage"]</div>
 	}
 
 	@if (User.IsInRole("admin") || User.IsInRole("superadmin"))
@@ -49,9 +55,9 @@
 			@foreach (var item in Model.ContactMes)
 			{
 					<li class="list-group-item d-flex">
-						<form method="post" class="me-2">
+						<form method="post" id="contactForm" class="me-2">
 							<input type="hidden" name="deleteId" value="@item.Id" />
-							<button type="submit" class="btn btn-close linebreaknormal"></button>
+						<button type="submit" class="btn btn-close"></button>
 						</form>
 
 					<strong>@item.Name</strong> - <em>@item.Subject - @item.Message - <a href="mailto:@item.Email">@item.Email</a></em><br />
@@ -60,6 +66,3 @@
 	</ul>
 	}
 </div>
-@section Scripts {
-	<partial name="_ValidationScriptsPartial" />
-            }
