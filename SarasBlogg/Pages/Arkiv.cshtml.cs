@@ -47,7 +47,7 @@ namespace SarasBlogg.Pages
                 if (comment != null)
                 {
                     await DAL.CommentAPIManager.DeleteCommentAsync(deleteCommentId);
-                    return RedirectToPage("./Index", new { showId = comment.BloggId });
+                    return RedirectToPage("./Arkiv", new { showId = comment.BloggId });
                 }
 
             }
