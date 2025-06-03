@@ -64,10 +64,13 @@ namespace SarasBlogg.Pages
                 Models.Blogg bloggToDelete = await _context.Blogg.FindAsync(deleteId);
                 if (bloggToDelete != null) // && User.FindFirstValue(ClaimTypes.NameIdentifier) == blogToBeDeleted.UserId
                 {
+                    await DAL.CommentAPIManager.DeleteCommentsAsync(bloggToDelete.Id); // ta bort eventuella kopplade kommentarer här.
+
                     _fileHelper.DeleteImage(bloggToDelete.Image, "img/blogg");
 
                     _context.Blogg.Remove(bloggToDelete);
                     await _context.SaveChangesAsync();
+
                 }
 
                 return RedirectToPage();
@@ -146,7 +149,3 @@ namespace SarasBlogg.Pages
 
     }
 }
-
-
-
-

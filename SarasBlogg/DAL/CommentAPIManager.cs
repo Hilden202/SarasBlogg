@@ -29,7 +29,7 @@ namespace SarasBlogg.DAL
             using (var client = new HttpClient())
             {
                 client.BaseAddress = BaseAddress;
-                HttpResponseMessage response = await client.GetAsync("api/Comment/" + id);
+                HttpResponseMessage response = await client.GetAsync("api/Comment/ById/" + id);
                 if (response.IsSuccessStatusCode)
                 {
                     string responsString = await response.Content.ReadAsStringAsync();
@@ -50,6 +50,24 @@ namespace SarasBlogg.DAL
             }
         }
 
+        public static async Task DeleteCommentAsync(int id)
+        {
+            using(var client = new HttpClient())
+            {
+                client.BaseAddress = BaseAddress;
+                HttpResponseMessage response = await client.DeleteAsync("api/Comment/ById/" + id);
+            }
+        }
+
+        public static async Task DeleteCommentsAsync(int bloggId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = BaseAddress;
+                HttpResponseMessage response = await client.DeleteAsync("api/Comment/ByBlogg/" + bloggId);
+            }
+        }
+
         //public static async Task UpdateCommentAsync(Models.Comment comment)
         //{
         //    using (var client = new HttpClient())
@@ -60,14 +78,5 @@ namespace SarasBlogg.DAL
         //        HttpResponseMessage response = await client.PutAsync("api/Comment/" + comment.Id, httpContent);
         //    }
         //}
-
-        public static async Task DeleteCommentAsync(int id)
-        {
-            using(var client = new HttpClient())
-            {
-                client.BaseAddress = BaseAddress;
-                HttpResponseMessage response = await client.DeleteAsync("api/Comment/" + id);
-            }
-        }
     }
 }
