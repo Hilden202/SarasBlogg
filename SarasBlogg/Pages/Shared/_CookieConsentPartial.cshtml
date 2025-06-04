@@ -7,11 +7,14 @@
 
 @if (showBannerFlag)
 {
-	<div id="cookieConsentdiv">
+	<div id="cookieConsentdiv" class="position-fixed bottom-1 start-50 translate-middle-x alert alert-secondary shadow-lg translate-middle rounded-4 p-3" style="z-index: 2000;">
 		<h3 class="display-6">Vår cookie-policy</h3>
-		<p>Den här webbplatsen använder cookies för att förbättra din upplevelse. Genom att fortsätta använda webbplatsen godkänner du vår användning av cookies.</p>
-		<a asp-page="/Privacy">Läs mer här</a>
-		<button type="button" data-cookie-string="@cookieString">
+		<p>Vi använder endast nödvändiga cookies för att webbplatsen ska fungera korrekt. Genom att klicka på Acceptera godkänner du detta – och du slipper dessutom se den här rutan igen.</p>
+		<a href="#" id="showPrivacyContent">Läs mer här</a>
+		<div id="privacyContent" style="display:none; margin-top:1em;">
+			@await Html.PartialAsync("_PrivacyContent")
+		</div>
+		<button type="button" data-cookie-string="@cookieString" class="btn btn-primary mt-2">
 			Acceptera
 		</button>
 	</div>
@@ -21,6 +24,10 @@
 			$("#cookieConsentdiv button[data-cookie-string]").bind("click", function () {
 				document.cookie = $("#cookieConsentdiv button").attr("data-cookie-string");
 				$("#cookieConsentdiv").hide();
+			});
+			$("#showPrivacyContent").on("click", function (e) {
+				e.preventDefault();
+				$("#privacyContent").toggle();
 			});
 		});
 	</script>
