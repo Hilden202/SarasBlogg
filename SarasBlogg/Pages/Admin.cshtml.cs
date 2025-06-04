@@ -31,7 +31,7 @@ namespace SarasBlogg.Pages
         public Models.Blogg NewBlogg { get; set; }
 
         [BindProperty]
-        public IFormFile BloggImage { get; set; }
+        public IFormFile? BloggImage { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsSuperAdmin { get; set; }
 
