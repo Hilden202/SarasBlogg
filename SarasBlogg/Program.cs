@@ -43,7 +43,16 @@ namespace SarasBlogg
 
             builder.Services.AddScoped<IFileHelper, FileHelper>(); // Tjänst för att hantera filer (t.ex. bilder)
 
+            // Registrera cookie policy
+            builder.Services.Configure<CookiePolicyOptions>(options =>
+            {
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            }); //
+
             var app = builder.Build();
+
+            app.UseCookiePolicy(); // slå på cookie policy
 
             /*CreateAdminUserAsync(app).GetAwaiter().GetResult(); */// nödvändigt för att skapa admin-användaren innan appen startar. kommentera in om databasen  är ny
 
