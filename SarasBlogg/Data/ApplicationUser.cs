@@ -8,5 +8,7 @@ namespace SarasBlogg.Data
         public int? BirthYear { get; set; }
         [PersonalData]
         public string? Name { get; set; }
+        [PersonalData]
+        public string? ProfileImageUrl { get; set; }
     }
 }

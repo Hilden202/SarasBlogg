@@ -2,71 +2,50 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.Data;
+using SarasBlogg.Services;
 using SarasBlogg.ViewModels;
 
 namespace SarasBlogg.Pages
 {
     public class ArkivModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly BloggService _bloggService;
 
-        public ArkivModel(ApplicationDbContext context)
+        public ArkivModel(BloggService bloggService)
         {
-            _context = context;
+            _bloggService = bloggService;
         }
+
         [BindProperty]
         public BloggViewModel ViewModel { get; set; } = new();
 
         public async Task OnGetAsync(int showId, int id)
         {
-            ViewModel.Bloggs = await _context.Blogg
-                .Where(b => b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today)
-                .ToListAsync();
-
-            ViewModel.IsArchiveView = true;
-
             if (showId != 0)
             {
-                ViewModel.Blogg = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == showId && b.IsArchived && !b.Hidden);
+                await _bloggService.UpdateViewCountAsync(showId);
             }
-
-            ViewModel.Comments = await DAL.CommentAPIManager.GetAllCommentsAsync();
-            //if (id != 0)
-            //{
-            //    ViewModel.Comment = await DAL.CommentAPIManager.GetCommentAsync(id);
-
-            //}
+            ViewModel = await _bloggService.GetBloggViewModelAsync(true, showId);
         }
 
         public async Task<IActionResult> OnPostAsync(int deleteCommentId)
         {
             if (deleteCommentId != 0)
             {
-                var comment = await DAL.CommentAPIManager.GetCommentAsync(deleteCommentId);
-
+                var comment = await _bloggService.GetCommentAsync(deleteCommentId);
                 if (comment != null)
                 {
-                    await DAL.CommentAPIManager.DeleteCommentAsync(deleteCommentId);
+                    await _bloggService.DeleteCommentAsync(deleteCommentId);
                     return RedirectToPage("./Arkiv", new { showId = comment.BloggId });
                 }
-
             }
-            if (ModelState.IsValid)
+
+            if (ModelState.IsValid && ViewModel.Comment?.Id == null)
             {
-                if (ViewModel.Comment?.Id == null)
-                {
-                    await DAL.CommentAPIManager.SaveCommentAsync(ViewModel.Comment);
-                    //}
-                    //else
-                    //{
-                    //    await DAL.CommentAPIManager.UpdateCommentAsync(ViewModel.Comment);
-                    //}
-                }
-
+                await _bloggService.SaveCommentAsync(ViewModel.Comment);
             }
+
             return RedirectToPage("./Arkiv", new { showId = ViewModel.Comment?.BloggId, commentId = ViewModel.Comment?.BloggId });
-
         }
-
     }
 }

@@ -13,7 +13,6 @@
 		&& !b.Hidden
 		&& b.LaunchDate <= DateTime.Today);
 
-
 		foreach (var blogg in filteredBloggs.Reverse())
 		{
 			<a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark blogg-link" Id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
@@ -28,6 +27,11 @@
 								<br />
 								@Model.Comments?.Count(c => c.BloggId == blogg.Id)
 								@(Model.Comments?.Count(c => c.BloggId == blogg.Id) == 1 ? "Kommentar" : "Kommentarer")
+								@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
+								{
+									<br />
+									<span class="badge bg-info text-dark">Visningar: @blogg.ViewCount</span>
+								}
 							</small>
 						</p>
 					</div>
@@ -46,6 +50,11 @@
 				<p class="text-muted">
 					<strong>Författare:</strong> @Model.Blogg.Author<br />
 					<strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToString("yyyy-MM-dd")
+					@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
+					{
+						<br />
+						<span class="badge bg-info text-dark">Visningar: @Model.Blogg.ViewCount</span>
+					}
 				</p>
 				<hr class="mb-3" />
 			</div>
@@ -54,7 +63,7 @@
 		{
 			<div class="comments-section mt-4">
 				<h5>Kommentarer</h5>
-				@foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id).Reverse()) // går säkert göra mer dry Todo
+				@foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id).Reverse())
 				{
 					<div>
 						<div class="card-body">
@@ -82,9 +91,6 @@
 			<input asp-for="Comment.Name" class="form-control" placeholder="Ange ditt namn" />
 			<span asp-validation-for="Comment.Name" class="text-danger"></span>
 			<br />
-			@*<label asp-for="Comment.Email"></label>
-			<input asp-for="Comment.Email" class="form-control" placeholder="Ange din mailadress" />
-			<br /> *@
 			<label asp-for="Comment.Content"></label>
 			<textarea asp-for="Comment.Content" rows="4" cols="50" class="form-control" placeholder="Skriv en kommentar"></textarea>
 			<span asp-validation-for="Comment.Content" class="text-danger"></span>

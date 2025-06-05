@@ -20,6 +20,8 @@ namespace SarasBlogg
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+            builder.Services.AddScoped<BloggService>();
+
             builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>() // Lägg till roller
                 .AddEntityFrameworkStores<ApplicationDbContext>();

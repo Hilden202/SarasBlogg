@@ -1,81 +1,50 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using SarasBlogg.Data;
 using SarasBlogg.ViewModels;
+using SarasBlogg.Services;
+using SarasBlogg.Models;
 
 namespace SarasBlogg.Pages
 {
     public class IndexModel : PageModel
     {
-        //public ApplicationUser MyUser { get; set; }
+        private readonly BloggService _bloggService;
 
-        private readonly ApplicationDbContext _context;
-        //private UserManager<ApplicationUser> _userManager;
-
-        public IndexModel(ApplicationDbContext context/*, UserManager<ApplicationUser> userManager*/)
+        public IndexModel(BloggService bloggService)
         {
-            _context = context;
-            //_userManager = userManager;
+            _bloggService = bloggService;
         }
+
         [BindProperty]
         public BloggViewModel ViewModel { get; set; } = new();
 
-
         public async Task OnGetAsync(int showId, int id)
         {
-
-            ViewModel.Bloggs = await _context.Blogg
-                                .Where(b => !b.IsArchived && !b.Hidden && b.LaunchDate <= DateTime.Today)
-                                .ToListAsync();
-
-            ViewModel.IsArchiveView = false;
-
             if (showId != 0)
             {
-                ViewModel.Blogg = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == showId);
-
+                await _bloggService.UpdateViewCountAsync(showId);
             }
-
-            ViewModel.Comments = await DAL.CommentAPIManager.GetAllCommentsAsync();
-            //if (id != 0)
-            //{
-            //    ViewModel.Comment = await DAL.CommentAPIManager.GetCommentAsync(id);
-
-            //}
-
-            //MyUser = await _userManager.GetUserAsync(User);
+            ViewModel = await _bloggService.GetBloggViewModelAsync(false, showId);
         }
 
         public async Task<IActionResult> OnPostAsync(int deleteCommentId)
         {
             if (deleteCommentId != 0)
             {
-                var comment = await DAL.CommentAPIManager.GetCommentAsync(deleteCommentId);
-
+                var comment = await _bloggService.GetCommentAsync(deleteCommentId);
                 if (comment != null)
                 {
-                    await DAL.CommentAPIManager.DeleteCommentAsync(deleteCommentId);
+                    await _bloggService.DeleteCommentAsync(deleteCommentId);
                     return RedirectToPage("./Index", new { showId = comment.BloggId });
                 }
-
             }
-            if (ModelState.IsValid)
+
+            if (ModelState.IsValid && ViewModel.Comment?.Id == null)
             {
-                if (ViewModel.Comment?.Id == null)
-                {
-                    await DAL.CommentAPIManager.SaveCommentAsync(ViewModel.Comment);
-                    //}
-                    //else
-                    //{
-                    //    await DAL.CommentAPIManager.UpdateCommentAsync(ViewModel.Comment);
-                    //}
-                }
-
+                await _bloggService.SaveCommentAsync(ViewModel.Comment);
             }
-            return RedirectToPage("./Index", new { showId = ViewModel.Comment?.BloggId, commentId = ViewModel.Comment?.BloggId });
 
+            return RedirectToPage("./Index", new { showId = ViewModel.Comment?.BloggId, commentId = ViewModel.Comment?.BloggId });
         }
     }
 }
