@@ -4,8 +4,8 @@ namespace SarasBlogg.DAL
 {
     public class CommentAPIManager
     {
-        private static Uri BaseAddress = new Uri("https://localhost:44316/");
-        //private static Uri BaseAddress = new Uri("https://sarasbloggapi-dxazexfadphfecfk.northeurope-01.azurewebsites.net/");
+        //private static Uri BaseAddress = new Uri("https://localhost:44316/");
+        private static Uri BaseAddress = new Uri("https://sarasbloggapi-dxazexfadphfecfk.northeurope-01.azurewebsites.net/");
 
         public static async Task<List<Models.Comment>> GetAllCommentsAsync()
         {
