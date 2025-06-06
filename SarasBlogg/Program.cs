@@ -12,7 +12,7 @@ namespace SarasBlogg
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
+            //builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
 
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -29,8 +29,8 @@ namespace SarasBlogg
             // Identitetsroller för mappar >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             builder.Services.AddAuthorization(options =>
             {
-            options.AddPolicy("SkaVaraSuperAdmin", policy => policy.RequireRole("superadmin"));
-            options.AddPolicy("SkaVaraAdmin", policy => policy.RequireRole("superadmin", "admin"));
+                options.AddPolicy("SkaVaraSuperAdmin", policy => policy.RequireRole("superadmin"));
+                options.AddPolicy("SkaVaraAdmin", policy => policy.RequireRole("superadmin", "admin"));
 
             });
 

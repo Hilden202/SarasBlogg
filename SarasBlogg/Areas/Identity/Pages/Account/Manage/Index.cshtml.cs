@@ -59,6 +59,13 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+
+            [Display(Name = "Namn")]
+            public string? Name { get; set; }
+
+            [Display(Name = "Födelseår")]
+            public int? BirthYear { get; set; }
+
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -70,7 +77,9 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                Name = user.Name, // från ApplicationUser
+                BirthYear = user.BirthYear
             };
         }
 
@@ -109,7 +118,19 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
                     StatusMessage = "Unexpected error when trying to set phone number.";
                     return RedirectToPage();
                 }
+
             }
+            if (user.Name != Input.Name)
+            {
+                user.Name = Input.Name;
+            }
+
+            if (user.BirthYear != Input.BirthYear)
+            {
+                user.BirthYear = Input.BirthYear;
+            }
+
+            await _userManager.UpdateAsync(user);
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
