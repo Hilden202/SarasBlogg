@@ -56,7 +56,7 @@ namespace SarasBlogg
 
             app.UseCookiePolicy(); // slå på cookie policy
 
-            /*CreateAdminUserAsync(app).GetAwaiter().GetResult(); */// nödvändigt för att skapa admin-användaren innan appen startar. kommentera in om databasen  är ny
+            //CreateAdminUserAsync(app).GetAwaiter().GetResult(); // nödvändigt för att skapa admin-användaren innan appen startar. kommentera in om databasen  är ny
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
