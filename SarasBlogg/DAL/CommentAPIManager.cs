@@ -39,7 +39,7 @@ namespace SarasBlogg.DAL
             }
         }
 
-        public static async Task SaveCommentAsync(Models.Comment comment)
+        public static async Task<string>SaveCommentAsync(Models.Comment comment) // La till string för att få tillbaka return.
         {
             using (var client = new HttpClient())
             {
@@ -47,6 +47,17 @@ namespace SarasBlogg.DAL
                 var json = JsonSerializer.Serialize(comment);
                 StringContent httpContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
                 HttpResponseMessage response = await client.PostAsync("api/Comment", httpContent);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return null;
+                }
+                else
+                {
+                    // Läs felmeddelande från API:t och returnera det
+                    string errorMsg = await response.Content.ReadAsStringAsync();
+                    return errorMsg;
+                }
             }
         }
 

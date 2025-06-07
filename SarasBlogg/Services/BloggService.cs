@@ -35,9 +35,9 @@ namespace SarasBlogg.Services
             return viewModel;
         }
 
-        public async Task SaveCommentAsync(Comment comment)
+        public async Task<string>SaveCommentAsync(Comment comment) // La till string för response
         {
-            await DAL.CommentAPIManager.SaveCommentAsync(comment);
+            return await DAL.CommentAPIManager.SaveCommentAsync(comment);
         }
 
         public async Task DeleteCommentAsync(int commentId)

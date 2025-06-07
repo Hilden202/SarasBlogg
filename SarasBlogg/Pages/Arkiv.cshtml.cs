@@ -42,7 +42,16 @@ namespace SarasBlogg.Pages
 
             if (ModelState.IsValid && ViewModel.Comment?.Id == null)
             {
-                await _bloggService.SaveCommentAsync(ViewModel.Comment);
+                string errorMessage = await _bloggService.SaveCommentAsync(ViewModel.Comment);
+
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    ModelState.AddModelError(string.Empty, errorMessage);
+
+                    ViewModel = await _bloggService.GetBloggViewModelAsync(false, ViewModel.Comment?.BloggId ?? 0);
+
+                    return Page();
+                }
             }
 
             return RedirectToPage("./Arkiv", new { showId = ViewModel.Comment?.BloggId, commentId = ViewModel.Comment?.BloggId });
