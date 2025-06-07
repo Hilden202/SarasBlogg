@@ -22,7 +22,7 @@ namespace SarasBlogg.Pages
         public Models.AboutMe AboutMe { get; set; }
 
         [BindProperty]
-        public IFormFile AboutMeImage { get; set; }
+        public IFormFile? AboutMeImage { get; set; }
 
         public async Task OnGetAsync()
         {
