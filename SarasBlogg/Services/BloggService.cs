@@ -2,6 +2,7 @@
 using SarasBlogg.Data;
 using SarasBlogg.ViewModels;
 using SarasBlogg.Models;
+using SarasBlogg.Extensions;
 
 namespace SarasBlogg.Services
 {
@@ -35,8 +36,14 @@ namespace SarasBlogg.Services
             return viewModel;
         }
 
-        public async Task<string>SaveCommentAsync(Comment comment) // La till string för response
+        public async Task<string> SaveCommentAsync(Comment comment) // La till string för response
         {
+            string forbiddenPattern = @"h[o0]r[a4]|kuk"; // hårdkodad regex för otillåtet språk
+
+            if (comment.Content.ContainsForbiddenWord(forbiddenPattern))
+            {
+                return "Kommentaren innehåller otillåtet språk.";
+            }
             return await DAL.CommentAPIManager.SaveCommentAsync(comment);
         }
 

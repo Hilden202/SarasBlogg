@@ -26,16 +26,6 @@
         font-weight: bold;
     }
 
-/*.card img {
-    height: auto;
-    width: 100%;
-    object-fit: cover;
-    aspect-ratio: 1.5 / 1;
-    border-radius: 10px;
-    max-width: none;
-}*/
-
-
 .card {
     display: flex;
     flex-direction: column;
@@ -60,16 +50,6 @@
     object-fit: cover;
     display: block;
 }
-
-/*.bloggimg {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    aspect-ratio: 1.5 / 1;
-    border-radius: 10px;
-    max-width: none;
-}*/
-
 
 .mynav {
     display: flex;

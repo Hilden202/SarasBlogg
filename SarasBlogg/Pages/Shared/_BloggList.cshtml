@@ -18,10 +18,10 @@
 			<a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark blogg-link" Id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
 				<div class="card m-2 shadow-lg mx-auto">
 					<div class="card-body">
-						<div class="card-img-wrapper">
+						<div class="card-img-wrapper mb-2">
 							<img class="bloggimg mb-4 shadow-lg" src="~/img/blogg/@blogg.Image" />
 						</div>
-						<h5 class="card-title">@blogg.Title</h5>
+						<h5 class="card-title mb-3">@blogg.Title</h5>
 						<p class="card-text">@blogg.Content.LimitLength(120)</p>
 						<p class="text-muted">
 							<small class="text-muted">
@@ -32,7 +32,7 @@
 								@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
 								{
 									<br />
-									<span class="badge bg-info text-dark">Visningar: @blogg.ViewCount</span>
+									<span class="badge bg-info text-dark mt-2 d-inline-block">Visningar: @blogg.ViewCount</span>
 								}
 							</small>
 						</p>
@@ -46,10 +46,10 @@
 	{
 		<div class="card-body" id="bloggTopSection">
 			<div class="card-body">
-				<div class="card-img-wrapper">
+				<div class="card-img-wrapper mb-2">
 					<img class="bloggimg mb-4 rounded shadow-lg" onclick="reloadCurrentPage(@Model.Blogg.Id)" style="cursor: pointer" src="~/img/blogg/@Model.Blogg.Image" alt="Blogg image" />
 				</div>
-				<h3 class="card-title">@Model.Blogg.Title</h3>
+				<h3 class="card-title mb-3">@Model.Blogg.Title</h3>
 				<p class="card-text linebreak">@Model.Blogg.Content</p>
 				<p class="text-muted">
 					<strong>Författare:</strong> @Model.Blogg.Author<br />
@@ -57,7 +57,7 @@
 					@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
 					{
 						<br />
-						<span class="badge bg-info text-dark">Visningar: @Model.Blogg.ViewCount</span>
+						<span class="badge bg-info text-dark mt-2 d-inline-block">Visningar: @Model.Blogg.ViewCount</span>
 					}
 				</p>
 				<hr class="mb-3" />
@@ -72,13 +72,13 @@
 					<div>
 						<div class="card-body">
 							<strong>@comment.Name</strong> <span class="text-muted">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
-                            @if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
-                            {
-                                <form method="post" asp-route-deleteCommentId="@comment.Id" class="d-inline ms-2">
-                                    <input type="submit" value="Ta bort"/>
-                                </form>
-                            }
-                            <p>@comment.Content</p>
+							@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
+							{
+								<form method="post" asp-route-deleteCommentId="@comment.Id" class="d-inline ms-2">
+									<input type="submit" value="Ta bort" />
+								</form>
+							}
+							<p>@comment.Content</p>
 						</div>
 					</div>
 				}
@@ -89,15 +89,6 @@
 		else
 		{
 			<p class="text-muted">Inga kommentarer ännu.</p>
-		}
-		@if (!ViewData.ModelState.IsValid)
-		{
-			<div class="alert alert-danger">
-				@foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-				{
-					<p>@error.ErrorMessage</p>
-				}
-			</div>
 		}
 		<form method="post" id="commentForm" class="p-3 border rounded shadow-sm">
 			<label asp-for="Comment.Name"></label>
