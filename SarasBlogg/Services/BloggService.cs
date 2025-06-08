@@ -36,13 +36,16 @@ namespace SarasBlogg.Services
             return viewModel;
         }
 
-        public async Task<string> SaveCommentAsync(Comment comment) // La till string för response
+        public async Task<string> SaveCommentAsync(Comment comment) // La till string för response både för API och regex
         {
-            string forbiddenPattern = @"h[o0]r[a4]|kuk"; // hårdkodad regex för otillåtet språk
+            var forbiddenPatterns = await _context.ForbiddenWords.Select(w => w.WordPattern).ToListAsync();
 
-            if (comment.Content.ContainsForbiddenWord(forbiddenPattern))
+            foreach (var pattern in forbiddenPatterns)
             {
-                return "Kommentaren innehåller otillåtet språk.";
+                if (comment.Content.ContainsForbiddenWord(pattern))
+                {
+                    return "Kommentaren innehåller otillåtet språk.";
+                }
             }
             return await DAL.CommentAPIManager.SaveCommentAsync(comment);
         }
