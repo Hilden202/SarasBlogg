@@ -1,5 +1,5 @@
 button {
-    background-color: var(--btn-bg, #f8f9fa); /* Default light mode */
+    background-color: var(--btn-bg, #f8f9fa); /* Standard light mode */
     color: var(--btn-text, #212529);
     border: 1px solid var(--btn-border, #ced4da);
     padding: 0.5rem 1rem;
@@ -47,16 +47,4 @@ body {
 
 .linebreakormal {
     white-space: nowrap;
-}
-
-.admin-blog-img {
-    max-height: 65px !important;
-    max-width: 100px;
-    width: auto;
-    height: auto;
-    object-fit: cover;
-    border-radius: 6px;
-    margin-right: 12px;
-    display: inline-block;
-    vertical-align: middle;
 }

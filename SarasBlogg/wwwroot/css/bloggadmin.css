@@ -1,0 +1,35 @@
+﻿body {
+}
+
+.admin-btn-group {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .admin-btn-group {
+        flex-direction: column;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+        .admin-btn-group > * {
+            width: 100%;
+        }
+}
+
+.admin-blog-img {
+    max-height: 65px !important;
+    max-width: 100px;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 1px;
+    margin-left: 1px;
+    display: inline-block;
+    vertical-align: middle;
+}
+

@@ -44,7 +44,8 @@
 					{
 						<tr>
 							<td class="text-center align-middle d-none d-md-table-cell" colspan="3">
-								<form method="get" class="d-inline">
+								<div class="admin-btn-group">
+								<form method="get" class="me-1">
 									<input type="hidden" name="hiddenId" value="@blogg.Id" />
 									<button type="submit" class="btn btn-outline-warning">Dölj</button>
 								</form>
@@ -57,6 +58,7 @@
 									<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success ms-1">Publicerad</a>
 								}
 								<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary ms-1">Ändra</a>
+							</div>
 							</td>
 							<td class="text-center align-middle d-table-cell d-md-none">
 								<div class="d-flex flex-column gap-1">
@@ -85,7 +87,7 @@
 								</span>
 							</td>
 							<td class="text-center align-middle border">
-								<img class="card-img-top admin-blog-img " src="~/img/blogg/@blogg.Image" />
+								<img class="admin-blog-img " src="~/img/blogg/@blogg.Image" />
 							</td>
 						</tr>
 					}
@@ -151,10 +153,12 @@
 		<h2>Lista Dolda Bloggar</h2>
 		@if (Model.Bloggs != null && Model.Bloggs.Any(b => b.Hidden))
 		{
-			<table class="border table table-striped shadow-sm">
+			<table class="border table table-striped shadow-sm align-middle">
 				<thead>
 					<tr>
-						<th class="text-center align-middle border" colspan="3">Knappar</th>
+						
+						<th class="text-center align-middle border d-none d-md-table-cell" colspan="3">Knappar</th>
+						<th class="text-center align-middle border d-table-cell d-md-none" colspan="1">Knappar</th>
 						<th class="text-center align-middle border">Id</th>
 						<th class="text-center align-middle border">Titel</th>
 						<th class="text-center align-middle border">Innehåll</th>
@@ -167,16 +171,16 @@
 					@foreach (var blogg in Model.Bloggs.Where(b => b.Hidden))
 					{
 						<tr>
-							<td class="text-center align-middle">
-								<form method="get">
-									<input type="hidden" name="deleteId" value="@blogg.Id" />
-									<button type="submit" class="btn btn-outline-danger linebreaknormal">Ta bort</button>
-								</form>
+							<td class="text-center align-middle d-none d-md-table-cell" colspan="3">
+								<div class="admin-btn-group">
+									<form method="me-1">
+										<input type="hidden" name="deleteId" value="@blogg.Id" />
+										<button type="submit" class="btn btn-outline-danger linebreaknormal">Ta bort</button>
+									</form>
+									<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
+									<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a>
+								</div>
 							</td>
-							<td class="text-center align-middle">
-								<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
-							</td>
-							<td class="text-center align-middle"><a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a></td>
 
 							<td class="text-center align-middle border">@blogg.Id</td>
 							<td class="text-lg-start align-middle border">@blogg.Title</td>
@@ -188,7 +192,7 @@
 								</span>
 							</td>
 							<td class="text-center align-middle border">
-								<img class="card-img-bottom admin-blog-img" src="~/img/blogg/@blogg.Image" />
+								<img class="admin-blog-img" src="~/img/blogg/@blogg.Image" />
 							</td>
 						</tr>
 					}
