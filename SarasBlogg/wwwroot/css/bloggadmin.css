@@ -1,7 +1,4 @@
-﻿body {
-}
-
-.admin-btn-group {
+﻿.admin-btn-group {
     display: flex;
     flex-wrap: nowrap;
     justify-content: center;
@@ -14,10 +11,6 @@
         align-items: center;
         flex-wrap: wrap;
     }
-
-        .admin-btn-group > * {
-            width: 100%;
-        }
 }
 
 .admin-blog-img {
@@ -33,3 +26,18 @@
     vertical-align: middle;
 }
 
+.d-flex.flex-column.gap-1 {
+    width: 100px;
+}
+
+td.image-column {
+    width: 70px;
+    max-width: 70px;
+    overflow: hidden;
+}
+
+    td.image-column img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }
