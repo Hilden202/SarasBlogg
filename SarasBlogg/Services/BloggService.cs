@@ -46,6 +46,10 @@ namespace SarasBlogg.Services
                 {
                     return "Kommentaren innehåller otillåtet språk.";
                 }
+                if (comment.Name.ContainsForbiddenWord(pattern))
+                {
+                    return "Namnet innehåller otillåtet språk.";
+                }
             }
             return await DAL.CommentAPIManager.SaveCommentAsync(comment);
         }

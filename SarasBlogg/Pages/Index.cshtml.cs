@@ -46,6 +46,7 @@ namespace SarasBlogg.Pages
                 if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
                     ModelState.AddModelError("Comment.Content", errorMessage);
+                    //ModelState.AddModelError("Comment.Name", errorMessage);
 
                     ViewModel = await _bloggService.GetBloggViewModelAsync(false, ViewModel.Comment?.BloggId ?? 0);
 
