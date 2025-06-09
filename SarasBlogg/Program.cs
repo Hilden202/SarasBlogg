@@ -40,6 +40,9 @@ namespace SarasBlogg
             {
                 options.Conventions.AuthorizePage("/Admin", "SkaVaraAdmin");
                 options.Conventions.AuthorizePage("/RoleAdmin", "SkaVaraSuperAdmin");
+
+                options.Conventions.AuthorizeFolder("/Admin/AboutMeAdmin", "SkaVaraAdmin");
+                options.Conventions.AuthorizeFolder("/Admin/BloggAdmin", "SkaVaraAdmin");
             });
             // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
