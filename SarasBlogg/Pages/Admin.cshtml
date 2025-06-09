@@ -45,20 +45,20 @@
 						<tr>
 							<td class="text-center align-middle d-none d-md-table-cell" colspan="3">
 								<div class="admin-btn-group">
-								<form method="get" class="me-1">
-									<input type="hidden" name="hiddenId" value="@blogg.Id" />
-									<button type="submit" class="btn btn-outline-warning">Dölj</button>
-								</form>
-								@if (blogg.IsArchived)
-								{
-									<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning ms-1">Arkiverad</a>
-								}
-								else
-								{
-									<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success ms-1">Publicerad</a>
-								}
-								<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary ms-1">Ändra</a>
-							</div>
+									<form method="get" class="me-1">
+										<input type="hidden" name="hiddenId" value="@blogg.Id" />
+										<button type="submit" class="btn btn-outline-warning">Dölj</button>
+									</form>
+									@if (blogg.IsArchived)
+									{
+										<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning ms-1">Arkiverad</a>
+									}
+									else
+									{
+										<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success ms-1">Publicerad</a>
+									}
+									<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary ms-1">Ändra</a>
+								</div>
 							</td>
 							<td class="text-center align-middle d-table-cell d-md-none">
 								<div class="d-flex flex-column gap-1">
@@ -156,7 +156,6 @@
 			<table class="border table table-striped shadow-sm align-middle">
 				<thead>
 					<tr>
-						
 						<th class="text-center align-middle border d-none d-md-table-cell" colspan="3">Knappar</th>
 						<th class="text-center align-middle border d-table-cell d-md-none" colspan="1">Knappar</th>
 						<th class="text-center align-middle border">Id</th>
@@ -173,15 +172,24 @@
 						<tr>
 							<td class="text-center align-middle d-none d-md-table-cell" colspan="3">
 								<div class="admin-btn-group">
-									<form method="me-1">
+									<form method="get" class="me-1">
 										<input type="hidden" name="deleteId" value="@blogg.Id" />
-										<button type="submit" class="btn btn-outline-danger linebreaknormal">Ta bort</button>
+										<button type="submit" class="btn btn-outline-danger">Ta bort</button>
 									</form>
 									<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
 									<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a>
 								</div>
 							</td>
-
+							<td class="text-center align-middle d-table-cell d-md-none">
+								<div class="d-flex flex-column gap-1">
+									<form method="get">
+										<input type="hidden" name="deleteId" value="@blogg.Id" />
+										<button type="submit" class="btn btn-outline-danger w-100">Ta bort</button>
+									</form>
+									<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success w-100">Visa</a>
+									<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
+								</div>
+							</td>
 							<td class="text-center align-middle border">@blogg.Id</td>
 							<td class="text-lg-start align-middle border">@blogg.Title</td>
 							<td class="text-lg-start align-middle border">@blogg.Content?.LimitLength(10)</td>
