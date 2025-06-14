@@ -15,9 +15,9 @@
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
+<body class="BackroundImg">
 	<header>
-		<nav class="navbar navbar-expand-sm">
+@* 		<nav class="navbar navbar-expand-sm">
 			<div class="container">
 				<a class="navbar-brand" asp-area="" asp-page="/Index">SarasBlogg</a>
 				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -26,22 +26,6 @@
 				</button>
 				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 					<ul class="navbar-nav flex-grow-1 justify-content-center">
-						@*@if (SignInManager.IsSignedIn(User))  
-						{  
-							<li class="nav-item">  
-								<div class="alert alert-success text-center">  
-									Du är innloggad!
-								</div>  
-							</li>  
-						}  
-						else  
-						{  
-							<li class="nav-item">  
-								<div class="alert alert-danger">  
-									Du är inte innloggad!
-								</div>  
-							</li>
-						}   *@
 					</ul>
 					@if (SignInManager.IsSignedIn(User))
 					{
@@ -49,17 +33,17 @@
 							<partial name="_LoginPartial" />
 						</div>
 					}
-					<button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button> @*Se script i site.js*@
+					<button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button>
 				</div>
 			</div>
-		</nav>
+		</nav> *@
 		<div class="text-center">
 			<h1 class="header-title">
-				<a asp-area="" asp-page="/Index">
+@* 				<a asp-area="" asp-page="/Index">
 					<img class="sg-logo img-fluid" src="~/img/logo/sglogga.png" alt="Sara Gustafsson logotype" />
-				</a>
+				</a> *@
 			</h1> <br />
-			<h2 class="header-text">När ingen ser mig då hittar jag mig</h2>
+			@* <h2 class="header-text">När ingen ser mig då hittar jag mig</h2> *@
 		</div>
 		<nav class="navbar-expand-sm border-bottom">
 			<div class="container d-flex justify-content-center">

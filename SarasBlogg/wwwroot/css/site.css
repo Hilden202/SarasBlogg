@@ -1,3 +1,13 @@
+.BackroundImg {
+    /*background-image: url('../img/logo/SrarsBloggMainImg.png');*/
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover; /* Fill the entire background */
+    background-attachment: fixed; /* Fixed background */
+    width: 100vw;
+    height: 100vh;
+}
+
 button {
     background-color: var(--btn-bg, #f8f9fa); /* Standard light mode */
     color: var(--btn-text, #212529);

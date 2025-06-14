@@ -14,12 +14,12 @@
 }
 
 .menutext {
-    color: #C48A7D !important;
+    color: #548235 !important;
     font-size: 19px !important;
     font-family: 'Patrick Hand', 'Caveat', 'Segoe Print', cursive;
     text-decoration: none;
     -webkit-text-stroke: 0.2px #000;
-    text-stroke: 0.2px #000;
+    text-stroke: 50px #000;
 }
 
     .menutext:hover {
