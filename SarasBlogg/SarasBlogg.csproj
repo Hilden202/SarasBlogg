@@ -18,8 +18,5 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.14" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="wwwroot\img\aboutme\" />
-  </ItemGroup>
 
 </Project>

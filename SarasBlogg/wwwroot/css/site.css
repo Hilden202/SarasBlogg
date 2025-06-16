@@ -1,5 +1,5 @@
 .BackroundImg {
-    /*background-image: url('../img/logo/SrarsBloggMainImg.png');*/
+    background-image: url('../img/logo/bakgrund.png');
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover; /* Fill the entire background */
@@ -58,3 +58,12 @@ body {
 .linebreakormal {
     white-space: nowrap;
 }
+.aboutme-img {
+    width: 150px; /* Anpassa efter hur stor du vill ha den */
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%; /* Gör bilden helt rund */
+    flex-shrink: 0;
+}
+
+

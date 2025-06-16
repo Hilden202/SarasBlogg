@@ -6,12 +6,13 @@
 <div class="container-site">
 	@if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
 	{
-		<div class="card-body">
-			<img class="card-img-top mb-3" src="~/img/aboutme/@Model.AboutMe.Image" />
-			<h3 class="card-title">@Model.AboutMe.Title</h3>
-			<p class="card-text linebreak">@Model.AboutMe.Content</p>
+		<div class="d-flex align-items-start gap-4">
+			<img class="aboutme-img" src="~/img/aboutme/@Model.AboutMe.Image" alt="Om Mig-bild" />
+			<div>
+				<h3>@Model.AboutMe.Title</h3>
+				<p class="linebreak">@Model.AboutMe.Content</p>
+			</div>
 		</div>
-
 	}
 	else
 	{
