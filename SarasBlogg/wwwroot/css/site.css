@@ -45,7 +45,10 @@ body {
 }
 
 .container-site {
-    max-width: 69rem;
+    max-width: 50rem;
+    margin: 3rem auto 5rem auto; /* centrering och luft ovan & under */
+    padding: 0 1rem; /* lite luft på sidorna i mobilen */
+
     display: block;
     margin-left: auto;
     margin-right: auto;

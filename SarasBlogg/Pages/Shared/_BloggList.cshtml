@@ -12,13 +12,11 @@
 		.Where(b => (Model.IsArchiveView ? b.IsArchived : !b.IsArchived)
 		&& !b.Hidden
 		&& b.LaunchDate <= DateTime.Today);
-		<div class="row">
-		@foreach (var blogg in filteredBloggs.Reverse())
+
+		foreach (var blogg in filteredBloggs.Reverse())
 		{
-				<div class="col-12 col-md-6 col-lg-6 mb-4">
-				<!-- 100% bredd på mobil, 50% på desktop -->
 			<a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark blogg-link" Id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
-					<div class="card m-2 shadow-lg h-100">
+				<div class="card m-2 shadow-lg mx-auto">
 					<div class="card-body">
 						<div class="card-img-wrapper mb-2">
 							<img class="bloggimg mb-4 shadow-lg" src="~/img/blogg/@blogg.Image" />
@@ -41,9 +39,8 @@
 					</div>
 				</div>
 			</a>
-			</div>
+			<hr class="m-5 border" />
 		}
-		</div>
 	}
 	else
 	{
