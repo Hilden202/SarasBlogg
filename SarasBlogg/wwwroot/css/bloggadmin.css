@@ -5,14 +5,6 @@
     gap: 0.5rem;
 }
 
-@media (max-width: 768px) {
-    .admin-btn-group {
-        flex-direction: column;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-}
-
 .admin-blog-img {
     max-height: 65px !important;
     max-width: 100px;
@@ -41,3 +33,11 @@ td.image-column {
         height: auto;
         object-fit: cover;
     }
+
+@media (max-width: 768px) {
+    .admin-btn-group {
+        flex-direction: column;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+}

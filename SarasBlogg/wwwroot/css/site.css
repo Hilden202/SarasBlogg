@@ -25,16 +25,11 @@ button:hover {
 }
 
 html {
-    font-size: 14px;
     position: relative;
     min-height: 100%;
 }
 
-@media (min-width: 768px) {
-    html {
-        font-size: 14px;
-    }
-}
+
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
@@ -59,14 +54,6 @@ body {
     white-space: nowrap;
 }
 
-.aboutme-img {
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
 .header-container {
     display: flex;
     align-items: flex-start;
@@ -80,19 +67,7 @@ body {
     display: block;
 }
 
-@media (max-width: 768px) {
-    .logo-img {
-        height: 110px; /* mindre höjd på tablet och mobil */
-        width: auto;
-    }
-}
 
-@media (max-width: 480px) {
-    .logo-img {
-        height: 80px; /* ännu mindre på små mobiler */
-        width: auto;
-    }
-}
 
 .right-img {
     height: 350px;
@@ -111,41 +86,26 @@ body {
     font-family: 'Patrick Hand', 'Caveat', 'Segoe Print', cursive;
     font-weight: normal;
     font-size: 3rem;
-    font-weight: normal;
     color: #C48A7D !important;
     -webkit-text-stroke: 0.2px #000;
     text-stroke: 0.2px #000;
 }
 
-@media (max-width: 768px) {
-    .header-container {
-        flex-direction: column;
-        align-items: center;
-    }
 
-    .right-img {
-        height: 200px;
-    }
-
-    .header-text {
-        font-size: 2rem;
-        text-align: center;
-    }
-}
 
 .cards-container {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    justify-content: center;
+    justify-content: flex-start; /* ändrat från center */
     margin-top: 3rem;
-    align-items: stretch; /* <-- viktigt: sträck barnen i höjd */
+    align-items: stretch;
 }
 
     .cards-container .card-link {
         flex: 1 1 250px;
         display: flex;
-        align-items: stretch; /* <-- viktigt: .card fyller kortets höjd */
+        align-items: stretch;  <-- viktigt: .card fyller kortets höjd 
     }
 
     .cards-container .card {
@@ -163,11 +123,7 @@ body {
         text-align: center;
     }
 
-@media (max-width: 768px) {
-    .cards-container .card-link {
-        flex: 1 1 100%; /* Full bredd på mobiler */
-    }
-}
+
 
 .cards-container .card-title {
     margin: 0 0 0.5rem 0;
@@ -211,8 +167,6 @@ body {
     margin-top: 3rem;
 }
 
-
-
 .aboutme-img {
     width: 120px;
     height: 120px;
@@ -221,21 +175,59 @@ body {
     flex-shrink: 0;
 }
 
-
-@media (max-width: 768px) {
-    .content-container {
-        flex-direction: column;
-    }
-
     .right-side {
         display: flex;
         justify-content: center;
         width: 100%;
     }
 
+@media (max-width: 768px) {
+    .logo-img {
+        height: 110px; /* mindre höjd på tablet och mobil */
+        width: auto;
+    }
 
+    .header-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .header-text {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .right-img {
+        height: 250px;
+    }
+
+    .content-container {
+        flex-direction: column;
+    }
+
+    .cards-container {
+        justify-content: center !important;
+    }
+
+    .cards-container .card-link {
+        flex: 1 1 100%;
+    }
     .om-mig-box {
         max-width: 100%;
         margin-top: 2rem;
+    }
+
+
+
+
+    html {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-img {
+        height: 80px; /* ännu mindre på små mobiler */
+        width: auto;
     }
 }
