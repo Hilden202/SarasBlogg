@@ -139,6 +139,7 @@ body {
     max-width: 550px;
     width: auto;
     justify-content: flex-start;
+    margin-top: 3rem;
 }
 
 
@@ -206,7 +207,7 @@ body {
 .om-mig-box {
     max-width: 500px;
     flex-shrink: 0;
-    margin-top: 5rem;
+    margin-top: 3rem;
 }
 
 
@@ -220,13 +221,9 @@ body {
 }
 
 .linebreak {
-    white-space: normal;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    font-size: 1rem;
-    line-height: 1.4;
-    max-width: 360px;
+    white-space: pre-wrap;
 }
+
 
 @media (max-width: 768px) {
     .content-container {
