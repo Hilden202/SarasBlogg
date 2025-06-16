@@ -8,9 +8,9 @@
                 <img src="@Url.Content("~/img/blogg/" + post.Image)" alt="Bild för @post.Title" class="card-image" style="max-width: 220px; border-radius: 5px;" />
 
                 <div class="flower">🌸</div>
-                <h4 class="card-title">@post.Title</h4>
+                <h4 class="card-title text-dark">@post.Title</h4>
 
-                <p class="card-content">
+                <p class="card-content text-dark">
                     @(
                         post.Content.Length > 142
                         ? post.Content.Substring(0, 142) + "..."

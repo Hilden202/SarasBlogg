@@ -135,16 +135,33 @@ body {
 
 .cards-container {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
-    flex-wrap: wrap; /* Ändrad från nowrap till wrap */
     justify-content: center;
     margin-top: 3rem;
+    padding: 0 1rem;
+    align-items: stretch; /* <-- viktigt: sträck barnen i höjd */
 }
 
     .cards-container .card-link {
-        flex: 1 1 250px; /* Varje kort får växa men har en minsta bredd */
-        max-width: 100%; /* Hindrar overflow */
-        margin-bottom: 1rem;
+        flex: 1 1 250px;
+        display: flex;
+        align-items: stretch; /* <-- viktigt: .card fyller kortets höjd */
+    }
+
+    .cards-container .card {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        border-radius: 20px;
+        padding: 1rem;
+        background: white;
+        min-height: 280px;
+        height: 100%; /* <-- viktigt: fyll ut till kortlänkens höjd */
+        box-shadow: none;
+        border: none;
+        text-align: center;
     }
 
 @media (max-width: 768px) {
@@ -152,25 +169,11 @@ body {
         flex: 1 1 100%; /* Full bredd på mobiler */
     }
 }
-    .cards-container .card {
-        background: white;
-        border-radius: 20px;
-        padding: 1rem;
-        min-height: 280px;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-        overflow: hidden;
-        border: none;
-        text-align: center;
-        box-shadow: none;
-    }
 
-    .cards-container .card-title {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.25rem;
-    }
+.cards-container .card-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+}
 
     .cards-container .flower {
         font-size: 2rem;
@@ -190,7 +193,7 @@ body {
     }
 
 .card-content {
-    min-height: 5em;
+    min-height: 3em;
     white-space: pre-wrap;
 }
 
