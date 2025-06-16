@@ -139,7 +139,6 @@ body {
     gap: 1rem;
     justify-content: center;
     margin-top: 3rem;
-    padding: 0 1rem;
     align-items: stretch; /* <-- viktigt: sträck barnen i höjd */
 }
 
