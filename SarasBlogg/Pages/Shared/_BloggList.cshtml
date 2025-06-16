@@ -44,7 +44,7 @@
 	}
 	else
 	{
-		<div class="card-body" id="bloggTopSection">
+			<div class="card m-2 shadow-lg mx-auto" id="bloggTopSection">
 			<div class="card-body">
 				<div class="card-img-wrapper mb-2">
 					<img class="bloggimg mb-4 rounded shadow-lg" onclick="reloadCurrentPage(@Model.Blogg.Id)" style="cursor: pointer" src="~/img/blogg/@Model.Blogg.Image" alt="Blogg image" />
@@ -62,7 +62,7 @@
 				</p>
 				<hr class="mb-3" />
 			</div>
-		</div>
+</div>
 		@if (Model.Comments != null && Model.Comments.Any((c => c.BloggId == Model.Blogg.Id)))
 		{
 			<div class="comments-section mt-4">
@@ -104,4 +104,4 @@
 			<input type="submit" value="Skicka kommentar" />
 		</form>
 	}
-</div>
+	</div>
