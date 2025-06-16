@@ -58,6 +58,7 @@ body {
 .linebreakormal {
     white-space: nowrap;
 }
+
 .aboutme-img {
     width: 150px;
     height: 150px;
@@ -135,24 +136,22 @@ body {
 .cards-container {
     display: flex;
     gap: 1rem;
-    flex-wrap: nowrap;
-    max-width: 550px;
-    width: auto;
-    justify-content: flex-start;
+    flex-wrap: wrap; /* Ändrad från nowrap till wrap */
+    justify-content: center;
     margin-top: 3rem;
 }
 
-
-
     .cards-container .card-link {
-        text-decoration: none;
-        color: inherit;
-        flex: 1;
-        cursor: pointer;
-        display: flex;
+        flex: 1 1 250px; /* Varje kort får växa men har en minsta bredd */
+        max-width: 100%; /* Hindrar overflow */
+        margin-bottom: 1rem;
     }
 
-
+@media (max-width: 768px) {
+    .cards-container .card-link {
+        flex: 1 1 100%; /* Full bredd på mobiler */
+    }
+}
     .cards-container .card {
         background: white;
         border-radius: 20px;
@@ -220,15 +219,18 @@ body {
     flex-shrink: 0;
 }
 
-.linebreak {
-    white-space: pre-wrap;
-}
-
 
 @media (max-width: 768px) {
     .content-container {
         flex-direction: column;
     }
+
+    .right-side {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
 
     .om-mig-box {
         max-width: 100%;
