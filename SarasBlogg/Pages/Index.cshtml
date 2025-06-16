@@ -3,15 +3,26 @@
 @model IndexModel
 @inject SignInManager<ApplicationUser> SignInManager
 @{
-	ViewData["Title"] = "Blogg";
+    ViewData["Title"] = "Hem";
 }
 
-@* @if (Model.MyUser != null)
-{
-	<h3>Hej, @Model.MyUser.Name!</h3> // finns även birthyear om man vill kör en if med det
-} *@
+<div class="header-container d-flex align-items-center justify-content-between">
+    <div class="left-side">
+        <h1 class="header-title">
+            <a asp-area="" asp-page="/Index">
+                <img class="logo-img" src="~/img/logo/loggasg.png" alt="Sara Gustafsson logotype" />
+            </a>
+        </h1>
+        <h2 class="header-text">Med hjärtat som kompass</h2>
+        <!-- Ta bort iframe-container här -->
+    </div>
 
-@if (Model.ViewModel.Blogg == null || (!Model.ViewModel.Blogg.IsArchived && !Model.ViewModel.Blogg.Hidden))
-{
-	@await Html.PartialAsync("_BloggList", Model.ViewModel)
-}
+    <div class="right-side">
+        <img class="right-img" src="~/img/logo/jagmedbarnen.png" alt="Bild till höger" />
+    </div>
+</div>
+
+<!-- Lägg blogginläggen i en egen container här, under hela header-container -->
+<div class="blog-posts-container mt-4">
+    @await Html.PartialAsync("Shared/_LatestPosts", Model.LatestPosts)
+</div>

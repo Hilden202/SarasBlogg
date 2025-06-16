@@ -59,11 +59,122 @@ body {
     white-space: nowrap;
 }
 .aboutme-img {
-    width: 150px; /* Anpassa efter hur stor du vill ha den */
+    width: 150px;
     height: 150px;
     object-fit: cover;
-    border-radius: 50%; /* Gör bilden helt rund */
+    border-radius: 50%;
     flex-shrink: 0;
 }
 
+.header-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
 
+.logo-img {
+    height: 150px;
+    width: auto;
+    display: block;
+}
+
+.right-img {
+    height: 350px;
+    width: auto;
+    display: block;
+}
+
+.left-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.header-text {
+    margin-top: 0.25rem;
+    font-weight: normal;
+    font-size: 3rem;
+    font-weight: normal;
+    color: #C48A7D !important;
+    -webkit-text-stroke: 0.2px #000;
+    text-stroke: 0.2px #000;
+}
+
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .right-img {
+        height: 200px;
+    }
+
+    .header-text {
+        font-size: 2rem;
+        text-align: center;
+    }
+}
+
+.cards-container {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: nowrap;
+    max-width: 550px;
+    width: auto;
+    justify-content: flex-start;
+}
+
+
+
+    .cards-container .card-link {
+        text-decoration: none;
+        color: inherit;
+        flex: 1;
+        cursor: pointer;
+        display: flex;
+    }
+
+
+    .cards-container .card {
+        background: white;
+        border-radius: 20px;
+        padding: 1rem;
+        min-height: 280px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        overflow: hidden;
+        border: none;
+        text-align: center;
+        box-shadow: none;
+    }
+
+    .cards-container .card-title {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.25rem;
+    }
+
+    .cards-container .flower {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .cards-container .card-content {
+        font-size: 1rem;
+        font-family: 'Karla';
+        line-height: 1.2em;
+        max-width: 30ch;
+        white-space: normal;
+        overflow-wrap: break-word;
+        margin: 0 auto;
+        text-overflow: clip;
+        display: block;
+    }
+
+.card-content {
+    min-height: 7em; /* Justera så att höjden passar ca 3-4 rader text */
+    white-space: pre-wrap; /* Behåll mellanslag och radbrytningar */
+}

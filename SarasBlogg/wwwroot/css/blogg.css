@@ -4,14 +4,7 @@
     font-family: 'Dancing Script', 'Script MT', 'Brush Script MT', 'Segoe Script', cursive;
 }
 
-.header-text {
-    font-size: 30px;
-    font-weight: normal;
-    font-family: 'Script MT', 'Brush Script MT', 'Segoe Script', cursive;
-    color: #C48A7D !important;
-    -webkit-text-stroke: 0.2px #000;
-    text-stroke: 0.2px #000;
-}
+
 
 .menutext {
     color: #548235 !important;
@@ -89,4 +82,3 @@
     box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
     z-index: 1000;
 }
-

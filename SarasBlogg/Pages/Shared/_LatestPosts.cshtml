@@ -1,0 +1,22 @@
+﻿@model IEnumerable<SarasBlogg.Models.Blogg>
+
+<div class="cards-container">
+    @foreach (var post in Model)
+    {
+        <a asp-page="/Blogg" asp-route-showId="@post.Id" class="text-decoration-none text-dark blogg-link" title="@post.Title">
+            <div class="card">
+                <img src="@Url.Content("~/img/blogg/" + post.Image)" alt="Bild för @post.Title" class="card-image" style="max-width: 250px; border-radius: 5px;" />
+
+                <h4 class="card-title">@post.Title</h4>
+
+                <p class="card-content">
+                    @(
+                        post.Content.Length > 200
+                        ? post.Content.Substring(0, 200) + "..."
+                        : post.Content
+                    )
+                </p>
+            </div>
+        </a>
+    }
+</div>
