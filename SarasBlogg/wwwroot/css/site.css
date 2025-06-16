@@ -74,9 +74,23 @@ body {
 }
 
 .logo-img {
-    height: 150px;
+    height: 175px;
     width: auto;
     display: block;
+}
+
+@media (max-width: 768px) {
+    .logo-img {
+        height: 110px; /* mindre höjd på tablet och mobil */
+        width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-img {
+        height: 80px; /* ännu mindre på små mobiler */
+        width: auto;
+    }
 }
 
 .right-img {
@@ -93,6 +107,7 @@ body {
 
 .header-text {
     margin-top: 0.25rem;
+    font-family: 'Patrick Hand', 'Caveat', 'Segoe Print', cursive;
     font-weight: normal;
     font-size: 3rem;
     font-weight: normal;
@@ -164,7 +179,7 @@ body {
 
     .cards-container .card-content {
         font-size: 1rem;
-        font-family: 'Karla';
+        /*font-family: 'Karla';*/
         line-height: 1.2em;
         max-width: 30ch;
         white-space: normal;
@@ -175,6 +190,51 @@ body {
     }
 
 .card-content {
-    min-height: 7em; /* Justera så att höjden passar ca 3-4 rader text */
-    white-space: pre-wrap; /* Behåll mellanslag och radbrytningar */
+    min-height: 5em;
+    white-space: pre-wrap;
+}
+
+.content-container {
+    display: flex;
+    gap: 2rem;
+}
+
+.blog-posts {
+    flex: 1 1 auto;
+}
+
+.om-mig-box {
+    max-width: 500px;
+    flex-shrink: 0;
+    margin-top: 5rem;
+}
+
+
+
+.aboutme-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.linebreak {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-size: 1rem;
+    line-height: 1.4;
+    max-width: 360px;
+}
+
+@media (max-width: 768px) {
+    .content-container {
+        flex-direction: column;
+    }
+
+    .om-mig-box {
+        max-width: 100%;
+        margin-top: 2rem;
+    }
 }
