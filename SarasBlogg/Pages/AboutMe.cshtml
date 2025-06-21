@@ -3,10 +3,10 @@
 @{
 	ViewData["Title"] = "Om Mig";
 }
-<div class="container-site">
+<div class="card container-site">
 	@if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
 	{
-		<div class="d-flex align-items-start gap-4">
+		<div class="mb-3 mt-3 d-flex align-items-start gap-4">
 			<img class="aboutme-img" src="~/img/aboutme/@Model.AboutMe.Image" alt="Om Mig-bild" />
 			<div>
 				<h3>@Model.AboutMe.Title</h3>

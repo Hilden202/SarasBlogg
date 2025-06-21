@@ -24,6 +24,7 @@
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+    max-width: 850px;
     border-radius: 15px !important;
 }
 
