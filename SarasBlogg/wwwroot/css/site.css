@@ -1,13 +1,3 @@
-.BackroundImg {
-    background-image: url('../img/logo/bakgrund.png');
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: cover; /* Fill the entire background */
-    background-attachment: fixed; /* Fixed background */
-    width: 100vw;
-    height: 100vh;
-}
-
 button {
     background-color: var(--btn-bg, #f8f9fa); /* Standard light mode */
     color: var(--btn-text, #212529);
@@ -24,27 +14,50 @@ button:hover {
     border-color: var(--btn-hover-border, #dae0e5);
 }
 
-html {
-    position: relative;
-    min-height: 100%;
-}
-
-
-
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-body {
-    margin-bottom: 60px;
+.text-faded {
+    color: rgba(33, 37, 41, 0.50); /* 0.95 ger en ytterst liten transparens */
 }
 
+html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-image: url('../img/logo/bakgrund2.png');
+    background-position: center center;
+    background-repeat: repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    color: #212529;
+}
+
+div {
+    color: #212529;
+}
+
+
 .container-site {
-    max-width: 50rem; /* eller t.ex. 80rem för ännu bredare */
+    max-width: 80rem; /* eller t.ex. 80rem för ännu bredare */
     margin: 3rem auto 5rem auto;
     padding: 0 1rem;
 }
 
+.cards-container .card img {
+    width: 100%;
+    height: 140px;      /* eller en höjd som passar din design */
+    object-fit: cover;  /* beskär bilden så den fyller ytan utan att förvrängas */
+    border-radius: 12px 12px 0 0; /* valfritt, för rundade hörn upptill */
+    display: block;
+}
 
 .linebreak {
     white-space: pre-wrap;
@@ -66,8 +79,6 @@ body {
     width: auto;
     display: block;
 }
-
-
 
 .right-img {
     height: 350px;
@@ -91,21 +102,21 @@ body {
     text-stroke: 0.2px #000;
 }
 
-
-
 .cards-container {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    justify-content: flex-start; /* ändrat från center */
+    justify-content: center; /* ändrat från center */
     margin-top: 3rem;
     align-items: stretch;
 }
 
+
     .cards-container .card-link {
-        flex: 1 1 250px;
+        flex: 0 0 250px;
+        width: 250px;
         display: flex;
-        align-items: stretch;  <-- viktigt: .card fyller kortets höjd 
+        align-items: stretch;
     }
 
     .cards-container .card {
@@ -116,7 +127,7 @@ body {
         border-radius: 20px;
         padding: 1rem;
         background: white;
-        min-height: 280px;
+        min-height: 340px; /* justera efter behov */
         height: 100%; /* <-- viktigt: fyll ut till kortlänkens höjd */
         box-shadow: none;
         border: none;
@@ -125,10 +136,22 @@ body {
 
 
 
-.cards-container .card-title {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.25rem;
-}
+    .cards-container .card-title {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.25rem;
+        max-width: 100%;
+        word-break: break-all;
+        overflow-wrap: break-word;
+        white-space: normal;
+    }
+
+    .cards-container .card-link,
+    .cards-container .card {
+        min-width: 250px;
+        max-width: 250px;
+        box-sizing: border-box;
+    }
+
 
     .cards-container .flower {
         font-size: 2rem;
@@ -209,9 +232,10 @@ body {
         justify-content: center !important;
     }
 
-    .cards-container .card-link {
-        flex: 1 1 100%;
-    }
+        .cards-container .card-link {
+            flex: 1 1 100%;
+            width: 100%;
+        }
     .om-mig-box {
         max-width: 100%;
         margin-top: 2rem;

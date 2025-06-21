@@ -15,7 +15,7 @@
 
 		foreach (var blogg in filteredBloggs.Reverse())
 		{
-			<a asp-route-showId="@blogg.Id" class="text-decoration-none text-dark blogg-link" Id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
+			<a asp-route-showId="@blogg.Id" class="text-decoration-none blogg-link" Id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
 				<div class="card m-2 shadow-lg mx-auto">
 					<div class="card-body">
 						<div class="card-img-wrapper mb-2">
@@ -23,8 +23,8 @@
 						</div>
 						<h5 class="card-title mb-3">@blogg.Title</h5>
 						<p class="card-text">@blogg.Content.LimitLength(120)</p>
-						<p class="text-muted">
-							<small class="text-muted">
+						<p class="text-faded">
+							<small class="text-faded">
 								Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")
 								<br />
 								@Model.Comments?.Count(c => c.BloggId == blogg.Id)
@@ -32,7 +32,7 @@
 								@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
 								{
 									<br />
-									<span class="badge bg-info text-dark mt-2 d-inline-block">Visningar: @blogg.ViewCount</span>
+									<span class="badge bg-info mt-2 d-inline-block">Visningar: @blogg.ViewCount</span>
 								}
 							</small>
 						</p>
@@ -51,13 +51,13 @@
 				</div>
 				<h3 class="card-title mb-3">@Model.Blogg.Title</h3>
 				<p class="card-text linebreak">@Model.Blogg.Content</p>
-				<p class="text-muted">
+				<p class="text-faded">
 					<strong>Författare:</strong> @Model.Blogg.Author<br />
 					<strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToString("yyyy-MM-dd")
 					@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
 					{
 						<br />
-						<span class="badge bg-info text-dark mt-2 d-inline-block">Visningar: @Model.Blogg.ViewCount</span>
+						<span class="badge bg-info mt-2 d-inline-block">Visningar: @Model.Blogg.ViewCount</span>
 					}
 				</p>
 				<hr class="mb-3" />
@@ -71,7 +71,7 @@
 				{
 					<div>
 						<div class="card-body">
-							<strong>@comment.Name</strong> <span class="text-muted">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
+							<strong>@comment.Name</strong> <span class="text-faded">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
 							@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
 							{
 								<form method="post" asp-route-deleteCommentId="@comment.Id" class="d-inline ms-2">
@@ -88,7 +88,7 @@
 		}
 		else
 		{
-			<p class="text-muted">Inga kommentarer ännu.</p>
+			<p class="text-faded">Inga kommentarer ännu.</p>
 		}
 		<form method="post" id="commentForm" class="p-3 border rounded shadow-sm">
 			<label asp-for="Comment.Name"></label>

@@ -18,6 +18,8 @@
     }
 
 .card {
+    background-color: white !important;
+    color: #212529 !important; /* Bootstrap's text-dark */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -27,6 +29,7 @@
 
 .card-body {
     flex-grow: 1;
+    color: #212529 !important;
 }
 
 .card-img-wrapper {
