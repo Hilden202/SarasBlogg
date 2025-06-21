@@ -43,10 +43,23 @@ td.image-column {
         object-fit: cover;
     }
 
+.mynav {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
 @media (max-width: 768px) {
-    .admin-btn-group {
-        flex-direction: column;
-        align-items: center;
+    .mynav {
         flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
     }
+
+        .mynav .nav-link {
+            font-size: 0.9rem;
+            padding: 0.25rem 0.5rem;
+            white-space: normal;
+        }
 }
