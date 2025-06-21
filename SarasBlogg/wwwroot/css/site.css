@@ -1,3 +1,100 @@
+/* Gemensamma grundinställningar för alla hörn- och linjebilder */
+.top-line,
+.rightcorner-image,
+.leftcorner-image,
+.topleft-corner-flower,
+.bottomright-corner-flower,
+.bottom-line {
+    position: fixed;
+    height: auto; /* behåll proportioner */
+    z-index: 9999;
+    pointer-events: none;
+}
+
+/* Placering för varje bild */
+.top-line {
+    top: 0;
+    left: 0;
+    /* width kan läggas till separat om behövs */
+}
+
+.rightcorner-image {
+    top: 0;
+    right: 0;
+    /* max-width sätts i media query */
+}
+
+.leftcorner-image,
+.bottom-line {
+    bottom: 0;
+    left: 0;
+}
+
+.topleft-corner-flower {
+    top: 0;
+    left: 0;
+}
+
+.bottomright-corner-flower {
+    bottom: 0;
+    right: 0;
+}
+
+.topleft-corner-flower,
+.bottomright-corner-flower {
+    max-width: 1000px;  /* standardstorlek */
+    height: auto;
+    transition: max-width 0.3s ease, opacity 0.3s ease;
+}
+
+@media (max-width: 2000px) { /* starta krympa tidigare */
+    .topleft-corner-flower,
+    .bottomright-corner-flower {
+        max-width: 600px; /* mindre */
+    }
+}
+
+@media (max-width: 1700px) {
+    .topleft-corner-flower,
+    .bottomright-corner-flower {
+        max-width: 300px; /* ännu mindre */
+        /*opacity: 0.6;*/ /* lätt transparent för mjukare övergång */
+    }
+}
+
+@media (max-width: 1300px) {
+    .topleft-corner-flower,
+    .bottomright-corner-flower {
+        max-width: 150px; /* ännu mindre */
+        /*opacity: 0.6;*/ /* lätt transparent för mjukare övergång */
+    }
+}
+
+@media (max-width: 1000px) {
+    .topleft-corner-flower,
+    .bottomright-corner-flower {
+        display: none; /* försvinner helt på mindre skärmar */
+    }
+}
+
+@media (max-width: 1100px) {
+    .top-line,
+    .rightcorner-image,
+    .leftcorner-image,
+    .topleft-corner-flower,
+    .bottomright-corner-flower,
+    .bottom-line {
+        display: none; /* försvinner helt på mindre skärmar */
+    }
+}
+
+
+
+
+
+
+
+
 button {
     background-color: var(--btn-bg, #f8f9fa); /* Standard light mode */
     color: var(--btn-text, #212529);
