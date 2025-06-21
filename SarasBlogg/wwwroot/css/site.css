@@ -1,8 +1,4 @@
-/* Gemensamma grundinställningar för alla hörn- och linjebilder */
-.top-line,
-.rightcorner-image,
 .leftcorner-image,
-.topleft-corner-flower,
 .bottomright-corner-flower,
 .bottom-line {
     position: fixed;
@@ -11,17 +7,22 @@
     pointer-events: none;
 }
 
-/* Placering för varje bild */
+.top-line,
+.rightcorner-image,
+.topleft-corner-flower {
+    position: absolute;
+    height: auto; /* behåll proportioner */
+    z-index: 9999;
+    pointer-events: none;
+}
 .top-line {
     top: 0;
     left: 0;
-    /* width kan läggas till separat om behövs */
 }
 
 .rightcorner-image {
     top: 0;
     right: 0;
-    /* max-width sätts i media query */
 }
 
 .leftcorner-image,
@@ -58,15 +59,15 @@
     .topleft-corner-flower,
     .bottomright-corner-flower {
         max-width: 300px; /* ännu mindre */
-        /*opacity: 0.6;*/ /* lätt transparent för mjukare övergång */
+        opacity: 0.8;  lätt transparent för mjukare övergång 
     }
 }
 
 @media (max-width: 1300px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        max-width: 150px; /* ännu mindre */
-        /*opacity: 0.6;*/ /* lätt transparent för mjukare övergång */
+        max-width: 200px; /* ännu mindre */
+        opacity: 0.6;  lätt transparent för mjukare övergång 
     }
 }
 
@@ -87,12 +88,6 @@
         display: none; /* försvinner helt på mindre skärmar */
     }
 }
-
-
-
-
-
-
 
 
 button {
