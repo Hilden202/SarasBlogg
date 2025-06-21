@@ -14,7 +14,6 @@
             </a>
         </h1>
         <h2 class="header-text">Med hjärtat som kompass</h2>
-        <!-- Ta bort iframe-container här -->
     </div>
 
     <div class="right-side">
@@ -22,18 +21,17 @@
     </div>
 </div>
 
-<!-- Lägg blogginläggen i en egen container här, under hela header-container -->
 <div class="content-container d-flex mt-4">
     <div class="blog-posts flex-grow-1 me-3">
         @await Html.PartialAsync("Shared/_LatestPosts", Model.LatestPosts)
     </div>
 
     <div class="om-mig-box">
-        <a asp-page="/OmMig" class="text-decoration-none text-dark">
+        <a asp-page="/OmMig" class="text-decoration-none">
             <div>
                 @if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
                 {
-                    <div class="d-flex align-items-start gap-4">
+                        <div class="d-flex align-items-start gap-4 aboutme-wrapper">
                         <img class="aboutme-img" src="~/img/aboutme/@Model.AboutMe.Image" alt="Om Mig-bild" />
                         <div>
                             <h3>@Model.AboutMe.Title</h3>

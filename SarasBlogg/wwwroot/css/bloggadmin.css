@@ -5,6 +5,15 @@
     gap: 0.5rem;
 }
 
+.white-panel {
+    background-color: white !important;
+    color: #212529 !important;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 .admin-blog-img {
     max-height: 65px !important;
     max-width: 100px;
