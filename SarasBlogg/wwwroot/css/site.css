@@ -44,7 +44,6 @@ div {
     color: #212529;
 }
 
-
 .container-site {
     max-width: 80rem; /* eller t.ex. 80rem för ännu bredare */
     margin: 3rem auto 5rem auto;
@@ -106,11 +105,10 @@ div {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    justify-content: center; /* ändrat från center */
+    justify-content: flex-start; /* ändrat från center */
     margin-top: 3rem;
     align-items: stretch;
 }
-
 
     .cards-container .card-link {
         flex: 0 0 250px;
@@ -133,8 +131,6 @@ div {
         border: none;
         text-align: center;
     }
-
-
 
     .cards-container .card-title {
         margin: 0 0 0.5rem 0;
