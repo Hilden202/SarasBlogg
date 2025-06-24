@@ -156,9 +156,10 @@ div {
 }
 
 .container-site {
-    max-width: 80rem; /* eller t.ex. 80rem för ännu bredare */
+    max-width: 850px; /* eller 80rem för bredare */
     margin: 3rem auto 5rem auto;
     padding: 0 1rem;
+    width: 100%;
 }
 
 .cards-container .card img {

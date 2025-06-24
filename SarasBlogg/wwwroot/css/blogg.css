@@ -28,6 +28,18 @@
     border-radius: 15px !important;
 }
 
+/*.comments-section {
+    display: block;
+    background-color: white;
+    color: #212529;
+    max-width: 850px;
+    width: 100%;
+    border-radius: 15px;
+    margin: 0 auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+}*/
+
 .card-body {
     flex-grow: 1;
     color: #212529 !important;
