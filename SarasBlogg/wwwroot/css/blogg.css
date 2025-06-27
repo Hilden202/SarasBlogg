@@ -4,22 +4,13 @@
     font-family: 'Dancing Script', 'Script MT', 'Brush Script MT', 'Segoe Script', cursive;
 }
 
-.header-text {
-    font-size: 30px;
-    font-weight: normal;
-    font-family: 'Script MT', 'Brush Script MT', 'Segoe Script', cursive;
-    color: #C48A7D !important;
-    -webkit-text-stroke: 0.2px #000;
-    text-stroke: 0.2px #000;
-}
-
 .menutext {
-    color: #C48A7D !important;
+    color: #548235 !important;
     font-size: 19px !important;
     font-family: 'Patrick Hand', 'Caveat', 'Segoe Print', cursive;
     text-decoration: none;
     -webkit-text-stroke: 0.2px #000;
-    text-stroke: 0.2px #000;
+    text-stroke: 50px #000;
 }
 
     .menutext:hover {
@@ -27,14 +18,31 @@
     }
 
 .card {
+    background-color: white !important;
+    color: #212529 !important; /* Bootstrap's text-dark */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+    max-width: 850px;
+    border-radius: 15px !important;
 }
+
+/*.comments-section {
+    display: block;
+    background-color: white;
+    color: #212529;
+    max-width: 850px;
+    width: 100%;
+    border-radius: 15px;
+    margin: 0 auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+}*/
 
 .card-body {
     flex-grow: 1;
+    color: #212529 !important;
 }
 
 .card-img-wrapper {
@@ -89,4 +97,3 @@
     box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
     z-index: 1000;
 }
-

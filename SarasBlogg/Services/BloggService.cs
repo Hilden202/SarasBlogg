@@ -74,5 +74,12 @@ namespace SarasBlogg.Services
             }
         }
 
+        public IQueryable<Blogg> GetAllBloggs()
+        {
+            return _context.Blogg
+                .Where(b => !b.Hidden && b.LaunchDate <= DateTime.Today);
+        }
+
+
     }
 }

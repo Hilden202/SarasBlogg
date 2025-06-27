@@ -1,0 +1,10 @@
+﻿@page
+@using Extensions
+@model SarasBlogg.Pages.BloggModel
+@{
+	ViewData["Title"] = "Blogg";
+}
+@if (Model.ViewModel.Blogg == null || (!Model.ViewModel.Blogg.IsArchived && !Model.ViewModel.Blogg.Hidden))
+{
+	@await Html.PartialAsync("_BloggList", Model.ViewModel)
+}

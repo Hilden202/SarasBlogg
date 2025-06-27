@@ -6,26 +6,17 @@
 <div class="container-site">
 	@if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
 	{
-		<div class="card-body">
-			<img class="card-img-top mb-3" src="~/img/aboutme/@Model.AboutMe.Image" />
-			<h3 class="card-title">@Model.AboutMe.Title</h3>
-			<p class="card-text linebreak">@Model.AboutMe.Content</p>
-		</div>
-
-	}
-	else
-	{
-		<p>Om mig-sektionen är ännu inte skapad.</p>
-	}
-
+		<div class="d-flex align-items-start gap-4 aboutme-wrapper">
+			<div>
+			<img class="aboutme-img" src="~/img/aboutme/@Model.AboutMe.Image" alt="Om Mig-bild" />
 	@if (User.IsInRole("superadmin"))
 	{
 		<!-- Tre-punkts knapp -->
-		<div class="mt-3 three-dots-container">
+		<div class="mt-2 three-dots-container"> 
 			<button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center three-dots-btn"
-					type="button"
-					data-bs-toggle="modal"
-					data-bs-target="#aboutMeFormModal">
+			type="button"
+			data-bs-toggle="modal"
+			data-bs-target="#aboutMeFormModal">
 
 				<span class="three-dots-icon">
 					<span class="three-dot">&#x2022;</span>
@@ -34,8 +25,20 @@
 				</span>
 			</button>
 		</div>
+	}
+		</div>
+			<div>
+				<h3>@Model.AboutMe.Title</h3>
+				<p class="linebreak">@Model.AboutMe.Content</p>
+			</div>
+		</div>
+	}
+	else
+	{
+		<p>Om mig-sektionen är ännu inte skapad.</p>
+	}
 
-		<!-- Modal för formulär -->
+	<!-- Modal för formulär -->
 		<div class="modal fade" id="aboutMeFormModal" tabindex="-1" aria-labelledby="aboutMeFormModalLabel" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-centered">
 				<div class="modal-content">
@@ -80,5 +83,5 @@
 				</div>
 			</div>
 		</div>
-	}
+	
 </div>

@@ -16,6 +16,14 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+	<img src="/img/logo/top-line.png" alt="Top line" class="top-line" />
+	<img src="/img/logo/top-corner-right.png" alt="Högerhörnbild" class="rightcorner-image" />
+	<img src="/img/logo/bottom-corner-left.png" alt="Vänsterhörnbild" class="leftcorner-image" />
+	<img src="/img/logo/top-left-corner-flower.png" alt="Flower top left corner" class="topleft-corner-flower" />
+	<img src="/img/logo/bottom-right-corner-flower.png" alt="Flower bottom right corner" class="bottomright-corner-flower" />
+	<img src="/img/logo/bottom-line.png" alt="Bottom line" class="bottom-line" />
+
+
 	<header>
 		<nav class="navbar navbar-expand-sm">
 			<div class="container">
@@ -26,22 +34,6 @@
 				</button>
 				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 					<ul class="navbar-nav flex-grow-1 justify-content-center">
-						@*@if (SignInManager.IsSignedIn(User))  
-						{  
-							<li class="nav-item">  
-								<div class="alert alert-success text-center">  
-									Du är innloggad!
-								</div>  
-							</li>  
-						}  
-						else  
-						{  
-							<li class="nav-item">  
-								<div class="alert alert-danger">  
-									Du är inte innloggad!
-								</div>  
-							</li>
-						}   *@
 					</ul>
 					@if (SignInManager.IsSignedIn(User))
 					{
@@ -49,23 +41,26 @@
 							<partial name="_LoginPartial" />
 						</div>
 					}
-					<button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button> @*Se script i site.js*@
+@* 					<button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button> *@
 				</div>
 			</div>
 		</nav>
 		<div class="text-center">
 			<h1 class="header-title">
-				<a asp-area="" asp-page="/Index">
+@* 				<a asp-area="" asp-page="/Index">
 					<img class="sg-logo img-fluid" src="~/img/logo/sglogga.png" alt="Sara Gustafsson logotype" />
-				</a>
+				</a> *@
 			</h1> <br />
-			<h2 class="header-text">När ingen ser mig då hittar jag mig</h2>
+			@* <h2 class="header-text">När ingen ser mig då hittar jag mig</h2> *@
 		</div>
 		<nav class="navbar-expand-sm border-bottom">
 			<div class="container d-flex justify-content-center">
 				<ul class="mynav">
 					<li class="nav-item me-3">
-						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Index">Blogg</a>
+						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Index">Hem</a>
+					</li>
+					<li class="nav-item me-3">
+						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Blogg">Blogg</a>
 					</li>
 					<li class="nav-item me-3">
 						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/AboutMe">Om mig</a>
@@ -93,7 +88,7 @@
 			@RenderBody()
 		</main>
 	</div>
-	<footer class="border-top footer text-muted">
+	<footer class="border-top footer text-faded">
 		<div class="container">
 			&copy; 2025 - SarasBlogg - <a asp-area="" asp-page="/Privacy">Privacy</a>
 		</div>
