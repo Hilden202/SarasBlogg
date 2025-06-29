@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+ï»¿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.DAL;
 using SarasBlogg.Data;
@@ -14,52 +14,54 @@ namespace SarasBlogg
 
             //builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
 
-            // Add services to the container.
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            // Konfigurera apptjÃ¤nster och databasanslutning
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+            // DATABAS OCH IDENTITET
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddScoped<BloggService>();
-
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddRoles<IdentityRole>() // Lägg till roller
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+                options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            // Identitetsroller för mappar >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            // AUTORISERINGSPOLICIES
             builder.Services.AddAuthorization(options =>
             {
                 options.AddPolicy("SkaVaraSuperAdmin", policy => policy.RequireRole("superadmin"));
                 options.AddPolicy("SkaVaraAdmin", policy => policy.RequireRole("superadmin", "admin"));
-
             });
 
-            //builder.Services.AddRazorPages();
-
+            // BEHÃ–RIGHETER FÃ–R RAZOR PAGES
             builder.Services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizePage("/Admin", "SkaVaraAdmin");
                 options.Conventions.AuthorizePage("/RoleAdmin", "SkaVaraSuperAdmin");
-
                 options.Conventions.AuthorizeFolder("/Admin/AboutMeAdmin", "SkaVaraAdmin");
-                options.Conventions.AuthorizeFolder("/Admin/BloggAdmin", "SkaVaraAdmin");
             });
-            // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-            builder.Services.AddScoped<IFileHelper, FileHelper>(); // Tjänst för att hantera filer (t.ex. bilder)
+            // TJÃ„NSTER
+            builder.Services.AddScoped<IFileHelper, FileHelper>();
+            builder.Services.AddScoped<BloggService>();
+            builder.Services.AddScoped<BloggAPIManager>();
+            builder.Services.AddScoped<CommentAPIManager>();
 
-            // Registrera cookie policy
+            // COOKIEPOLICY
             builder.Services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
-            }); //
+            });
+
 
             var app = builder.Build();
 
-            app.UseCookiePolicy(); // slå på cookie policy
+            app.UseCookiePolicy(); // slÃ¥ pÃ¥ cookie policy
 
-            //CreateAdminUserAsync(app).GetAwaiter().GetResult(); // nödvändigt för att skapa admin-användaren innan appen startar. kommentera in om databasen  är ny
+            //CreateAdminUserAsync(app).GetAwaiter().GetResult(); // nÃ¶dvÃ¤ndigt fÃ¶r att skapa admin-anvÃ¤ndaren innan appen startar. kommentera in om databasen  Ã¤r ny
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -88,7 +90,7 @@ namespace SarasBlogg
         }
         //public static async Task CreateAdminUserAsync(WebApplication app)
         //{
-        //    // Hämta UserManager och RoleManager från DI
+        //    // HÃ¤mta UserManager och RoleManager frÃ¥n DI
         //    using var scope = app.Services.CreateScope();
         //    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -104,7 +106,7 @@ namespace SarasBlogg
         //        await roleManager.CreateAsync(new IdentityRole(superAdminRole));
         //    }
 
-        //    // Kolla om admin-användaren finns, annars skapa den
+        //    // Kolla om admin-anvÃ¤ndaren finns, annars skapa den
         //    var adminUser = await userManager.FindByEmailAsync(adminEmail);
         //    if (adminUser == null)
         //    {
@@ -117,7 +119,7 @@ namespace SarasBlogg
         //        else
         //        {
         //            // Hantera fel, t.ex. logga det eller kasta exception
-        //            throw new Exception("Misslyckades skapa admin-användaren: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+        //            throw new Exception("Misslyckades skapa admin-anvÃ¤ndaren: " + string.Join(", ", result.Errors.Select(e => e.Description)));
         //        }
         //    }
         //}

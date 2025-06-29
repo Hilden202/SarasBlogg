@@ -3,15 +3,22 @@ using SarasBlogg.Data;
 using SarasBlogg.ViewModels;
 using SarasBlogg.Models;
 using SarasBlogg.Extensions;
+using SarasBlogg.DAL;
 
 namespace SarasBlogg.Services
 {
     public class BloggService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context; // TODO: Ta bort när denna ForbiddenWord körs via API:er
 
-        public BloggService(ApplicationDbContext context)
+        private readonly BloggAPIManager _bloggApi;
+
+        private readonly CommentAPIManager _commentApi;
+
+        public BloggService(ApplicationDbContext context, BloggAPIManager bloggApi, CommentAPIManager commentApi)
         {
+            _bloggApi = bloggApi;
+            _commentApi = commentApi;
             _context = context;
         }
 
@@ -19,19 +26,25 @@ namespace SarasBlogg.Services
         {
             var viewModel = new BloggViewModel();
 
-            viewModel.Bloggs = await _context.Blogg
+            var allBloggs = await _bloggApi.GetAllBloggsAsync();
+
+            viewModel.Bloggs = allBloggs
                 .Where(b => (isArchive ? b.IsArchived : !b.IsArchived) && !b.Hidden && b.LaunchDate <= DateTime.Today)
-                .ToListAsync();
+                .ToList();
 
             viewModel.IsArchiveView = isArchive;
 
             if (showId != 0)
             {
-                viewModel.Blogg = await _context.Blogg
-                    .FirstOrDefaultAsync(b => b.Id == showId && (isArchive ? b.IsArchived : true) && !b.Hidden);
+                var blogg = await _bloggApi.GetBloggAsync(showId);
+
+                if (blogg != null && (isArchive ? blogg.IsArchived : true) && !blogg.Hidden)
+                {
+                    viewModel.Blogg = blogg;
+                }
             }
 
-            viewModel.Comments = await DAL.CommentAPIManager.GetAllCommentsAsync();
+            viewModel.Comments = await _commentApi.GetAllCommentsAsync();
 
             return viewModel;
         }
@@ -51,17 +64,17 @@ namespace SarasBlogg.Services
                     return "Namnet innehåller otillåtet språk.";
                 }
             }
-            return await DAL.CommentAPIManager.SaveCommentAsync(comment);
+            return await _commentApi.SaveCommentAsync(comment);
         }
 
         public async Task DeleteCommentAsync(int commentId)
         {
-            await DAL.CommentAPIManager.DeleteCommentAsync(commentId);
+            await _commentApi.DeleteCommentAsync(commentId);
         }
 
         public async Task<Comment?> GetCommentAsync(int commentId)
         {
-            return await DAL.CommentAPIManager.GetCommentAsync(commentId);
+            return await _commentApi.GetCommentAsync(commentId);
         }
 
         public async Task UpdateViewCountAsync(int bloggId)

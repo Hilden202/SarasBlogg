@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using SarasBlogg.DAL;
 using SarasBlogg.Data;
 using SarasBlogg.Services;
 
@@ -12,20 +13,38 @@ namespace SarasBlogg.Pages
     [Authorize(Roles = "admin, superadmin")]
     public class AdminModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        // API-tjänster för datahantering
+        private readonly BloggAPIManager _bloggApi;
+        private readonly CommentAPIManager _commentApi;
+
+        // Övriga tjänster
         private readonly IFileHelper _fileHelper;
+        private readonly ApplicationDbContext _context; // TODO: Ta bort när ej längre behövs
 
-        private RoleManager<IdentityRole> _roleManager;
-        public UserManager<ApplicationUser> _userManager;
+        // Identitet och roller
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public readonly UserManager<ApplicationUser> _userManager;
 
-        public AdminModel(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, ApplicationDbContext context, IFileHelper fileHelper)
+
+        public AdminModel(
+            BloggAPIManager bloggApi,
+            CommentAPIManager commentApi,
+            IFileHelper fileHelper,
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
-            _context = context;
-            NewBlogg = new Models.Blogg();
+            _bloggApi = bloggApi;
+            _commentApi = commentApi;
             _fileHelper = fileHelper;
-            _roleManager = roleManager;
+            _context = context;
             _userManager = userManager;
+            _roleManager = roleManager;
+
+            NewBlogg = new Models.Blogg();
         }
+
+
         public List<Models.Blogg> Bloggs { get; set; }
         [BindProperty]
         public Models.Blogg NewBlogg { get; set; }
@@ -64,7 +83,7 @@ namespace SarasBlogg.Pages
                 Models.Blogg bloggToDelete = await _context.Blogg.FindAsync(deleteId);
                 if (bloggToDelete != null) // && User.FindFirstValue(ClaimTypes.NameIdentifier) == blogToBeDeleted.UserId
                 {
-                    await DAL.CommentAPIManager.DeleteCommentsAsync(bloggToDelete.Id); // ta bort eventuella kopplade kommentarer här.
+                    await _commentApi.DeleteCommentsAsync(bloggToDelete.Id); // ta bort eventuella kopplade kommentarer här.
 
                     _fileHelper.DeleteImage(bloggToDelete.Image, "img/blogg");
 
