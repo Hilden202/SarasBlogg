@@ -12,7 +12,7 @@ namespace SarasBlogg.Pages
     public class IndexModel : PageModel
     {
         private readonly BloggService _bloggService;
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context; // TODO: Ta bort när AboutMe går via API
 
         public IEnumerable<Blogg> LatestPosts { get; set; }
         public AboutMe AboutMe { get; set; }
@@ -25,11 +25,12 @@ namespace SarasBlogg.Pages
 
         public async Task OnGetAsync()
         {
-            LatestPosts = _bloggService
-                .GetAllBloggs()
+            var allBloggs = await _bloggService.GetAllBloggsAsync();
+            LatestPosts = allBloggs
                 .OrderByDescending(p => p.LaunchDate)
                 .Take(2)
                 .ToList();
+
 
             AboutMe = await _context.AboutMe.FirstOrDefaultAsync();
             AboutMe ??= new AboutMe();

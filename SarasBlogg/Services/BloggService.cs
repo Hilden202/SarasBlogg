@@ -79,19 +79,22 @@ namespace SarasBlogg.Services
 
         public async Task UpdateViewCountAsync(int bloggId)
         {
-            var blogg = await _context.Blogg.FindAsync(bloggId);
+            var blogg = await _bloggApi.GetBloggAsync(bloggId);
             if (blogg != null)
             {
                 blogg.ViewCount++;
-                await _context.SaveChangesAsync();
+                await _bloggApi.UpdateBloggAsync(blogg);
             }
         }
 
-        public IQueryable<Blogg> GetAllBloggs()
+        public async Task<List<Blogg>> GetAllBloggsAsync()
         {
-            return _context.Blogg
-                .Where(b => !b.Hidden && b.LaunchDate <= DateTime.Today);
+            var allBloggs = await _bloggApi.GetAllBloggsAsync();
+            return allBloggs
+                .Where(b => !b.Hidden && b.LaunchDate <= DateTime.Today)
+                .ToList();
         }
+
 
 
     }
