@@ -40,7 +40,6 @@ namespace SarasBlogg
             {
                 options.Conventions.AuthorizePage("/Admin", "SkaVaraAdmin");
                 options.Conventions.AuthorizePage("/RoleAdmin", "SkaVaraSuperAdmin");
-                options.Conventions.AuthorizeFolder("/Admin/AboutMeAdmin", "SkaVaraAdmin");
             });
 
             // TJÄNSTER
@@ -48,6 +47,7 @@ namespace SarasBlogg
             builder.Services.AddScoped<BloggService>();
             builder.Services.AddScoped<BloggAPIManager>();
             builder.Services.AddScoped<CommentAPIManager>();
+            builder.Services.AddScoped<ForbiddenWordAPIManager>();
 
             // COOKIEPOLICY
             builder.Services.Configure<CookiePolicyOptions>(options =>

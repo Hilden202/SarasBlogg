@@ -1,6 +1,6 @@
 ﻿@page
 @using Extensions
-@model SarasBlogg.Pages.AdminModel
+@model SarasBlogg.Pages.Admin.IndexModel
 @inject SignInManager<ApplicationUser> SignInManager
 @{
 }
@@ -12,10 +12,13 @@
 			<div class="container d-flex justify-content-center">
 				<ul class="mynav">
 					<li class="nav-item me-3">
-						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin">Bloggar</a>
+						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin/Index">Bloggar</a>
 					</li>
 					<li class="nav-item me-3">
-						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/RoleAdmin/Index">Roller</a>
+						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin/RoleAdmin/Index">Roller</a>
+					</li>
+					<li class="nav-item me-3">
+						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin/ForbiddenWords/Index">Ord</a>
 					</li>
 				</ul>
 			</div>

@@ -8,10 +8,10 @@ using SarasBlogg.DAL;
 using SarasBlogg.Data;
 using SarasBlogg.Services;
 
-namespace SarasBlogg.Pages
+namespace SarasBlogg.Pages.Admin
 {
     [Authorize(Roles = "admin, superadmin")]
-    public class AdminModel : PageModel
+    public class IndexModel : PageModel
     {
         // API-tjänster för datahantering
         private readonly BloggAPIManager _bloggApi;
@@ -25,7 +25,7 @@ namespace SarasBlogg.Pages
         public readonly UserManager<ApplicationUser> _userManager;
 
 
-        public AdminModel(
+        public IndexModel(
             BloggAPIManager bloggApi,
             CommentAPIManager commentApi,
             IFileHelper fileHelper,

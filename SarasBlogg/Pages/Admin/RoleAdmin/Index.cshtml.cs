@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.Data;
 
-namespace SarasBlogg.Pages.RoleAdmin
+namespace SarasBlogg.Pages.Admin.RoleAdmin
 {
     [Authorize(Roles = "superadmin")]
     public class IndexModel : PageModel

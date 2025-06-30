@@ -15,11 +15,14 @@ namespace SarasBlogg.Services
 
         private readonly CommentAPIManager _commentApi;
 
-        public BloggService(ApplicationDbContext context, BloggAPIManager bloggApi, CommentAPIManager commentApi)
+        private readonly ForbiddenWordAPIManager _forbiddenWordApi;
+
+        public BloggService(ApplicationDbContext context, BloggAPIManager bloggApi, CommentAPIManager commentApi, ForbiddenWordAPIManager forbiddenWordApi)
         {
             _bloggApi = bloggApi;
             _commentApi = commentApi;
             _context = context;
+            _forbiddenWordApi = forbiddenWordApi;
         }
 
         public async Task<ViewModels.BloggViewModel> GetBloggViewModelAsync(bool isArchive, int showId = 0)
@@ -51,7 +54,7 @@ namespace SarasBlogg.Services
 
         public async Task<string> SaveCommentAsync(Comment comment) // La till string för response både för API och regex
         {
-            var forbiddenPatterns = await _context.ForbiddenWords.Select(w => w.WordPattern).ToListAsync();
+            var forbiddenPatterns = await _forbiddenWordApi.GetForbiddenPatternsAsync();
 
             foreach (var pattern in forbiddenPatterns)
             {
