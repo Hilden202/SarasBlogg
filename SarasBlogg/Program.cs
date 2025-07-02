@@ -48,6 +48,9 @@ namespace SarasBlogg
             builder.Services.AddScoped<BloggAPIManager>();
             builder.Services.AddScoped<CommentAPIManager>();
             builder.Services.AddScoped<ForbiddenWordAPIManager>();
+            builder.Services.AddScoped<AboutMeAPIManager>();
+            builder.Services.AddScoped<ContactMeAPIManager>();
+
 
             // COOKIEPOLICY
             builder.Services.Configure<CookiePolicyOptions>(options =>

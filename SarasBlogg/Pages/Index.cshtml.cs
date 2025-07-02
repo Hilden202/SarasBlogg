@@ -5,22 +5,23 @@ using SarasBlogg.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;  // För FirstOrDefaultAsync
+using Microsoft.EntityFrameworkCore;
+using SarasBlogg.DAL;  // För FirstOrDefaultAsync
 
 namespace SarasBlogg.Pages
 {
     public class IndexModel : PageModel
     {
         private readonly BloggService _bloggService;
-        private readonly ApplicationDbContext _context; // TODO: Ta bort när AboutMe går via API
+        private readonly AboutMeAPIManager _aboutMeApiManager;
 
         public IEnumerable<Blogg> LatestPosts { get; set; }
         public AboutMe AboutMe { get; set; }
 
-        public IndexModel(BloggService bloggService, ApplicationDbContext context)
+        public IndexModel(BloggService bloggService, AboutMeAPIManager aboutMeAPIManager)
         {
             _bloggService = bloggService;
-            _context = context;
+            _aboutMeApiManager = aboutMeAPIManager;
         }
 
         public async Task OnGetAsync()
@@ -32,8 +33,7 @@ namespace SarasBlogg.Pages
                 .ToList();
 
 
-            AboutMe = await _context.AboutMe.FirstOrDefaultAsync();
-            AboutMe ??= new AboutMe();
+            AboutMe = await _aboutMeApiManager.GetAboutMeAsync() ?? new AboutMe();
         }
     }
 }

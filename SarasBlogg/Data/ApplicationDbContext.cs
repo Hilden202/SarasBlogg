@@ -16,9 +16,6 @@ namespace SarasBlogg.Data
         {
         }
 
-        public DbSet<AboutMe> AboutMe { get; set; } = default!;
-        public DbSet<ContactMe> ContactMe { get; set; } = default!;
-        //public DbSet<ForbiddenWord> ForbiddenWords { get; set; }
-
+        // Vänta tills IdentityUser är överfört till API innan borttagning
     }
 }
