@@ -82,6 +82,13 @@ namespace SarasBlogg.DAL
             return JsonSerializer.Deserialize<List<string>>(json, options) ?? new List<string>();
         }
 
+        public async Task<bool> DeleteUserAsync(string id)
+        {
+            using var client = new HttpClient { BaseAddress = _baseAddress };
+            var response = await client.DeleteAsync($"api/User/delete/{id}");
+            return response.IsSuccessStatusCode;
+        }
+
         public async Task<bool> DeleteRoleAsync(string roleName)
         {
             using var client = new HttpClient { BaseAddress = _baseAddress };

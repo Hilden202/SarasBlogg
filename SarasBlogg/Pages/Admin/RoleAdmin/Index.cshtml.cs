@@ -20,6 +20,9 @@ namespace SarasBlogg.Pages.Admin.RoleAdmin
         public string RemoveUserId { get; set; }
 
         [BindProperty]
+        public string DeleteUserId { get; set; }
+
+        [BindProperty]
         public string DeleteRoleName { get; set; }
 
         private readonly UserAPIManager _userApiManager;
@@ -39,13 +42,13 @@ namespace SarasBlogg.Pages.Admin.RoleAdmin
             var customOrder = new[] { "user", "superuser", "admin", "superadmin" };
             Roles = (await _userApiManager.GetAllRolesAsync())
                 .OrderBy(r => Array.IndexOf(customOrder, r.ToLower()))
-                .ThenBy(r => r) // fallback
+                .ThenBy(r => r)
                 .ToList();
-
-
-            Users = await _userApiManager.GetAllUsersAsync();
+            Users = (await _userApiManager.GetAllUsersAsync())
+                .OrderByDescending(u => u.Email.ToLower() == "admin@sarasblogg.se")
+                .ThenBy(u => u.Name)
+                .ToList();
         }
-
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -54,6 +57,19 @@ namespace SarasBlogg.Pages.Admin.RoleAdmin
 
             return RedirectToPage();
         }
+
+        public async Task<IActionResult> OnPostDeleteUserAsync()
+        {
+            var user = await _userApiManager.GetUserByIdAsync(DeleteUserId);
+
+            if (user != null && user.Email.ToLower() != "admin@sarasblogg.se")
+            {
+                await _userApiManager.DeleteUserAsync(DeleteUserId);
+            }
+
+            return RedirectToPage();
+        }
+
 
         public async Task<IActionResult> OnPostDeleteRoleAsync()
         {

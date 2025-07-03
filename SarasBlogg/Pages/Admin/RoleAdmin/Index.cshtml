@@ -2,82 +2,93 @@
 @model SarasBlogg.Pages.Admin.RoleAdmin.IndexModel
 
 <div class="container-site">
-    @if (User.IsInRole("admin") || User.IsInRole("superadmin"))
-    {
-        <p>Antal användare: @Model.Users?.Count</p>
-        <p>Antal roller: @Model.Roles?.Count</p>
+	@if (User.IsInRole("admin") || User.IsInRole("superadmin"))
+	{
+				<p>Antal användare: @Model.Users?.Count</p>
+				<p>Antal roller: @Model.Roles?.Count</p>
 
-        <table class="border table table-striped shadow-sm align-middle">
-            <thead>
-                <tr>
-                    <th>Användarnamn</th>
-                    @foreach (var role in Model.Roles)
-                    {
-                        <th>@role</th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var user in Model.Users)
-                {
-                    <tr>
-                        <td>
-                            @user.Name (@user.Email)<br />
-                            <small>Roller: @string.Join(", ", user.Roles)</small>
-                        </td>
-                        @foreach (var role in Model.Roles)
-                        {
-                            <td>
-                                @if (user.Roles.Contains(role))
-                                {
-                                    <a class="btn btn-sm btn-outline-danger"
-                                       href="?RemoveUserId=@user.Id&amp;RoleName=@role">Ja</a>
-                                }
-                                else
-                                {
-                                    <a class="btn btn-sm btn-outline-success"
-                                       href="?AddUserId=@user.Id&amp;RoleName=@role">Nej</a>
-                                }
-                            </td>
-                        }
-                    </tr>
-                }
-            </tbody>
-        </table>
+				<table class="border table table-striped shadow-sm align-middle">
+					<thead>
+						<tr>
+							<th>Ta bort</th>	
+							<th>Användarnamn</th>
+					@foreach (var role in Model.Roles)
+					{
+						<th>@role</th>
+					}
+						</tr>
+					</thead>
+					<tbody>
+				@foreach (var user in Model.Users)
+				{
+					<tr>
+						<td>
+							@if (user.Email.ToLower() != "admin@sarasblogg.se")
+							{
+							<form method="post" asp-page-handler="DeleteUser"
+								  onsubmit="return confirm('Ta bort användare @user.Email?')">
+								<input type="hidden" name="DeleteUserId" value="@user.Id" />
+								<button class="btn btn-sm btn-outline-danger">🗑</button>
+							</form>
+							}
+						</td>
+						<td>
+							@user.Name (@user.Email)<br />
+							<small>Roller: @string.Join(", ", user.Roles)</small>
+						</td>
+						@foreach (var role in Model.Roles)
+						{
+							<td>
+								@if (user.Roles.Contains(role))
+								{
+									<a class="btn btn-sm btn-outline-danger"
+									href="?RemoveUserId=@user.Id&amp;RoleName=@role">Ja</a>
+								}
+								else
+								{
+									<a class="btn btn-sm btn-outline-success"
+									href="?AddUserId=@user.Id&amp;RoleName=@role">Nej</a>
+								}
+						   </td>
+						}
+						</tr>
+				}
+					</tbody>
+				</table>
 
-        <form method="post" class="mt-4">
-            <label for="RoleName">Ny Roll</label>
-            <input type="text" name="RoleName" id="RoleName" class="form-control" />
-            <input type="submit" value="Skapa ny roll" class="btn btn-primary mt-2" />
-        </form>
+				<form method="post" class="mt-4">
+					<label for="RoleName">Ny Roll</label>
+					<input type="text" name="RoleName" id="RoleName" class="form-control" />
+					<input type="submit" value="Skapa ny roll" class="btn btn-primary mt-2" />
+				</form>
 
-        <hr />
-<h4>Hantera roller</h4>
-<table class="table table-bordered w-auto">
-    <thead>
-        <tr>
-            <th>Roll</th>
-            <th>Ta bort</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var role in Model.Roles)
-        {
-            <tr>
-                <td>@role</td>
-                <td>
-                    @if (role.ToLower() != "superadmin")
-                    {
-                        <form method="post" asp-page-handler="DeleteRole">
-                            <input type="hidden" name="DeleteRoleName" value="@role" />
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Ta bort rollen @role?')">🗑</button>
-                        </form>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+				<hr />
+		<h4>Hantera roller</h4>
+		<table class="table table-bordered w-auto">
+			<thead>
+				<tr>
+					<th>Roll</th>
+					<th>Ta bort</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var role in Model.Roles)
+				{
+							<tr>
+								<td>@role</td>
+								<td>
+							@if (role.ToLower() != "superadmin")
+							{
+								<form method="post" asp-page-handler="DeleteRole">
+									<input type="hidden" name="DeleteRoleName" value="@role" />
+									<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Ta bort rollen @role?')">🗑</button>
+								</form>
+							}
+								</td>
+							</tr>
+				}
+			</tbody>
+		</table>
 
-    }
+	}
 </div>
