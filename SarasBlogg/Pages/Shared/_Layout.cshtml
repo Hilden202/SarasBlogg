@@ -57,24 +57,24 @@
 				<div class="container d-flex justify-content-center">
 					<ul class="mynav">
 						<li class="nav-item me-3">
-							<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Index">Hem</a>
+							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Index" ? "fw-bold" : "")" asp-area="" asp-page="/Index">Hem</a>
 						</li>
 						<li class="nav-item me-3">
-							<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Blogg">Blogg</a>
+							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Blogg" ? "fw-bold" : "")" asp-area="" asp-page="/Blogg">Blogg</a>
 						</li>
 						<li class="nav-item me-3">
-							<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/AboutMe">Om mig</a>
+							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/AboutMe" ? "fw-bold" : "")" asp-area="" asp-page="/AboutMe">Om mig</a>
 						</li>
 						<li class="nav-item me-3">
-							<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Arkiv">Arkiv</a>
+							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Arkiv" ? "fw-bold" : "")" asp-area="" asp-page="/Arkiv">Arkiv</a>
 						</li>
 						<li class="nav-item me-3">
-							<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Contact">Kontakt</a>
+							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Contact" ? "fw-bold" : "")" asp-area="" asp-page="/Contact">Kontakt</a>
 						</li>
 						@if (User.IsInRole("admin") || User.IsInRole("superadmin"))
 						{
 							<li class="nav-item me-3">
-								<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin/Index">Admin</a>
+								<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Admin") == true ? "fw-bold" : "")" asp-area="" asp-page="/Admin/Index">Admin</a>
 							</li>
 						}
 					</ul>
