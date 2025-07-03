@@ -50,6 +50,7 @@ namespace SarasBlogg
             builder.Services.AddScoped<ForbiddenWordAPIManager>();
             builder.Services.AddScoped<AboutMeAPIManager>();
             builder.Services.AddScoped<ContactMeAPIManager>();
+            builder.Services.AddSingleton<UserAPIManager>();
 
 
             // COOKIEPOLICY
