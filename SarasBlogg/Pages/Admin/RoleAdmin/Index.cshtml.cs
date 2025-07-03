@@ -18,8 +18,6 @@ namespace SarasBlogg.Pages.Admin.RoleAdmin
         public string AddUserId { get; set; }
         [BindProperty(SupportsGet = true)]
         public string RemoveUserId { get; set; }
-        //public bool IsAdmin { get; set; }
-        //public bool IsSuperAdmin { get; set; }
 
         private RoleManager<IdentityRole> _roleManager;
         public UserManager<ApplicationUser> _userManager;
@@ -44,12 +42,6 @@ namespace SarasBlogg.Pages.Admin.RoleAdmin
                 await _userManager.RemoveFromRoleAsync(alterUser, RoleName);
             }
 
-            //var currentUser = await _userManager.GetUserAsync(User);
-            //if (currentUser != null)
-            //{
-            //    IsAdmin = await _userManager.IsInRoleAsync(currentUser, "admin");
-            //    IsSuperAdmin = await _userManager.IsInRoleAsync(currentUser, "superadmin");
-            //}
         }
 
         public async Task<IActionResult> OnPostAsync()
