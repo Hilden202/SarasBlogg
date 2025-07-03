@@ -1,71 +1,69 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using SarasBlogg.Data;
+using SarasBlogg.DTOs;
+using SarasBlogg.DAL;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SarasBlogg.Pages.Admin.RoleAdmin
 {
-    [Authorize(Roles = "superadmin")]
     public class IndexModel : PageModel
     {
-        public List<ApplicationUser> Users { get; set; }
-        public List<IdentityRole> Roles { get; set; }
+        public List<UserDto> Users { get; set; } = new();
+        public List<string> Roles { get; set; } = new();
+
         [BindProperty(SupportsGet = true)]
         public string RoleName { get; set; }
+
         [BindProperty(SupportsGet = true)]
         public string AddUserId { get; set; }
+
         [BindProperty(SupportsGet = true)]
         public string RemoveUserId { get; set; }
 
-        private RoleManager<IdentityRole> _roleManager;
-        public UserManager<ApplicationUser> _userManager;
-        public IndexModel(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
+        [BindProperty]
+        public string DeleteRoleName { get; set; }
+
+        private readonly UserAPIManager _userApiManager;
+        public IndexModel(UserAPIManager userApiManager)
         {
-            _roleManager = roleManager;
-            _userManager = userManager;
+            _userApiManager = userApiManager;
         }
+
         public async Task OnGetAsync()
         {
-            Roles = await _roleManager.Roles.ToListAsync();
-            Users = await _userManager.Users.ToListAsync();
+            if (!string.IsNullOrEmpty(AddUserId))
+                await _userApiManager.AddUserToRoleAsync(AddUserId, RoleName);
 
-            if (AddUserId != null)
-            {
-                var alterUser = await _userManager.FindByIdAsync(AddUserId);
-                await _userManager.AddToRoleAsync(alterUser, RoleName);
-            }
-            if (RemoveUserId != null)
-            {
-                var alterUser = await _userManager.FindByIdAsync(RemoveUserId);
-                await _userManager.RemoveFromRoleAsync(alterUser, RoleName);
-            }
+            if (!string.IsNullOrEmpty(RemoveUserId))
+                await _userApiManager.RemoveUserFromRoleAsync(RemoveUserId, RoleName);
 
+            var customOrder = new[] { "user", "superuser", "admin", "superadmin" };
+            Roles = (await _userApiManager.GetAllRolesAsync())
+                .OrderBy(r => Array.IndexOf(customOrder, r.ToLower()))
+                .ThenBy(r => r) // fallback
+                .ToList();
+
+
+            Users = await _userApiManager.GetAllUsersAsync();
         }
+
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (RoleName != null)
+            if (!string.IsNullOrWhiteSpace(RoleName))
+                await _userApiManager.CreateRoleAsync(RoleName);
+
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostDeleteRoleAsync()
+        {
+            if (!string.IsNullOrWhiteSpace(DeleteRoleName) && DeleteRoleName.ToLower() != "superadmin")
             {
-                await CreateRole(RoleName);
+                await _userApiManager.DeleteRoleAsync(DeleteRoleName);
             }
 
             return RedirectToPage();
         }
 
-        public async Task CreateRole(string roleName)
-        {
-            bool roleExist = await _roleManager.RoleExistsAsync(roleName);
-
-            if (!roleExist)
-            {
-                var role = new IdentityRole
-                {
-                    Name = roleName
-                };
-                await _roleManager.CreateAsync(role);
-            }
-        }
     }
 }

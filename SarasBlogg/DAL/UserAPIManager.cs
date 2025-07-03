@@ -21,7 +21,8 @@ namespace SarasBlogg.DAL
                 return new List<UserDto>();
 
             var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<List<UserDto>>(json) ?? new List<UserDto>();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            return JsonSerializer.Deserialize<List<UserDto>>(json, options) ?? new List<UserDto>();
         }
 
         public async Task<UserDto?> GetUserByIdAsync(string id)
@@ -77,9 +78,16 @@ namespace SarasBlogg.DAL
                 return new List<string>();
 
             var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            return JsonSerializer.Deserialize<List<string>>(json, options) ?? new List<string>();
         }
 
+        public async Task<bool> DeleteRoleAsync(string roleName)
+        {
+            using var client = new HttpClient { BaseAddress = _baseAddress };
+            var response = await client.DeleteAsync($"api/Role/delete/{roleName}");
+            return response.IsSuccessStatusCode;
+        }
 
     }
 }
