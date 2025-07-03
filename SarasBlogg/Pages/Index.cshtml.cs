@@ -1,12 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using SarasBlogg.Data;           // för ApplicationDbContext
 using SarasBlogg.Models;
 using SarasBlogg.Services;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using SarasBlogg.DAL;  // För FirstOrDefaultAsync
+using SarasBlogg.DAL;
 
 namespace SarasBlogg.Pages
 {

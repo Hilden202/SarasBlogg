@@ -1,6 +1,4 @@
 ﻿using System.Text.Json;
-using SarasBlogg.Models;
-using Microsoft.Extensions.Configuration;
 
 namespace SarasBlogg.DAL
 {

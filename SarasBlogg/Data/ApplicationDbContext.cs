@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Core.Types;
-using SarasBlogg.Models;
 
 namespace SarasBlogg.Data
 {

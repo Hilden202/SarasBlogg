@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SarasBlogg.Data;
+﻿using SarasBlogg.Data;
 using SarasBlogg.ViewModels;
 using SarasBlogg.Models;
 using SarasBlogg.Extensions;
@@ -9,19 +8,16 @@ namespace SarasBlogg.Services
 {
     public class BloggService
     {
-        private readonly ApplicationDbContext _context; // TODO: Ta bort när denna ForbiddenWord körs via API:er
-
         private readonly BloggAPIManager _bloggApi;
 
         private readonly CommentAPIManager _commentApi;
 
         private readonly ForbiddenWordAPIManager _forbiddenWordApi;
 
-        public BloggService(ApplicationDbContext context, BloggAPIManager bloggApi, CommentAPIManager commentApi, ForbiddenWordAPIManager forbiddenWordApi)
+        public BloggService(BloggAPIManager bloggApi, CommentAPIManager commentApi, ForbiddenWordAPIManager forbiddenWordApi)
         {
             _bloggApi = bloggApi;
             _commentApi = commentApi;
-            _context = context;
             _forbiddenWordApi = forbiddenWordApi;
         }
 
