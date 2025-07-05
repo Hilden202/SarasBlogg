@@ -409,3 +409,13 @@ footer {
     padding: 0rem;
     backdrop-filter: blur(5px);
 }
+
+.social-icons a svg {
+	color: #6c757d;
+	transition: color 0.2s;
+}
+
+.social-icons a:hover svg {
+	color: #000;
+}
+
