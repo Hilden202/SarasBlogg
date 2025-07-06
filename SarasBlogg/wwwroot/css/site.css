@@ -419,3 +419,17 @@ footer {
 	color: #000;
 }
 
+#cookieConsentdiv {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+input, textarea, select, button {
+    background-color: white !important;
+    color: black !important;
+}
+
+.alert, .modal-content {
+    background-color: #fff !important;
+    color: #000 !important;
+}
