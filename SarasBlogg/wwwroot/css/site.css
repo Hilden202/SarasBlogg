@@ -419,9 +419,14 @@ footer {
 	color: #000;
 }
 
+body.modal-open {
+    overflow: hidden;
+}
+
 #cookieConsentdiv {
     max-height: 90vh;
     overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 input, textarea, select, button {
