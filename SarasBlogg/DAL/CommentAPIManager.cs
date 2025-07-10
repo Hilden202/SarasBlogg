@@ -4,16 +4,20 @@ namespace SarasBlogg.DAL
 {
     public class CommentAPIManager
     {
-        //private static Uri BaseAddress = new Uri("https://localhost:44316/");
-        private static Uri BaseAddress = new Uri("https://sarasbloggapi-dxazexfadphfecfk.northeurope-01.azurewebsites.net/");
+        private readonly Uri _baseAddress;
+        public CommentAPIManager(IConfiguration config)
+        {
+            _baseAddress = new Uri(config["ApiSettings:BaseAddress"]);
+        }
 
-        public static async Task<List<Models.Comment>> GetAllCommentsAsync()
+
+        public async Task<List<Models.Comment>> GetAllCommentsAsync()
         {
             List<Models.Comment> comments = new();
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = BaseAddress;
+                client.BaseAddress = _baseAddress;
                 HttpResponseMessage response = await client.GetAsync("api/Comment");
                 if (response.IsSuccessStatusCode)
                 {
@@ -23,12 +27,12 @@ namespace SarasBlogg.DAL
                 return comments;
             }
         }
-        public static async Task<Models.Comment> GetCommentAsync(int id)
+        public async Task<Models.Comment> GetCommentAsync(int id)
         {
             Models.Comment comment = new();
             using (var client = new HttpClient())
             {
-                client.BaseAddress = BaseAddress;
+                client.BaseAddress = _baseAddress;
                 HttpResponseMessage response = await client.GetAsync("api/Comment/ById/" + id);
                 if (response.IsSuccessStatusCode)
                 {
@@ -39,11 +43,11 @@ namespace SarasBlogg.DAL
             }
         }
 
-        public static async Task<string>SaveCommentAsync(Models.Comment comment) // La till string för att få tillbaka return.
+        public async Task<string> SaveCommentAsync(Models.Comment comment) // La till string för att få tillbaka return.
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = BaseAddress;
+                client.BaseAddress = _baseAddress;
                 var json = JsonSerializer.Serialize(comment);
                 StringContent httpContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
                 HttpResponseMessage response = await client.PostAsync("api/Comment", httpContent);
@@ -61,20 +65,20 @@ namespace SarasBlogg.DAL
             }
         }
 
-        public static async Task DeleteCommentAsync(int id)
+        public async Task DeleteCommentAsync(int id)
         {
-            using(var client = new HttpClient())
+            using (var client = new HttpClient())
             {
-                client.BaseAddress = BaseAddress;
+                client.BaseAddress = _baseAddress;
                 HttpResponseMessage response = await client.DeleteAsync("api/Comment/ById/" + id);
             }
         }
 
-        public static async Task DeleteCommentsAsync(int bloggId)
+        public async Task DeleteCommentsAsync(int bloggId)
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = BaseAddress;
+                client.BaseAddress = _baseAddress;
                 HttpResponseMessage response = await client.DeleteAsync("api/Comment/ByBlogg/" + bloggId);
             }
         }

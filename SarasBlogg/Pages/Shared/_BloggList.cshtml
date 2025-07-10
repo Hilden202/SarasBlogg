@@ -13,7 +13,7 @@
 		&& !b.Hidden
 		&& b.LaunchDate <= DateTime.Today);
 
-		foreach (var blogg in filteredBloggs.Reverse())
+		foreach (var blogg in filteredBloggs)
 		{
 			<a asp-route-showId="@blogg.Id" class="text-decoration-none blogg-link" Id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
 				<div class="card m-2 shadow-lg mx-auto">

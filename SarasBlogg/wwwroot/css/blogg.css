@@ -28,6 +28,10 @@
     border-radius: 15px !important;
 }
 
+.card-extra-padding{
+    padding-bottom: 1rem;
+}
+
 /*.comments-section {
     display: block;
     background-color: white;

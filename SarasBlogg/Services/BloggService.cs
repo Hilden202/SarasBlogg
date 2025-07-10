@@ -1,44 +1,56 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SarasBlogg.Data;
+﻿using SarasBlogg.Data;
 using SarasBlogg.ViewModels;
 using SarasBlogg.Models;
 using SarasBlogg.Extensions;
+using SarasBlogg.DAL;
 
 namespace SarasBlogg.Services
 {
     public class BloggService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly BloggAPIManager _bloggApi;
 
-        public BloggService(ApplicationDbContext context)
+        private readonly CommentAPIManager _commentApi;
+
+        private readonly ForbiddenWordAPIManager _forbiddenWordApi;
+
+        public BloggService(BloggAPIManager bloggApi, CommentAPIManager commentApi, ForbiddenWordAPIManager forbiddenWordApi)
         {
-            _context = context;
+            _bloggApi = bloggApi;
+            _commentApi = commentApi;
+            _forbiddenWordApi = forbiddenWordApi;
         }
 
         public async Task<ViewModels.BloggViewModel> GetBloggViewModelAsync(bool isArchive, int showId = 0)
         {
             var viewModel = new BloggViewModel();
 
-            viewModel.Bloggs = await _context.Blogg
+            var allBloggs = await _bloggApi.GetAllBloggsAsync();
+
+            viewModel.Bloggs = allBloggs
                 .Where(b => (isArchive ? b.IsArchived : !b.IsArchived) && !b.Hidden && b.LaunchDate <= DateTime.Today)
-                .ToListAsync();
+                .ToList();
 
             viewModel.IsArchiveView = isArchive;
 
             if (showId != 0)
             {
-                viewModel.Blogg = await _context.Blogg
-                    .FirstOrDefaultAsync(b => b.Id == showId && (isArchive ? b.IsArchived : true) && !b.Hidden);
+                var blogg = await _bloggApi.GetBloggAsync(showId);
+
+                if (blogg != null && (isArchive ? blogg.IsArchived : true) && !blogg.Hidden)
+                {
+                    viewModel.Blogg = blogg;
+                }
             }
 
-            viewModel.Comments = await DAL.CommentAPIManager.GetAllCommentsAsync();
+            viewModel.Comments = await _commentApi.GetAllCommentsAsync();
 
             return viewModel;
         }
 
         public async Task<string> SaveCommentAsync(Comment comment) // La till string för response både för API och regex
         {
-            var forbiddenPatterns = await _context.ForbiddenWords.Select(w => w.WordPattern).ToListAsync();
+            var forbiddenPatterns = await _forbiddenWordApi.GetForbiddenPatternsAsync();
 
             foreach (var pattern in forbiddenPatterns)
             {
@@ -51,34 +63,37 @@ namespace SarasBlogg.Services
                     return "Namnet innehåller otillåtet språk.";
                 }
             }
-            return await DAL.CommentAPIManager.SaveCommentAsync(comment);
+            return await _commentApi.SaveCommentAsync(comment);
         }
 
         public async Task DeleteCommentAsync(int commentId)
         {
-            await DAL.CommentAPIManager.DeleteCommentAsync(commentId);
+            await _commentApi.DeleteCommentAsync(commentId);
         }
 
         public async Task<Comment?> GetCommentAsync(int commentId)
         {
-            return await DAL.CommentAPIManager.GetCommentAsync(commentId);
+            return await _commentApi.GetCommentAsync(commentId);
         }
 
         public async Task UpdateViewCountAsync(int bloggId)
         {
-            var blogg = await _context.Blogg.FindAsync(bloggId);
+            var blogg = await _bloggApi.GetBloggAsync(bloggId);
             if (blogg != null)
             {
                 blogg.ViewCount++;
-                await _context.SaveChangesAsync();
+                await _bloggApi.UpdateBloggAsync(blogg);
             }
         }
 
-        public IQueryable<Blogg> GetAllBloggs()
+        public async Task<List<Blogg>> GetAllBloggsAsync()
         {
-            return _context.Blogg
-                .Where(b => !b.Hidden && b.LaunchDate <= DateTime.Today);
+            var allBloggs = await _bloggApi.GetAllBloggsAsync();
+            return allBloggs
+                .Where(b => !b.Hidden && b.LaunchDate <= DateTime.Today)
+                .ToList();
         }
+
 
 
     }

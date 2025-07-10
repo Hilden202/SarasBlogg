@@ -19,16 +19,32 @@
 		</button>
 	</div>
 
-	<script type="text/javascript">
-		$(document).ready(function () {
-			$("#cookieConsentdiv button[data-cookie-string]").bind("click", function () {
-				document.cookie = $("#cookieConsentdiv button").attr("data-cookie-string");
-				$("#cookieConsentdiv").hide();
-			});
-			$("#showPrivacyContent").on("click", function (e) {
-				e.preventDefault();
-				$("#privacyContent").toggle();
-			});
-		});
-	</script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            const $body = $('body');
+
+            $("#cookieConsentdiv button[data-cookie-string]").on("click", function () {
+                document.cookie = $(this).attr("data-cookie-string");
+                $("#cookieConsentdiv").hide();
+                $body.removeClass("modal-open");
+            });
+
+            $("#showPrivacyContent").on("click", function (e) {
+                e.preventDefault();
+                const $privacyContent = $("#privacyContent");
+                const isVisible = $privacyContent.is(":visible");
+
+                $privacyContent.toggle();
+
+                if (isVisible) {
+                    $(this).text("Läs mer här");
+                    $body.removeClass("modal-open");
+                } else {
+                    $(this).text("Visa mindre");
+                    $body.addClass("modal-open");
+                }
+            });
+        });
+    </script>
+
 }

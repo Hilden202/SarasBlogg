@@ -3,29 +3,44 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
+using SarasBlogg.DAL;
 using SarasBlogg.Data;
 using SarasBlogg.Services;
 
-namespace SarasBlogg.Pages
+namespace SarasBlogg.Pages.Admin
 {
     [Authorize(Roles = "admin, superadmin")]
-    public class AdminModel : PageModel
+    public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        // API-tjänster för datahantering
+        private readonly BloggAPIManager _bloggApi;
+        private readonly CommentAPIManager _commentApi;
+
+        // Övriga tjänster
         private readonly IFileHelper _fileHelper;
 
-        private RoleManager<IdentityRole> _roleManager;
-        public UserManager<ApplicationUser> _userManager;
+        // Identitet och roller
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public readonly UserManager<ApplicationUser> _userManager;
 
-        public AdminModel(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, ApplicationDbContext context, IFileHelper fileHelper)
+
+        public IndexModel(
+            BloggAPIManager bloggApi,
+            CommentAPIManager commentApi,
+            IFileHelper fileHelper,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
-            _context = context;
-            NewBlogg = new Models.Blogg();
+            _bloggApi = bloggApi;
+            _commentApi = commentApi;
             _fileHelper = fileHelper;
-            _roleManager = roleManager;
             _userManager = userManager;
+            _roleManager = roleManager;
+
+            NewBlogg = new Models.Blogg();
         }
+
+
         public List<Models.Blogg> Bloggs { get; set; }
         [BindProperty]
         public Models.Blogg NewBlogg { get; set; }
@@ -50,37 +65,37 @@ namespace SarasBlogg.Pages
             }
             if (hiddenId.HasValue && hiddenId.Value != 0)
             {
-                var bloggToHide = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == hiddenId.Value);
+                var bloggToHide = await _bloggApi.GetBloggAsync(hiddenId.Value);
 
                 if (bloggToHide != null)
                 {
                     bloggToHide.Hidden = !bloggToHide.Hidden;
-                    await _context.SaveChangesAsync();
+                    await _bloggApi.UpdateBloggAsync(bloggToHide);
                 }
             }
             if (deleteId != 0)
 
             {
-                Models.Blogg bloggToDelete = await _context.Blogg.FindAsync(deleteId);
+                var bloggToDelete = await _bloggApi.GetBloggAsync(deleteId);
+
                 if (bloggToDelete != null) // && User.FindFirstValue(ClaimTypes.NameIdentifier) == blogToBeDeleted.UserId
                 {
-                    await DAL.CommentAPIManager.DeleteCommentsAsync(bloggToDelete.Id); // ta bort eventuella kopplade kommentarer här.
+                    await _commentApi.DeleteCommentsAsync(bloggToDelete.Id); // ta bort eventuella kopplade kommentarer här.
 
                     _fileHelper.DeleteImage(bloggToDelete.Image, "img/blogg");
 
-                    _context.Blogg.Remove(bloggToDelete);
-                    await _context.SaveChangesAsync();
+                    await _bloggApi.DeleteBloggAsync(bloggToDelete.Id);
 
                 }
 
                 return RedirectToPage();
             }
 
-            Bloggs = await _context.Blogg.ToListAsync();
+            Bloggs = await _bloggApi.GetAllBloggsAsync();
 
             if (editId.HasValue && editId.Value != 0)
             {
-                var bloggToEdit = await _context.Blogg.FirstOrDefaultAsync(b => b.Id == editId.Value);
+                var bloggToEdit = await _bloggApi.GetBloggAsync(editId.Value);
                 if (bloggToEdit != null)
                 {
                     NewBlogg = bloggToEdit; // viktig ändring
@@ -89,12 +104,14 @@ namespace SarasBlogg.Pages
 
             if (archiveId.HasValue && archiveId.Value != 0)
             {
-                var bloggToArchive = Bloggs.FirstOrDefault(b => b.Id == archiveId.Value);
+                var bloggToArchive = await _bloggApi.GetBloggAsync(archiveId.Value);
                 if (bloggToArchive != null)
                 {
                     bloggToArchive.IsArchived = !bloggToArchive.IsArchived;
-                    await _context.SaveChangesAsync();
+                    await _bloggApi.UpdateBloggAsync(bloggToArchive);
                 }
+
+                Bloggs = await _bloggApi.GetAllBloggsAsync(); // Efter uppdatering via API måste listan hämtas om manuellt,
             }
 
             return Page();
@@ -103,7 +120,7 @@ namespace SarasBlogg.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var currentBlogg = await _context.Blogg.FindAsync(NewBlogg.Id);
+            var currentBlogg = await _bloggApi.GetBloggAsync(NewBlogg.Id);
 
             if (BloggImage != null)
             {
@@ -130,7 +147,7 @@ namespace SarasBlogg.Pages
 
             if (NewBlogg.Id == 0)
             {
-                _context.Blogg.Add(NewBlogg);
+                await _bloggApi.SaveBloggAsync(NewBlogg);
             }
             else
             {
@@ -139,10 +156,8 @@ namespace SarasBlogg.Pages
                     return NotFound();
                 }
 
-                _context.Entry(currentBlogg).CurrentValues.SetValues(NewBlogg);
+                await _bloggApi.UpdateBloggAsync(NewBlogg);
             }
-
-            await _context.SaveChangesAsync();
 
             return RedirectToPage();
 

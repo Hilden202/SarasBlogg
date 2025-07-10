@@ -1,20 +1,19 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using SarasBlogg.Data;
+using SarasBlogg.DAL;
 using SarasBlogg.Services;
 
 namespace SarasBlogg.Pages
 {
     public class AboutMeModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly AboutMeAPIManager _aboutMeApiManager;
         private readonly IFileHelper _fileHelper;
 
-        public AboutMeModel(ApplicationDbContext context, IFileHelper fileHelper)
+        public AboutMeModel(AboutMeAPIManager aboutMeAPIManager, IFileHelper fileHelper)
         {
-            _context = context;
+            _aboutMeApiManager = aboutMeAPIManager;
             _fileHelper = fileHelper;
         }
 
@@ -26,14 +25,17 @@ namespace SarasBlogg.Pages
 
         public async Task OnGetAsync()
         {
-            AboutMe = await _context.AboutMe.FirstOrDefaultAsync();
+            AboutMe = await _aboutMeApiManager.GetAboutMeAsync();
 
-            AboutMe = AboutMe ?? new Models.AboutMe();
+            if (AboutMe == null)
+            {
+                AboutMe = new Models.AboutMe();
+            }
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var currentAboutMe = await _context.AboutMe.FindAsync(AboutMe.Id);
+            var currentAboutMe = await _aboutMeApiManager.GetAboutMeAsync();
 
             if (AboutMeImage != null)
             {
@@ -47,32 +49,24 @@ namespace SarasBlogg.Pages
                 var newFileName = await _fileHelper.SaveImageAsync(AboutMeImage, "img/aboutme");
                 AboutMe.Image = newFileName;
             }
-            else
+
+            // Om ingen ny bild laddats upp och det finns en existerande post, behåll bilden
+            else if (currentAboutMe != null)
             {
-                // Om ingen ny bild laddats upp och det finns en existerande post, behåll bilden
-                if (currentAboutMe != null)
-                {
-                    AboutMe.Image = currentAboutMe.Image;
-                }
+                AboutMe.Image = currentAboutMe.Image;
             }
+
 
             AboutMe.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (AboutMe.Id == 0)
             {
-                _context.AboutMe.Add(AboutMe);
+                await _aboutMeApiManager.SaveAboutMeAsync(AboutMe); // POST
             }
             else
             {
-                if (currentAboutMe == null)
-                {
-                    return NotFound();
-                }
-
-                _context.Entry(currentAboutMe).CurrentValues.SetValues(AboutMe);
+                await _aboutMeApiManager.UpdateAboutMeAsync(AboutMe); // PUT
             }
-
-            await _context.SaveChangesAsync();
 
             return RedirectToPage();
         }

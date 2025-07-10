@@ -23,4 +23,18 @@
   Ett meddelande skrivs alltid ut under kommentarsrutan även om det är namnet som innehåller otillåtet språk.  
   Eftersom felmeddelandet specificerar att det gäller "namnet" upplevs detta ändå som tydligt för användaren.  
   Denna TODO är alltså en framtida förbättring, inte ett akut behov.
-  delandet specificerar att det gäller "namnet" upplevs detta ändå som tydligt för användaren. Denna TODO är alltså en framtida förbättring, inte ett akut behov.
+
+## 4. Frikopplad rollhantering via API
+- [x] Rollerna hanteras nu helt via SarasBloggAPI, inklusive:
+  - Hämta roller
+  - Skapa roller
+  - Lägga till/ta bort användare från roller
+  - Radera roller (med skydd för t.ex. "superadmin")
+- [x] Razor Pages använder `UserAPIManager` för alla rollanrop
+- [x] Rollkolumner visas i definierad ordning (`user`, `superuser`, `admin`, `superadmin`)
+- [ ] Skapa ev. adminfunktion för att redigera rollnamn (ej prioriterat)
+- **Plats i projektet:**
+  - Razor Page: `Pages/Admin/RoleAdmin/Index.cshtml`
+  - PageModel: `Pages/Admin/RoleAdmin/Index.cshtml.cs`
+  - API: `SarasBloggAPI.Controllers.RoleController`
+  - Tjänst: `UserAPIManager`
