@@ -25,16 +25,16 @@
 			const $banner = $("#cookieConsentdiv");
 
 			// ⬅️ Om localStorage redan har samtycke, göm bannern direkt
-			if (localStorage.getItem("cookieAccepted") === "true") {
+@* 			if (localStorage.getItem("cookieAccepted") === "true") {
 				$banner.hide();
 				return;
-			}
+			} *@
 
 			// Hantera "Acceptera"-knappen
 			$("#cookieConsentdiv button[data-cookie-string]").on("click", function () {
 				const cookieValue = $(this).attr("data-cookie-string");
 				document.cookie = cookieValue;
-				localStorage.setItem("cookieAccepted", "true");
+				@* localStorage.setItem("cookieAccepted", "true"); *@
 				$banner.hide();
 				$body.removeClass("modal-open");
 
