@@ -25,6 +25,15 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+	<div id="loading-overlay">
+		<div class="loader-content">
+			<img src="/img/logo/sarasblogg_loading_text.png" alt="SarasBlogg logga" class="loading-logo" />
+			<p>Laddar SarasBlogg...</p>
+			<div class="dot-loader">
+				<span>.</span><span>.</span><span>.</span>
+			</div>
+		</div>
+	</div>
 	<div class="page-wrapper">
 		<img src="/img/logo/top-line.png" alt="Top line" class="top-line" />
 		<img src="/img/logo/top-corner-right.png" alt="Högerhörnbild" class="rightcorner-image" />
@@ -50,13 +59,13 @@
 								<partial name="_LoginPartial" />
 							</div>
 						}
-						@* 					<button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button> *@
+						@*<button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button> *@
 					</div>
 				</div>
 			</nav>
 			<div class="text-center">
 				<h1 class="header-title">
-					@* 				<a asp-area="" asp-page="/Index">
+					@*<a asp-area="" asp-page="/Index">
 					<img class="sg-logo img-fluid" src="~/img/logo/sglogga.png" alt="Sara Gustafsson logotype" />
 				</a> *@
 				</h1> <br />
@@ -125,5 +134,16 @@
 		@await RenderSectionAsync("Scripts", required: false)
 		<partial name="_ValidationScriptsPartial" />
 	</div>
+	<script>
+		window.addEventListener('load', function () {
+			const overlay = document.getElementById('loading-overlay');
+			if (overlay) {
+				setTimeout(() => {
+					overlay.style.opacity = 0; // detta triggar CSS-transition
+					setTimeout(() => overlay.style.display = 'none', 500); // vänta tills fade är klar
+				}, 1500); // visa i 1.5 sek för test
+			}
+		});
+	</script>
 </body>
 </html>
