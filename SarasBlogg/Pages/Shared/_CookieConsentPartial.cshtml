@@ -32,8 +32,11 @@
 
 			// Hantera "Acceptera"-knappen
 			$("#cookieConsentdiv button[data-cookie-string]").on("click", function () {
-				const cookieValue = $(this).attr("data-cookie-string");
-				document.cookie = cookieValue;
+@* 				const cookieValue = $(this).attr("data-cookie-string");
+				document.cookie = cookieValue; *@
+						document.cookie = ".AspNet.Consent=yes; path=/";
+
+
 				@* localStorage.setItem("cookieAccepted", "true"); *@
 				$banner.hide();
 				$body.removeClass("modal-open");
