@@ -22,10 +22,6 @@ obj/
 appsettings.json
 appsettings.Development.json
 
-# Ignorera bilder i wwwroot/img/blogg och wwwroot/img/aboutme, men behåll mapparna
-SarasBlogg/wwwroot/img/blogg/*
-SarasBlogg/wwwroot/img/aboutme/*
-
 # Behåll mappar
 !SarasBlogg/wwwroot/img/
 !SarasBlogg/wwwroot/img/blogg/
