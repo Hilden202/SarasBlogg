@@ -12,6 +12,7 @@ namespace SarasBlogg
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Konfigurera
             //builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
 
             // Konfigurera apptjänster och databasanslutning
@@ -65,6 +66,7 @@ namespace SarasBlogg
 
             app.UseCookiePolicy(); // slå på cookie policy
 
+            // konfigurera
             //CreateAdminUserAsync(app).GetAwaiter().GetResult(); // nödvändigt för att skapa admin-användaren innan appen startar. kommentera in om databasen  är ny
 
             // Configure the HTTP request pipeline.
