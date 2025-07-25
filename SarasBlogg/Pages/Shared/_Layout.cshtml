@@ -137,11 +137,19 @@
 	<script>
 		window.addEventListener('load', function () {
 			const overlay = document.getElementById('loading-overlay');
-			if (overlay) {
+
+			// Visa bara om det inte redan är markerat
+			const shown = sessionStorage.getItem('sarasbloggLoadingShown');
+
+			if (!shown && overlay) {
+				sessionStorage.setItem('sarasbloggLoadingShown', 'true');
+
 				setTimeout(() => {
-					overlay.style.opacity = 0; // detta triggar CSS-transition
-					setTimeout(() => overlay.style.display = 'none', 500); // vänta tills fade är klar
-				}, 1500); // visa i 1.5 sek för test
+					overlay.style.opacity = 0;
+					setTimeout(() => overlay.style.display = 'none', 500);
+				}, 1500); // visa i 1.5 sekunder
+			} else if (overlay) {
+				overlay.style.display = 'none'; // hoppa över helt
 			}
 		});
 	</script>
