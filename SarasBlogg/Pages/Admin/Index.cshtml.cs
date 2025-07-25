@@ -136,31 +136,43 @@ namespace SarasBlogg.Pages.Admin
             }
             else
             {
-                // Om ingen ny bild laddats upp och det finns en existerande post, behåll bilden
+                // → Behåll befintlig bild om ingen ny laddats upp
                 if (currentBlogg != null)
                 {
                     NewBlogg.Image = currentBlogg.Image;
                 }
             }
 
-            NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Kanske inte behövs men intresseant att se under test.
+            NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // → Lägg till användar-id (för logg/säkerhet)
 
             if (NewBlogg.Id == 0)
             {
-                await _bloggApi.SaveBloggAsync(NewBlogg);
+                // → Sparar nu utan felhantering
+                //await _bloggApi.SaveBloggAsync(NewBlogg);
+
+                // 🔄 Om senare lägga till felhantering:
+
+                var result = await _bloggApi.SaveBloggAsync(NewBlogg);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    ModelState.AddModelError(string.Empty, $"Kunde inte spara blogg: {result}");
+                    Bloggs = await _bloggApi.GetAllBloggsAsync();
+                    return Page(); // Visa fel i formuläret
+                }
+
             }
             else
             {
+                // → Om blogg redan finns, uppdatera
                 if (currentBlogg == null)
                 {
-                    return NotFound();
+                    return NotFound(); // Säkerhetskoll
                 }
 
                 await _bloggApi.UpdateBloggAsync(NewBlogg);
             }
 
-            return RedirectToPage();
-
+            return RedirectToPage(); // → Alltid redirect efter POST (Post/Redirect/Get-mönstret)
         }
 
     }

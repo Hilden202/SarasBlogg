@@ -106,6 +106,10 @@
 		<hr class="m-1 border" />
 		<br />
 
+		@* Visa eventuella felmeddelanden *@
+		<partial name="_ValidationScriptsPartial" />
+		<vc:validation-summary model-only="true" class="text-danger" />
+
 		// FORMULÄR FÖR NY BLOGG / ÄNDRING
 		<div id="editFormSection">
 			<form class="white-panel p-3 border rounded shadow-sm" method="post" enctype="multipart/form-data">
