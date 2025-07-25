@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using SarasBlogg.DAL;
 using SarasBlogg.Data;
 using SarasBlogg.Services;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
+
 
 namespace SarasBlogg
 {
@@ -20,8 +22,13 @@ namespace SarasBlogg
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
             // DATABAS OCH IDENTITET
+            //builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            //    options.UseSqlServer(connectionString));
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            options.UseNpgsql(connectionString));
+
+
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddDefaultIdentity<ApplicationUser>(options =>

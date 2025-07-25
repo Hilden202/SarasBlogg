@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
+
 
 namespace SarasBlogg.Data
 {
@@ -15,7 +17,9 @@ namespace SarasBlogg.Data
             var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            builder.UseSqlServer(connectionString);
+            //builder.UseSqlServer(connectionString);
+
+            builder.UseNpgsql(connectionString);
 
             return new ApplicationDbContext(builder.Options);
         }
