@@ -19,32 +19,45 @@
 		</button>
 	</div>
 
-    <script type="text/javascript">
-        $(document).ready(function () {
-            const $body = $('body');
+	<script type="text/javascript">
+		$(document).ready(function () {
+			const $body = $('body');
+			const $banner = $("#cookieConsentdiv");
 
-            $("#cookieConsentdiv button[data-cookie-string]").on("click", function () {
-                document.cookie = $(this).attr("data-cookie-string");
-                $("#cookieConsentdiv").hide();
-                $body.removeClass("modal-open");
-            });
+			// ⬅️ Om localStorage redan har samtycke, göm bannern direkt
+			if (localStorage.getItem("cookieAccepted") === "true") {
+				$banner.hide();
+				return;
+			}
 
-            $("#showPrivacyContent").on("click", function (e) {
-                e.preventDefault();
-                const $privacyContent = $("#privacyContent");
-                const isVisible = $privacyContent.is(":visible");
+			// Hantera "Acceptera"-knappen
+			$("#cookieConsentdiv button[data-cookie-string]").on("click", function () {
+				const cookieValue = $(this).attr("data-cookie-string");
+				document.cookie = cookieValue;
+				localStorage.setItem("cookieAccepted", "true");
+				$banner.hide();
+				$body.removeClass("modal-open");
 
-                $privacyContent.toggle();
+				// ⬅️ Tvinga server att uppfatta cookien
+				window.location.reload();
+			});
 
-                if (isVisible) {
-                    $(this).text("Läs mer här");
-                    $body.removeClass("modal-open");
-                } else {
-                    $(this).text("Visa mindre");
-                    $body.addClass("modal-open");
-                }
-            });
-        });
-    </script>
+			// Visa/dölj sekretessinnehållet
+			$("#showPrivacyContent").on("click", function (e) {
+				e.preventDefault();
+				const $privacyContent = $("#privacyContent");
+				const isVisible = $privacyContent.is(":visible");
 
+				$privacyContent.toggle();
+
+				if (isVisible) {
+					$(this).text("Läs mer här");
+					$body.removeClass("modal-open");
+				} else {
+					$(this).text("Visa mindre");
+					$body.addClass("modal-open");
+				}
+			});
+		});
+	</script>
 }
