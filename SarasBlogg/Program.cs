@@ -4,6 +4,7 @@ using SarasBlogg.DAL;
 using SarasBlogg.Data;
 using SarasBlogg.Services;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+using System.Security.Claims;
 
 
 namespace SarasBlogg
@@ -35,6 +36,11 @@ namespace SarasBlogg
                 options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
+            });
 
             // AUTORISERINGSPOLICIES
             builder.Services.AddAuthorization(options =>

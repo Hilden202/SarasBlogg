@@ -143,7 +143,14 @@ namespace SarasBlogg.Pages.Admin
                 }
             }
 
-            NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // → Lägg till användar-id (för logg/säkerhet)
+            //NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // → Lägg till användar-id (för logg/säkerhet)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Console.WriteLine($"[AUTH] IsAuthenticated: {User.Identity.IsAuthenticated}, UserId: {userId}");
+
+            NewBlogg.UserId = userId; // tillåter null
+
+            // 🛠 Garantera att LaunchDate skickas som UTC med T00:00:00Z
+            NewBlogg.LaunchDate = DateTime.SpecifyKind(NewBlogg.LaunchDate.Date, DateTimeKind.Utc);
 
             if (NewBlogg.Id == 0)
             {
