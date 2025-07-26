@@ -40,6 +40,12 @@ namespace SarasBlogg.Pages
 
             if (ModelState.IsValid && ViewModel.Comment?.Id == null)
             {
+                // ?? Garantera att CreatedAt sätts som UTC
+                if (ViewModel.Comment != null)
+                {
+                    ViewModel.Comment.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
+                }
+
                 string errorMessage = await _bloggService.SaveCommentAsync(ViewModel.Comment);
 
                 if (!string.IsNullOrWhiteSpace(errorMessage))
