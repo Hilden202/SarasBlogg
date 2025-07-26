@@ -26,6 +26,12 @@ namespace SarasBlogg.Pages
         {
             if (ModelState.IsValid)
             {
+                // ?? Garantera att CreatedAt skickas som UTC
+                if (contactMe.CreatedAt != default)
+                {
+                    contactMe.CreatedAt = DateTime.SpecifyKind(contactMe.CreatedAt, DateTimeKind.Utc);
+                }
+
                 await _contactManager.SaveMessageAsync(contactMe);
                 TempData["addMessage"] = "Tack för ditt meddelande!";
                 return RedirectToPage("./Contact", new { contactId = "1" });
