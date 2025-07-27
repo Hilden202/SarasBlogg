@@ -59,6 +59,11 @@
     height: auto;
 }
 
+.navbar-logo {
+    max-height: 20px;
+    height: auto;
+    width: auto;
+}
 
 .leftcorner-image,
 .bottomright-corner-flower,
