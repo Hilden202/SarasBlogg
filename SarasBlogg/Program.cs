@@ -57,7 +57,7 @@ namespace SarasBlogg
             });
 
             // TJÄNSTER
-            builder.Services.AddScoped<IFileHelper, FileHelper>();
+            builder.Services.AddScoped<IFileHelper, GitHubFileHelper>();
             builder.Services.AddScoped<BloggService>();
             builder.Services.AddScoped<BloggAPIManager>();
             builder.Services.AddScoped<CommentAPIManager>();

@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.DAL;
@@ -23,6 +23,9 @@ namespace SarasBlogg.Pages
         [BindProperty]
         public IFormFile? AboutMeImage { get; set; }
 
+        [BindProperty]
+        public bool RemoveImage { get; set; }
+
         public async Task OnGetAsync()
         {
             AboutMe = await _aboutMeApiManager.GetAboutMeAsync();
@@ -37,25 +40,33 @@ namespace SarasBlogg.Pages
         {
             var currentAboutMe = await _aboutMeApiManager.GetAboutMeAsync();
 
-            if (AboutMeImage != null)
+            // ✅ 1. Om användaren valt att ta bort bilden
+            if (RemoveImage)
             {
-                // Ta bort gammal bild fr�n databasen (om den finns)
+                if (currentAboutMe != null && !string.IsNullOrEmpty(currentAboutMe.Image))
+                {
+                    _fileHelper.DeleteImage(currentAboutMe.Image, "img/aboutme");
+                }
+                AboutMe.Image = null;
+            }
+
+            // ✅ 2. Om användaren laddar upp en ny bild
+            else if (AboutMeImage != null)
+            {
                 if (currentAboutMe != null && !string.IsNullOrEmpty(currentAboutMe.Image))
                 {
                     _fileHelper.DeleteImage(currentAboutMe.Image, "img/aboutme");
                 }
 
-                // Spara ny bild
                 var newFileName = await _fileHelper.SaveImageAsync(AboutMeImage, "img/aboutme");
                 AboutMe.Image = newFileName;
             }
 
-            // Om ingen ny bild laddats upp och det finns en existerande post, beh�ll bilden
+            // ✅ 3. Annars – behåll tidigare bild
             else if (currentAboutMe != null)
             {
                 AboutMe.Image = currentAboutMe.Image;
             }
-
 
             AboutMe.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 

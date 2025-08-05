@@ -32,7 +32,11 @@
                 @if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
                 {
                         <div class="d-flex align-items-start gap-4 aboutme-wrapper">
-                        <img class="aboutme-img" src="~/img/aboutme/@Model.AboutMe.Image" alt="Om Mig-bild" />
+                        <img class="aboutme-img"
+                             src="@(string.IsNullOrWhiteSpace(Model.AboutMe.Image) ? "/img/blogg/default.png" : Model.AboutMe.Image)"
+                             onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+                             alt="Om Mig-bild" />
+                        @* <img class="aboutme-img" src="~/img/aboutme/@Model.AboutMe.Image" alt="Om Mig-bild" /> *@
                         <div>
                             <h3>@Model.AboutMe.Title</h3>
                             <p class="linebreak">@Model.AboutMe.Content</p>

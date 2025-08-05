@@ -90,7 +90,11 @@
 								</span>
 							</td>
 										<td class="text-center align-middle border image-column">
-								<img class="admin-blog-img " src="~/img/blogg/@blogg.Image" />
+								<img class="admin-blog-img"
+									 src="@(string.IsNullOrWhiteSpace(blogg.Image) ? "/img/blogg/default.png" : blogg.Image)"
+									 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+									 alt="Bloggbild saknas" />
+								@* <img class="admin-blog-img " src="~/img/blogg/@blogg.Image" /> *@
 							</td>
 						</tr>
 					}
@@ -139,7 +143,7 @@
 				{
 					<div class="mb-3">
 						<label>Nuvarande bild: </label><br />
-						<img src="~/img/blogg/@Model.NewBlogg.Image" alt="Miniatyr" style="max-width: 150px; border-radius: 5px;" />
+						<img src="@Model.NewBlogg.Image" alt="Miniatyr" style="max-width: 150px; border-radius: 5px;" />
 					</div>
 				}
 				else
@@ -206,8 +210,11 @@
 									@blogg.LaunchDate.ToString("yyyy-MM-dd")
 								</span>
 							</td>
-										<td class="text-center align-middle border image-column">
-								<img class="admin-blog-img" src="~/img/blogg/@blogg.Image" />
+								<td class="text-center align-middle border image-column">
+								<img class="admin-blog-img"
+									 src="@(string.IsNullOrWhiteSpace(blogg.Image) ? "/img/blogg/default.png" : blogg.Image)"
+									 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+									 alt="Bloggbild saknas" />
 							</td>
 						</tr>
 					}

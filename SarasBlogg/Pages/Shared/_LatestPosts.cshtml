@@ -6,8 +6,7 @@
     {
         <a asp-page="/Blogg" asp-route-showId="@post.Id" class="text-decoration-none blogg-link" title="@post.Title">
             <div class="card">
-                <img src="@Url.Content("~/img/blogg/" + post.Image)" alt="Bild för @post.Title" class="card-image" style="max-width: 220px; border-radius: 5px;" />
-
+                <img src="@post.Image" onerror="this.onerror=null;this.src='/img/blogg/default.png';" alt="Bild för @post.Title" class="card-image" style="max-width: 220px; border-radius: 5px;" />
                 <div class="flower">🌸</div>
                 <h4 class="card-title text-dark">@post.Title.LimitLength(20)</h4>
 

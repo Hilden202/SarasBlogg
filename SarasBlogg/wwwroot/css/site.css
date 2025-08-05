@@ -505,3 +505,39 @@ input, textarea, select, button {
     background-color: #fff !important;
     color: #000 !important;
 }
+
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 2px solid #555;
+    border-radius: 3px;
+    background-color: #fff;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+    input[type="checkbox"]:checked {
+        background-color: #fff;
+        border-color: #C48A7D;
+    }
+
+        input[type="checkbox"]:checked::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 70%;
+            height: 70%;
+            background-color: #C48A7D;
+            transform: translate(-50%, -50%);
+            border-radius: 2px;
+        }
+
+    input[type="checkbox"]:focus {
+        outline: none;
+        box-shadow: none;
+    }

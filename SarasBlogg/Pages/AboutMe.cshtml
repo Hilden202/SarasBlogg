@@ -21,12 +21,18 @@
 			</button>
 		</div>
 	}
-	@if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
+	@if (Model.AboutMe != null && (!string.IsNullOrWhiteSpace(Model.AboutMe.Title) || !string.IsNullOrWhiteSpace(Model.AboutMe.Content)))
 	{
 		<div class="d-flex align-items-start gap-4 aboutme-wrapper">
-			<div>
-			<img class="aboutme-img" src="~/img/aboutme/@Model.AboutMe.Image" alt="Om Mig-bild" />
-		</div>
+			@if (!string.IsNullOrWhiteSpace(Model.AboutMe.Image))
+			{
+				<div>
+					<img class="aboutme-img"
+						 src="@(Model.AboutMe.Image)"
+						 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+						 alt="Om Mig-bild" />
+				</div>
+			}
 			<div>
 				<h3>@Model.AboutMe.Title</h3>
 				<p class="linebreak">@Model.AboutMe.Content</p>
@@ -62,20 +68,25 @@
 							<label asp-for="AboutMe.Image"></label>
 							<input asp-for="AboutMeImage" type="file" /> <!--Ändra inte denna till en .-->
 							<br />
-							@if (!string.IsNullOrEmpty(Model.AboutMe.Image))
-							{
-								<div class="mb-3">
-									<label>Nuvarande bild:</label><br />
-									<img class="card-img-bottom admin-blog-img" src="~/img/aboutme/@Model.AboutMe.Image" alt="OmMigBild" />
+						@if (!string.IsNullOrEmpty(Model.AboutMe.Image))
+						{
+							<div class="mb-3">
+								<label>Nuvarande bild:</label><br />
+								<img class="card-img-bottom admin-blog-img"
+									 src="@(string.IsNullOrWhiteSpace(Model.AboutMe.Image) ? "/img/blogg/default.png" : Model.AboutMe.Image)"
+									 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+									 alt="Om Mig-miniatyr" />
+								<br />
+								<div class="form-check mt-2">
+									<input class="form-check-input" type="checkbox" asp-for="RemoveImage" id="removeImageCheckbox" />
+									<label class="form-check-label" for="removeImageCheckbox">Ta bort bild</label>
 								</div>
-							}
+							</div>
+						}
 							else
 							{
 								<p>Ingen bild vald.</p>
 							}
-							<!--TODO fixa så man kan ta bort bild genom att markera ta bort knappen-->
-@* 							<input type="hidden" id="RemoveImage" name="RemoveImage" value="false" />
-							<button type="button" class="btn btn-danger" onclick="markImageForDeletion()">Radera bild</button> *@
 							<br />
 							<input type="submit" class="btn btn-success" value="Spara ändringar" />
 						</form>

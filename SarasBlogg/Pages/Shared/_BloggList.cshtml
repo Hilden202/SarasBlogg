@@ -19,7 +19,10 @@
 				<div class="card m-2 shadow-lg mx-auto">
 					<div class="card-body">
 						<div class="card-img-wrapper mb-2">
-							<img class="bloggimg mb-4 shadow-lg" src="~/img/blogg/@blogg.Image" />
+							<img class="bloggimg mb-4 shadow-lg"
+								 src="@(string.IsNullOrWhiteSpace(blogg.Image) ? "/img/blogg/default.png" : blogg.Image)"
+								 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+								 alt="Bild för @blogg.Title" />
 						</div>
 						<h5 class="card-title mb-3">@blogg.Title</h5>
 						<p class="card-text">@blogg.Content.LimitLength(120)</p>
@@ -47,7 +50,12 @@
 			<div class="card m-2 shadow-lg mx-auto" id="bloggTopSection">
 			<div class="card-body">
 				<div class="card-img-wrapper mb-2">
-					<img class="bloggimg mb-4 rounded shadow-lg" onclick="reloadCurrentPage(@Model.Blogg.Id)" style="cursor: pointer" src="~/img/blogg/@Model.Blogg.Image" alt="Blogg image" />
+					<img class="bloggimg mb-4 rounded shadow-lg"
+						 onclick="reloadCurrentPage(@Model.Blogg.Id)"
+						 style="cursor: pointer"
+						 src="@(string.IsNullOrWhiteSpace(Model.Blogg.Image) ? "/img/blogg/default.png" : Model.Blogg.Image)"
+						 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+						 alt="Blogg-bild saknas" />
 				</div>
 				<h3 class="card-title mb-3">@Model.Blogg.Title</h3>
 				<p class="card-text linebreak">@Model.Blogg.Content</p>
