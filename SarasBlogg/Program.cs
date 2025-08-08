@@ -15,19 +15,19 @@ namespace SarasBlogg
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Hämta och logga connection string
+            // Hämta och logga connection string (stöder både DefaultConnection och MyConnection)
             var connectionString =
                 builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? builder.Configuration.GetConnectionString("MyConnection")
                 ?? throw new InvalidOperationException(
                     "No connection string found. Expected 'DefaultConnection' or 'MyConnection'.");
 
+            // Maskera lösenordet innan loggning
             var maskedConnectionString = System.Text.RegularExpressions.Regex.Replace(
                 connectionString, @"(Password\s*=\s*)([^;]+)", "$1***",
                 System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
             Console.WriteLine($"[DEBUG] Using ConnectionString: {maskedConnectionString}");
-
 
             // Konfigurera
             //builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
@@ -80,7 +80,6 @@ namespace SarasBlogg
             builder.Services.AddScoped<AboutMeAPIManager>();
             builder.Services.AddScoped<ContactMeAPIManager>();
             builder.Services.AddSingleton<UserAPIManager>();
-
 
             // COOKIEPOLICY
             builder.Services.Configure<CookiePolicyOptions>(options =>
