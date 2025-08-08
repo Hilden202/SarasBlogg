@@ -15,12 +15,26 @@ namespace SarasBlogg
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Hämta och logga connection string
+            var connectionString =
+                builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? builder.Configuration.GetConnectionString("MyConnection")
+                ?? throw new InvalidOperationException(
+                    "No connection string found. Expected 'DefaultConnection' or 'MyConnection'.");
+
+            var maskedConnectionString = System.Text.RegularExpressions.Regex.Replace(
+                connectionString, @"(Password\s*=\s*)([^;]+)", "$1***",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            Console.WriteLine($"[DEBUG] Using ConnectionString: {maskedConnectionString}");
+
+
             // Konfigurera
             //builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
 
             // Konfigurera apptjänster och databasanslutning
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+            //    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
             // DATABAS OCH IDENTITET
             //builder.Services.AddDbContext<ApplicationDbContext>(options =>
