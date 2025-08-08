@@ -5,6 +5,8 @@ using SarasBlogg.Data;
 using SarasBlogg.Services;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using System.Security.Claims;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 
 
 namespace SarasBlogg
@@ -35,6 +37,11 @@ namespace SarasBlogg
             // Konfigurera apptjänster och databasanslutning
             //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
             //    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+            // Lagra DataProtection-nycklar på en plats som överlever container-restart
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
+                .SetApplicationName("SarasBloggSharedKeys");
 
             // DATABAS OCH IDENTITET
             //builder.Services.AddDbContext<ApplicationDbContext>(options =>
