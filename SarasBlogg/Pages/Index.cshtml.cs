@@ -21,7 +21,8 @@ namespace SarasBlogg.Pages
 
         public async Task OnGetAsync()
         {
-            var allBloggs = await _bloggService.GetAllBloggsAsync();
+            var allBloggs = await _bloggService.GetAllBloggsAsync(false); // false = visa inte arkiverade
+
             LatestPosts = allBloggs
                 .OrderByDescending(p => p.LaunchDate)
                 .Take(2)

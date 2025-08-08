@@ -12,7 +12,7 @@
 			<div class="container d-flex justify-content-center">
 				<ul class="mynav">
 					<li class="nav-item me-3">
-                        <a class="menutext nav-link theme-dependent fw-bold" asp-area="" asp-page="/Admin/Index">Bloggar</a>
+						<a class="menutext nav-link theme-dependent fw-bold" asp-area="" asp-page="/Admin/Index">Bloggar</a>
 					</li>
 					<li class="nav-item me-3">
 						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin/RoleAdmin/Index">Roller</a>
@@ -24,10 +24,9 @@
 			</div>
 		</nav>
 
-
-		// LISTA PUBLICERADE BLOGGAR
+		<!-- LISTA PUBLICERADE BLOGGAR -->
 		<h2>Lista Publicerade Bloggar</h2>
-		if (Model.Bloggs != null && Model.Bloggs.Any(b => !b.Hidden))
+		@if (Model.BloggsWithImage != null && Model.BloggsWithImage.Any(b => !b.Blogg.Hidden))
 		{
 			<table class="border table table-striped shadow-sm align-middle">
 				<thead>
@@ -43,58 +42,63 @@
 					</tr>
 				</thead>
 				<tbody>
-					@foreach (var blogg in Model.Bloggs.Where(b => !b.Hidden))
+					@foreach (var item in Model.BloggsWithImage.Where(b => !b.Blogg.Hidden))
 					{
 						<tr>
 							<td class="text-center align-middle d-none d-md-table-cell" colspan="3">
 								<div class="admin-btn-group">
 									<form method="get" class="me-1">
-										<input type="hidden" name="hiddenId" value="@blogg.Id" />
+										<input type="hidden" name="hiddenId" value="@item.Blogg.Id" />
 										<button type="submit" class="btn btn-outline-warning">Dölj</button>
 									</form>
-									@if (blogg.IsArchived)
+									@if (item.Blogg.IsArchived)
 									{
-										<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning ms-1">Arkiverad</a>
+										<a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-warning ms-1">Arkiverad</a>
 									}
 									else
 									{
-										<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success ms-1">Publicerad</a>
+										<a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-success ms-1">Publicerad</a>
 									}
-									<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary ms-1">Ändra</a>
+									<a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary ms-1">Ändra</a>
 								</div>
 							</td>
 							<td class="text-center align-middle d-table-cell d-md-none">
 								<div class="d-flex flex-column gap-1">
 									<form method="get">
-										<input type="hidden" name="hiddenId" value="@blogg.Id" />
+										<input type="hidden" name="hiddenId" value="@item.Blogg.Id" />
 										<button type="submit" class="btn btn-outline-warning w-100">Dölj</button>
 									</form>
-									@if (blogg.IsArchived)
+									@if (item.Blogg.IsArchived)
 									{
-										<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-warning w-100">Arkiverad</a>
+										<a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-warning w-100">Arkiverad</a>
 									}
 									else
 									{
-										<a asp-route-archiveId="@blogg.Id" class="btn btn-outline-success w-100">Publicerad</a>
+										<a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-success w-100">Publicerad</a>
 									}
-									<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
+									<a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
 								</div>
 							</td>
-							<td class="text-center align-middle border">@blogg.Id</td>
-							<td class="text-lg-start align-middle border">@blogg.Title</td>
-							<td class="text-lg-start align-middle border">@blogg.Content?.LimitLength(10)</td>
-							<td class="text-center align-middle border">@blogg.Author</td>
+							<td class="text-center align-middle border">@item.Blogg.Id</td>
+							<td class="text-lg-start align-middle border">@item.Blogg.Title</td>
+							<td class="text-lg-start align-middle border">@item.Blogg.Content?.LimitLength(10)</td>
+							<td class="text-center align-middle border">@item.Blogg.Author</td>
 							<td class="text-center align-middle border">
-								<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
-									@blogg.LaunchDate.ToString("yyyy-MM-dd")
+								<span style="color: @(item.Blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
+									@item.Blogg.LaunchDate.ToString("yyyy-MM-dd")
 								</span>
 							</td>
-										<td class="text-center align-middle border image-column">
+							<td class="text-center align-middle border image-column">
+								@{
+									var imageUrl = item.FirstImage?.FilePath;
+									var isExternal = !string.IsNullOrEmpty(imageUrl) &&
+									(imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"));
+								}
+
 								<img class="admin-blog-img"
-									 src="@(string.IsNullOrWhiteSpace(blogg.Image) ? "/img/blogg/default.png" : blogg.Image)"
+									 src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
 									 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-									 alt="Bloggbild saknas" />
-								@* <img class="admin-blog-img " src="~/img/blogg/@blogg.Image" /> *@
+									 alt="Förhandsbild" />
 							</td>
 						</tr>
 					}
@@ -110,11 +114,7 @@
 		<hr class="m-1 border" />
 		<br />
 
-		@* Visa eventuella felmeddelanden *@
-		<partial name="_ValidationScriptsPartial" />
-		<vc:validation-summary model-only="true" class="text-danger" />
-
-		// FORMULÄR FÖR NY BLOGG / ÄNDRING
+		<!-- FORMULÄR FÖR NY BLOGG / ÄNDRING -->
 		<div id="editFormSection">
 			<form class="white-panel p-3 border rounded shadow-sm" method="post" enctype="multipart/form-data">
 				<input asp-for="NewBlogg.Id" type="hidden" />
@@ -136,21 +136,72 @@
 				<span asp-validation-for="NewBlogg.LaunchDate" class="text-danger"></span>
 				<br />
 				<!-- Bildhantering -->
-				<label asp-for="NewBlogg.Image"></label>
-				<input asp-for="BloggImage" class="form-control" />
+				<label for="BloggImages">Ladda upp en eller flera bilder:</label>
+				<input type="file" id="BloggImages" name="BloggImages" multiple class="form-control" />
 				<br />
-				@if (!string.IsNullOrEmpty(Model.NewBlogg.Image))
+
+				@if (Model.EditedBloggWithImages?.Images?.Any() == true)
 				{
+					var firstImageId = Model.EditedBloggWithImages.FirstImage?.Id;
+					var firstImage = Model.EditedBloggWithImages.FirstImage;
+
 					<div class="mb-3">
-						<label>Nuvarande bild: </label><br />
-						<img src="@Model.NewBlogg.Image" alt="Miniatyr" style="max-width: 150px; border-radius: 5px;" />
+						<label>Nuvarande bilder:</label><br />
+						<div class="d-flex flex-wrap gap-2">
+							@if (firstImage != null)
+							{
+								<div class="d-flex flex-column align-items-center d-none">
+									<div class="img-wrapper position-relative">
+										<img src="@firstImage.FilePath"
+											 class="admin-blog-img border rounded"
+											 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+											 alt="Första bloggbild" />
+									</div>
+								</div>
+							}
+							@foreach (var img in Model.EditedBloggWithImages.Images)
+							{
+								var isFirst = img.Id == Model.EditedBloggWithImages.FirstImage?.Id;
+
+								<div class="d-flex flex-column align-items-center">
+									<div class="img-wrapper position-relative">
+										<img src="@img.FilePath"
+											 class="admin-blog-img border rounded"
+											 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+											 alt="Bloggbild" />
+
+										<form method="post"
+											  asp-page-handler="DeleteImage"
+											  class="delete-button">
+											<input type="hidden" name="imageId" value="@img.Id" />
+											<input type="hidden" name="bloggId" value="@Model.EditedBloggWithImages.Blogg.Id" />
+											<button type="submit"
+													class="btn btn-sm btn-danger p-1"
+													onclick="return confirm('Ta bort bilden?')">
+												&times;
+											</button>
+										</form>
+									</div>
+
+									@if (isFirst)
+									{
+										<small class="text-info mt-1">Första bild</small>
+									}
+									else
+									{
+										<form method="post" asp-page-handler="SetFirstImage" class="mt-1">
+											<input type="hidden" name="imageId" value="@img.Id" />
+											<input type="hidden" name="bloggId" value="@Model.EditedBloggWithImages.Blogg.Id" />
+											<button type="submit" class="btn btn-sm btn-outline-primary">
+												Gör till första bild
+											</button>
+										</form>
+									}
+								</div>
+							}
+						</div>
 					</div>
 				}
-				else
-				{
-					<p>Ingen bild vald.</p>
-				}
-				<label>@Model.NewBlogg.Image </label><br /><br />
 
 				<input asp-for="NewBlogg" type="submit" class="btn btn-success" value="Skapa ny blogg/spara ändringar" />
 			</form>
@@ -160,9 +211,9 @@
 		<hr class="m-1 border" />
 		<br />
 
-		// LISTA DOLDA BLOGGAR
+		<!-- LISTA DOLDA BLOGGAR -->
 		<h2>Lista Dolda Bloggar</h2>
-		@if (Model.Bloggs != null && Model.Bloggs.Any(b => b.Hidden))
+		@if (Model.BloggsWithImage != null && Model.BloggsWithImage.Any(b => b.Blogg.Hidden))
 		{
 			<table class="border table table-striped shadow-sm align-middle">
 				<thead>
@@ -178,43 +229,49 @@
 					</tr>
 				</thead>
 				<tbody>
-					@foreach (var blogg in Model.Bloggs.Where(b => b.Hidden))
+					@foreach (var item in Model.BloggsWithImage.Where(b => b.Blogg.Hidden))
 					{
 						<tr>
 							<td class="text-center align-middle d-none d-md-table-cell" colspan="3">
 								<div class="admin-btn-group">
 									<form method="get" class="me-1">
-										<input type="hidden" name="deleteId" value="@blogg.Id" />
+										<input type="hidden" name="deleteId" value="@item.Blogg.Id" />
 										<button type="submit" class="btn btn-outline-danger">Ta bort</button>
 									</form>
-									<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success">Visa</a>
-									<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary">Ändra</a>
+									<a asp-route-hiddenId="@item.Blogg.Id" class="btn btn-outline-success">Visa</a>
+									<a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary">Ändra</a>
 								</div>
 							</td>
 							<td class="text-center align-middle d-table-cell d-md-none">
 								<div class="d-flex flex-column gap-1">
 									<form method="get">
-										<input type="hidden" name="deleteId" value="@blogg.Id" />
+										<input type="hidden" name="deleteId" value="@item.Blogg.Id" />
 										<button type="submit" class="btn btn-outline-danger w-100">Ta bort</button>
 									</form>
-									<a asp-route-hiddenId="@blogg.Id" class="btn btn-outline-success w-100">Visa</a>
-									<a asp-route-editId="@blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
+									<a asp-route-hiddenId="@item.Blogg.Id" class="btn btn-outline-success w-100">Visa</a>
+									<a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
 								</div>
 							</td>
-							<td class="text-center align-middle border">@blogg.Id</td>
-							<td class="text-lg-start align-middle border">@blogg.Title</td>
-							<td class="text-lg-start align-middle border">@blogg.Content?.LimitLength(10)</td>
-							<td class="text-center align-middle border">@blogg.Author</td>
+							<td class="text-center align-middle border">@item.Blogg.Id</td>
+							<td class="text-lg-start align-middle border">@item.Blogg.Title</td>
+							<td class="text-lg-start align-middle border">@item.Blogg.Content?.LimitLength(10)</td>
+							<td class="text-center align-middle border">@item.Blogg.Author</td>
 							<td class="text-center align-middle border">
-								<span style="color: @(blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
-									@blogg.LaunchDate.ToString("yyyy-MM-dd")
+								<span style="color: @(item.Blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
+									@item.Blogg.LaunchDate.ToString("yyyy-MM-dd")
 								</span>
 							</td>
-								<td class="text-center align-middle border image-column">
+							<td class="text-center align-middle border image-column">
+								@{
+									var imageUrl = item.FirstImage?.FilePath;
+									var isExternal = !string.IsNullOrEmpty(imageUrl) &&
+									(imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"));
+								}
+
 								<img class="admin-blog-img"
-									 src="@(string.IsNullOrWhiteSpace(blogg.Image) ? "/img/blogg/default.png" : blogg.Image)"
+									 src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
 									 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-									 alt="Bloggbild saknas" />
+									 alt="Förhandsbild" />
 							</td>
 						</tr>
 					}

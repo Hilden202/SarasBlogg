@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 namespace SarasBlogg.Services
 {
     public class GitHubFileHelper : IFileHelper
+
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;
@@ -38,7 +39,9 @@ namespace SarasBlogg.Services
             if (file == null || file.Length == 0)
                 return null;
 
-            var fileName = $"{Guid.NewGuid().ToString().Replace("-", "")}_{file.FileName}";
+            var extension = Path.GetExtension(file.FileName); // ".jpg", ".png"
+            var fileName = $"{Guid.NewGuid().ToString().Replace("-", "")}{extension}";
+
             var uploadPath = $"{_uploadFolder}/{fileName}";
 
             using var ms = new MemoryStream();
@@ -64,23 +67,23 @@ namespace SarasBlogg.Services
             return $"https://raw.githubusercontent.com/{_userName}/{_repository}/{_branch}/{uploadPath}";
         }
 
-        public void DeleteImage(string imageUrl, string folder)
+        public async Task DeleteImageAsync(string imageUrl, string folder)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
                 return;
 
-            // Extrahera filnamn från raw-länken
-            var start = imageUrl.IndexOf($"{_uploadFolder}/", StringComparison.Ordinal);
+            var marker = $"{_uploadFolder}/";
+            var start = imageUrl.IndexOf(marker, StringComparison.Ordinal);
             if (start == -1) return;
 
-            var relativePath = imageUrl.Substring(start); // ex: uploads/12345_img.png
+            var relativePath = imageUrl.Substring(start);
 
-            // Hämta SHA (krävs för DELETE)
-            var url = $"https://api.github.com/repos/{_userName}/{_repository}/contents/{relativePath}?ref={_branch}";
-            var shaResponse = _httpClient.GetAsync(url).Result;
+            // 🔹 Hämta SHA
+            var shaUrl = $"https://api.github.com/repos/{_userName}/{_repository}/contents/{relativePath}?ref={_branch}";
+            var shaResponse = await _httpClient.GetAsync(shaUrl);
             if (!shaResponse.IsSuccessStatusCode) return;
 
-            var jsonDoc = JsonDocument.Parse(shaResponse.Content.ReadAsStringAsync().Result);
+            var jsonDoc = JsonDocument.Parse(await shaResponse.Content.ReadAsStringAsync());
             if (!jsonDoc.RootElement.TryGetProperty("sha", out var shaProp)) return;
 
             var sha = shaProp.GetString();
@@ -100,9 +103,8 @@ namespace SarasBlogg.Services
             {
                 Content = deleteContent
             };
-            var deleteResponse = _httpClient.SendAsync(deleteRequest).Result;
 
-
+            var deleteResponse = await _httpClient.SendAsync(deleteRequest);
             if (!deleteResponse.IsSuccessStatusCode)
             {
                 Console.WriteLine($"[GitHub] Failed to delete image: {deleteResponse.StatusCode}");

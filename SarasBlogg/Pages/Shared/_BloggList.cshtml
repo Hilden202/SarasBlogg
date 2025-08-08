@@ -1,115 +1,127 @@
 ﻿@using SarasBlogg.Extensions
 @using SarasBlogg.Models
-@inject SignInManager<ApplicationUser> SignInManager
-@{
-}
 @model SarasBlogg.ViewModels.BloggViewModel
 
 <div class="container-site">
-	@if (Model.Blogg == null || Model.Blogg.Hidden)
-	{
-		var filteredBloggs = (Model.Bloggs ?? new List<Blogg>())
-		.Where(b => (Model.IsArchiveView ? b.IsArchived : !b.IsArchived)
-		&& !b.Hidden
-		&& b.LaunchDate <= DateTime.Today);
+    @if (Model.Blogg == null || Model.Blogg.Hidden)
+    {
+        var filteredBloggs = (Model.Bloggs ?? new List<Blogg>())
+        .Where(b => (Model.IsArchiveView ? b.IsArchived : !b.IsArchived)
+        && !b.Hidden
+        && b.LaunchDate <= DateTime.Today);
 
-		foreach (var blogg in filteredBloggs)
-		{
-			<a asp-route-showId="@blogg.Id" class="text-decoration-none blogg-link" Id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
-				<div class="card m-2 shadow-lg mx-auto">
-					<div class="card-body">
-						<div class="card-img-wrapper mb-2">
-							<img class="bloggimg mb-4 shadow-lg"
-								 src="@(string.IsNullOrWhiteSpace(blogg.Image) ? "/img/blogg/default.png" : blogg.Image)"
-								 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-								 alt="Bild för @blogg.Title" />
-						</div>
-						<h5 class="card-title mb-3">@blogg.Title</h5>
-						<p class="card-text">@blogg.Content.LimitLength(120)</p>
-						<p class="text-faded">
-							<small class="text-faded">
-								Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")
-								<br />
-								@Model.Comments?.Count(c => c.BloggId == blogg.Id)
-								@(Model.Comments?.Count(c => c.BloggId == blogg.Id) == 1 ? "Kommentar" : "Kommentarer")
-								@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
-								{
-									<br />
-									<span class="badge bg-info mt-2 d-inline-block">Visningar: @blogg.ViewCount</span>
-								}
-							</small>
-						</p>
-					</div>
-				</div>
-			</a>
-			<hr class="m-4 border" />
-		}
-	}
-	else
-	{
-			<div class="card m-2 shadow-lg mx-auto" id="bloggTopSection">
-			<div class="card-body">
-				<div class="card-img-wrapper mb-2">
-					<img class="bloggimg mb-4 rounded shadow-lg"
-						 onclick="reloadCurrentPage(@Model.Blogg.Id)"
-						 style="cursor: pointer"
-						 src="@(string.IsNullOrWhiteSpace(Model.Blogg.Image) ? "/img/blogg/default.png" : Model.Blogg.Image)"
-						 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-						 alt="Blogg-bild saknas" />
-				</div>
-				<h3 class="card-title mb-3">@Model.Blogg.Title</h3>
-				<p class="card-text linebreak">@Model.Blogg.Content</p>
-				<p class="text-faded">
-					<strong>Författare:</strong> @Model.Blogg.Author<br />
-					<strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToString("yyyy-MM-dd")
-					@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
-					{
-						<br />
-						<span class="badge bg-info mt-2 d-inline-block">Visningar: @Model.Blogg.ViewCount</span>
-					}
-				</p>
-				<hr class="mb-3" />
-			</div>
+        foreach (var blogg in filteredBloggs)
+        {
+            var imageUrl = blogg.Images?
+            .OrderBy(i => i.Order)
+            .FirstOrDefault()?.FilePath;
+
+            var isExternal = !string.IsNullOrEmpty(imageUrl) &&
+            (imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"));
+
+            <a asp-route-showId="@blogg.Id" class="text-decoration-none blogg-link" id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
+                <div class="card m-2 shadow-lg mx-auto">
+                    <div class="card-body">
+                        <div class="card-img-wrapper mb-2">
+                            <img class="bloggimg mb-4 shadow-lg"
+                                 src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
+                                 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+                                 alt="Bild för @blogg.Title" />
+                        </div>
+                        <h5 class="card-title mb-3">@blogg.Title</h5>
+                        <p class="card-text">@blogg.Content.LimitLength(120)</p>
+                        <p class="text-faded">
+                            <small class="text-faded">
+                                Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")
+                                <br />
+                                @Model.Comments?.Count(c => c.BloggId == blogg.Id)
+                                @(Model.Comments?.Count(c => c.BloggId == blogg.Id) == 1 ? "Kommentar" : "Kommentarer")
+                                @if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
+                                {
+                                    <br />
+                                    <span class="badge bg-info mt-2 d-inline-block">Visningar: @blogg.ViewCount</span>
+                                }
+                            </small>
+                        </p>
+                    </div>
+                </div>
+            </a>
+            <hr class="m-4 border" />
+        }
+    }
+    else
+    {
+        var imageUrl = Model.Blogg.Images?
+        .OrderBy(i => i.Order)
+        .FirstOrDefault()?.FilePath;
+
+        var isExternal = !string.IsNullOrEmpty(imageUrl) &&
+        (imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"));
+
+        <div class="card m-2 shadow-lg mx-auto" id="bloggTopSection">
+            <div class="card-body">
+                <div class="card-img-wrapper mb-2">
+                    <img class="bloggimg mb-4 rounded shadow-lg"
+                         onclick="reloadCurrentPage(@Model.Blogg.Id)"
+                         style="cursor: pointer"
+                         src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
+                         onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+                         alt="Blogg-bild saknas" />
+                </div>
+                <h3 class="card-title mb-3">@Model.Blogg.Title</h3>
+                <p class="card-text linebreak">@Model.Blogg.Content</p>
+                <p class="text-faded">
+                    <strong>Författare:</strong> @Model.Blogg.Author<br />
+                    <strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToString("yyyy-MM-dd")
+                    @if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
+                    {
+                        <br />
+                        <span class="badge bg-info mt-2 d-inline-block">Visningar: @Model.Blogg.ViewCount</span>
+                    }
+                </p>
+                <hr class="mb-3" />
+            </div>
+        </div>
+
+        @if (Model.Comments != null && Model.Comments.Any(c => c.BloggId == Model.Blogg.Id))
+        {
+            <div class="comments-section mt-4">
+                <h5>Kommentarer</h5>
+                @foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id).Reverse())
+                {
+                    <div>
+                        <div class="card-body">
+                            <strong>@comment.Name</strong> <span class="text-faded">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
+                            @if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
+                            {
+                                <form method="post" asp-route-deleteCommentId="@comment.Id" class="d-inline ms-2">
+                                    <input type="submit" value="Ta bort" />
+                                </form>
+                            }
+                            <p>@comment.Content</p>
+                        </div>
+                    </div>
+                }
+            </div>
+            <hr class="mb-3" />
+            <h5>Ny Kommentar</h5>
+        }
+        else
+        {
+            <p class="text-faded">Inga kommentarer ännu.</p>
+        }
+        <form method="post" id="commentForm" class="p-3 border rounded shadow-sm">
+            <label asp-for="Comment.Name"></label>
+            <input asp-for="Comment.Name" class="form-control" placeholder="Ange ditt namn" />
+            <span asp-validation-for="Comment.Name" class="text-danger"></span>
+            <br />
+            <label asp-for="Comment.Content"></label>
+            <textarea asp-for="Comment.Content" rows="4" cols="50" class="form-control" placeholder="Skriv en kommentar"></textarea>
+            <span asp-validation-for="Comment.Content" class="text-danger"></span>
+            <br />
+            <input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
+            <input type="hidden" asp-for="Comment.CreatedAt" value="@DateTime.UtcNow" />
+            <input type="submit" value="Skicka kommentar" />
+        </form>
+    }
 </div>
-		@if (Model.Comments != null && Model.Comments.Any((c => c.BloggId == Model.Blogg.Id)))
-		{
-			<div class="comments-section mt-4">
-				<h5>Kommentarer</h5>
-				@foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id).Reverse())
-				{
-					<div>
-						<div class="card-body">
-							<strong>@comment.Name</strong> <span class="text-faded">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
-							@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
-							{
-								<form method="post" asp-route-deleteCommentId="@comment.Id" class="d-inline ms-2">
-									<input type="submit" value="Ta bort" />
-								</form>
-							}
-							<p>@comment.Content</p>
-						</div>
-					</div>
-				}
-			</div>
-			<hr class="mb-3" />
-			<h5>Ny Kommentar</h5>
-		}
-		else
-		{
-			<p class="text-faded">Inga kommentarer ännu.</p>
-		}
-		<form method="post" id="commentForm" class="p-3 border rounded shadow-sm">
-			<label asp-for="Comment.Name"></label>
-			<input asp-for="Comment.Name" class="form-control" placeholder="Ange ditt namn" />
-			<span asp-validation-for="Comment.Name" class="text-danger"></span>
-			<br />
-			<label asp-for="Comment.Content"></label>
-			<textarea asp-for="Comment.Content" rows="4" cols="50" class="form-control" placeholder="Skriv en kommentar"></textarea>
-			<span asp-validation-for="Comment.Content" class="text-danger"></span>
-			<br />
-			<input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
-			<input type="hidden" asp-for="Comment.CreatedAt" value="@DateTime.UtcNow" />
-			<input type="submit" value="Skicka kommentar" />
-		</form>
-	}
-	</div>

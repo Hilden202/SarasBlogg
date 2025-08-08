@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.DAL;
 using SarasBlogg.Data;
-using SarasBlogg.Services;
+using SarasBlogg.DTOs;
+using SarasBlogg.Models;
 
 namespace SarasBlogg.Pages.Admin
 {
@@ -14,39 +15,38 @@ namespace SarasBlogg.Pages.Admin
     {
         // API-tjänster för datahantering
         private readonly BloggAPIManager _bloggApi;
+        private readonly BloggImageAPIManager _imageApi;
         private readonly CommentAPIManager _commentApi;
-
-        // Övriga tjänster
-        private readonly IFileHelper _fileHelper;
 
         // Identitet och roller
         private readonly RoleManager<IdentityRole> _roleManager;
         public readonly UserManager<ApplicationUser> _userManager;
 
-
         public IndexModel(
             BloggAPIManager bloggApi,
+            BloggImageAPIManager imageApi,
             CommentAPIManager commentApi,
-            IFileHelper fileHelper,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager)
         {
             _bloggApi = bloggApi;
+            _imageApi = imageApi;
             _commentApi = commentApi;
-            _fileHelper = fileHelper;
             _userManager = userManager;
             _roleManager = roleManager;
 
             NewBlogg = new Models.Blogg();
         }
 
+        public List<BloggWithImage> BloggsWithImage { get; set; } = new();
+        public BloggWithImage? EditedBloggWithImages { get; set; }
 
-        public List<Models.Blogg> Bloggs { get; set; }
         [BindProperty]
         public Models.Blogg NewBlogg { get; set; }
 
         [BindProperty]
-        public IFormFile? BloggImage { get; set; }
+        public IFormFile[] BloggImages { get; set; } = Array.Empty<IFormFile>();
+
         public bool IsAdmin { get; set; }
         public bool IsSuperAdmin { get; set; }
 
@@ -63,42 +63,45 @@ namespace SarasBlogg.Pages.Admin
             {
                 NewBlogg = new Models.Blogg();
             }
+
             if (hiddenId.HasValue && hiddenId.Value != 0)
             {
                 var bloggToHide = await _bloggApi.GetBloggAsync(hiddenId.Value);
-
                 if (bloggToHide != null)
                 {
                     bloggToHide.Hidden = !bloggToHide.Hidden;
                     await _bloggApi.UpdateBloggAsync(bloggToHide);
                 }
             }
-            if (deleteId != 0)
 
+            if (deleteId != 0)
             {
                 var bloggToDelete = await _bloggApi.GetBloggAsync(deleteId);
-
-                if (bloggToDelete != null) // && User.FindFirstValue(ClaimTypes.NameIdentifier) == blogToBeDeleted.UserId
+                if (bloggToDelete != null)
                 {
-                    await _commentApi.DeleteCommentsAsync(bloggToDelete.Id); // ta bort eventuella kopplade kommentarer här.
-
-                    _fileHelper.DeleteImage(bloggToDelete.Image, "img/blogg");
-
+                    // Ta bort kopplade kommentarer och bilder före bloggen
+                    await _commentApi.DeleteCommentsAsync(bloggToDelete.Id);
+                    await _imageApi.DeleteImagesByBloggIdAsync(bloggToDelete.Id);
                     await _bloggApi.DeleteBloggAsync(bloggToDelete.Id);
-
                 }
 
                 return RedirectToPage();
             }
 
-            Bloggs = await _bloggApi.GetAllBloggsAsync();
+            await LoadBloggsWithImagesAsync();
 
             if (editId.HasValue && editId.Value != 0)
             {
-                var bloggToEdit = await _bloggApi.GetBloggAsync(editId.Value);
-                if (bloggToEdit != null)
+                var blogg = BloggsWithImage.FirstOrDefault(b => b.Blogg.Id == editId.Value);
+                if (blogg != null)
                 {
-                    NewBlogg = bloggToEdit; // viktig ändring
+                    EditedBloggWithImages = new BloggWithImage
+                    {
+                        Blogg = blogg.Blogg,
+                        Images = blogg.Images
+                    };
+
+                    NewBlogg = blogg.Blogg;
                 }
             }
 
@@ -111,76 +114,108 @@ namespace SarasBlogg.Pages.Admin
                     await _bloggApi.UpdateBloggAsync(bloggToArchive);
                 }
 
-                Bloggs = await _bloggApi.GetAllBloggsAsync(); // Efter uppdatering via API måste listan hämtas om manuellt,
+                await LoadBloggsWithImagesAsync();
             }
 
             return Page();
-
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             var currentBlogg = await _bloggApi.GetBloggAsync(NewBlogg.Id);
 
-            if (BloggImage != null)
-            {
-                // Ta bort gammal bild från databasen (om den finns)
-                if (currentBlogg != null && !string.IsNullOrEmpty(currentBlogg.Image))
-                {
-                    _fileHelper.DeleteImage(currentBlogg.Image, "img/blogg");
-                }
-
-                // Spara ny bild
-                var newFileName = await _fileHelper.SaveImageAsync(BloggImage, "img/blogg");
-                NewBlogg.Image = newFileName;
-            }
-            else
-            {
-                // → Behåll befintlig bild om ingen ny laddats upp
-                if (currentBlogg != null)
-                {
-                    NewBlogg.Image = currentBlogg.Image;
-                }
-            }
-
-            //NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // → Lägg till användar-id (för logg/säkerhet)
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            Console.WriteLine($"[AUTH] IsAuthenticated: {User.Identity.IsAuthenticated}, UserId: {userId}");
-
-            NewBlogg.UserId = userId; // tillåter null
-
-            // 🛠 Garantera att LaunchDate skickas som UTC med T00:00:00Z
+            // Sätt användar-id och normalisera datum (UTC)
+            NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             NewBlogg.LaunchDate = DateTime.SpecifyKind(NewBlogg.LaunchDate.Date, DateTimeKind.Utc);
 
             if (NewBlogg.Id == 0)
             {
-                // → Sparar nu utan felhantering
-                //await _bloggApi.SaveBloggAsync(NewBlogg);
-
-                // 🔄 Om senare lägga till felhantering:
-
-                var result = await _bloggApi.SaveBloggAsync(NewBlogg);
-                if (!string.IsNullOrEmpty(result))
+                var savedBlogg = await _bloggApi.SaveBloggAsync(NewBlogg);
+                if (savedBlogg == null)
                 {
-                    ModelState.AddModelError(string.Empty, $"Kunde inte spara blogg: {result}");
-                    Bloggs = await _bloggApi.GetAllBloggsAsync();
-                    return Page(); // Visa fel i formuläret
+                    ModelState.AddModelError(string.Empty, "Kunde inte spara blogg.");
+                    await LoadBloggsWithImagesAsync();
+                    return Page();
                 }
 
+                // Få rätt Id från API:t
+                NewBlogg.Id = savedBlogg.Id;
             }
             else
             {
-                // → Om blogg redan finns, uppdatera
                 if (currentBlogg == null)
-                {
-                    return NotFound(); // Säkerhetskoll
-                }
+                    return NotFound();
 
                 await _bloggApi.UpdateBloggAsync(NewBlogg);
             }
 
-            return RedirectToPage(); // → Alltid redirect efter POST (Post/Redirect/Get-mönstret)
+            // Hantera bilder via API
+            if (BloggImages is { Length: > 0 })
+            {
+                foreach (var image in BloggImages)
+                {
+                    if (image is { Length: > 0 })
+                    {
+                        _ = await _imageApi.UploadImageAsync(image, NewBlogg.Id);
+                    }
+                }
+            }
+
+            return RedirectToPage();
         }
 
+        public async Task<IActionResult> OnPostSetFirstImageAsync(int imageId, int bloggId)
+        {
+            // Hämta alla bilder för bloggen
+            var images = await _imageApi.GetImagesByBloggIdAsync(bloggId);
+            var imageToSet = images.FirstOrDefault(i => i.Id == imageId);
+
+            if (imageToSet != null)
+            {
+                // Flytta vald bild först i listan
+                images.Remove(imageToSet);
+                images.Insert(0, imageToSet);
+
+                // Spara nya ordningen i API:et/databasen
+                await _imageApi.UpdateImageOrderAsync(bloggId, images);
+            }
+
+            return RedirectToPage(new { editId = bloggId });
+        }
+
+        public async Task<IActionResult> OnPostDeleteImageAsync(int imageId, int bloggId)
+        {
+            await _imageApi.DeleteImageAsync(imageId);
+            await LoadBloggsWithImagesAsync();
+
+            var blogg = BloggsWithImage.FirstOrDefault(b => b.Blogg.Id == bloggId);
+            if (blogg != null)
+            {
+                EditedBloggWithImages = new BloggWithImage
+                {
+                    Blogg = blogg.Blogg,
+                    Images = blogg.Images
+                };
+            }
+
+            return RedirectToPage(new { editId = bloggId });
+        }
+
+        private async Task LoadBloggsWithImagesAsync()
+        {
+            var allBloggs = await _bloggApi.GetAllBloggsAsync();
+            BloggsWithImage = new List<BloggWithImage>();
+
+            foreach (var blogg in allBloggs)
+            {
+                var images = await _imageApi.GetImagesByBloggIdAsync(blogg.Id);
+
+                BloggsWithImage.Add(new BloggWithImage
+                {
+                    Blogg = blogg,
+                    Images = images
+                });
+            }
+        }
     }
 }

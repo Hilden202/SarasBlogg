@@ -17,12 +17,9 @@
 .admin-blog-img {
     max-height: 65px !important;
     max-width: 100px;
-    width: auto;
-    height: auto;
     object-fit: cover;
     border-radius: 6px;
-    margin-right: 1px;
-    margin-left: 1px;
+    margin: 0 1px;
     display: inline-block;
     vertical-align: middle;
 }
@@ -54,7 +51,6 @@ td.image-column {
     .mynav {
         flex-wrap: wrap;
         gap: 0.5rem;
-        justify-content: center;
     }
 
         .mynav .nav-link {

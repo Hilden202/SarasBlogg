@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using SarasBlogg.DTOs;
 
 namespace SarasBlogg.Models
 {
@@ -24,10 +25,6 @@ namespace SarasBlogg.Models
         [Required(ErrorMessage = "Ange författare")]
         public string? Author { get; set; }
 
-        [JsonPropertyName("image")]
-        [Display(Name = "Bild")]
-        public string? Image { get; set; }
-
         [JsonPropertyName("launchDate")]
         [Required(ErrorMessage = "Du måste välja ett lanseringsdatum")]
         [DisplayName("Lansering Datum")]
@@ -45,5 +42,9 @@ namespace SarasBlogg.Models
 
         [JsonPropertyName("userId")]
         public string? UserId { get; set; }
+
+        [JsonIgnore]
+        public List<BloggImageDto>? Images { get; set; }
+
     }
 }

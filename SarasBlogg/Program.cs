@@ -60,6 +60,7 @@ namespace SarasBlogg
             builder.Services.AddScoped<IFileHelper, GitHubFileHelper>();
             builder.Services.AddScoped<BloggService>();
             builder.Services.AddScoped<BloggAPIManager>();
+            builder.Services.AddHttpClient<BloggImageAPIManager>();
             builder.Services.AddScoped<CommentAPIManager>();
             builder.Services.AddScoped<ForbiddenWordAPIManager>();
             builder.Services.AddScoped<AboutMeAPIManager>();

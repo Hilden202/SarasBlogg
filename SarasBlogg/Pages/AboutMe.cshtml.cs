@@ -45,23 +45,21 @@ namespace SarasBlogg.Pages
             {
                 if (currentAboutMe != null && !string.IsNullOrEmpty(currentAboutMe.Image))
                 {
-                    _fileHelper.DeleteImage(currentAboutMe.Image, "img/aboutme");
+                    await _fileHelper.DeleteImageAsync(currentAboutMe.Image, "img/aboutme");
                 }
                 AboutMe.Image = null;
             }
-
             // ✅ 2. Om användaren laddar upp en ny bild
             else if (AboutMeImage != null)
             {
                 if (currentAboutMe != null && !string.IsNullOrEmpty(currentAboutMe.Image))
                 {
-                    _fileHelper.DeleteImage(currentAboutMe.Image, "img/aboutme");
+                    await _fileHelper.DeleteImageAsync(currentAboutMe.Image, "img/aboutme");
                 }
 
                 var newFileName = await _fileHelper.SaveImageAsync(AboutMeImage, "img/aboutme");
                 AboutMe.Image = newFileName;
             }
-
             // ✅ 3. Annars – behåll tidigare bild
             else if (currentAboutMe != null)
             {
@@ -81,6 +79,7 @@ namespace SarasBlogg.Pages
 
             return RedirectToPage();
         }
+
     }
 
 }

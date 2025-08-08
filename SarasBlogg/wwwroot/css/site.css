@@ -26,32 +26,23 @@
     margin-top: 0.5rem;
 }
 
-    .dot-loader span {
-        animation: dotFlashing 1.2s ease-in-out infinite;
-    }
-
-        .dot-loader span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .dot-loader span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-@keyframes dotFlashing {
-    0% {
-        opacity: 0.2;
-    }
-
-    50% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0.2;
-    }
+.dot-loader span {
+    animation: dotFlashing 1.2s ease-in-out infinite;
 }
 
+.dot-loader span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dot-loader span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes dotFlashing {
+    0% { opacity: 0.2; }
+    50% { opacity: 1; }
+    100% { opacity: 0.2; }
+}
 
 .loading-logo {
     width: 200px;
@@ -83,30 +74,11 @@
     pointer-events: none;
 }
 
-.top-line {
-    top: -1.5px;
-    left: 0;
-}
-
-.rightcorner-image {
-    top: 0;
-    right: 0;
-}
-
-.leftcorner-image {
-    bottom: 2rem;
-    left: 0;
-}
-
-.topleft-corner-flower {
-    top: 0;
-    left: 0;
-}
-
-.bottomright-corner-flower {
-    bottom: 2.5rem;
-    right: 1rem;
-}
+.top-line { top: -1.5px; left: 0; }
+.rightcorner-image { top: 0; right: 0; }
+.leftcorner-image { bottom: 2rem; left: 0; }
+.topleft-corner-flower { top: 0; left: 0; }
+.bottomright-corner-flower { bottom: 2.5rem; right: 1rem; }
 
 .topleft-corner-flower,
 .bottomright-corner-flower {
@@ -115,36 +87,30 @@
     transition: max-width 0.3s ease, opacity 0.3s ease;
 }
 
-@media (max-width: 2000px) { /* starta krympa tidigare */
+@media (max-width: 2000px) {
     .topleft-corner-flower,
-    .bottomright-corner-flower {
-        max-width: 600px; /* mindre */
-    }
+    .bottomright-corner-flower { max-width: 600px; }
 }
 
 @media (max-width: 1700px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        max-width: 300px; /* ännu mindre */
-        opacity: 0.8;
-        lätt transparent för mjukare övergång
+        max-width: 300px;
+        opacity: 0.8; /* lätt transparent för mjukare övergång */
     }
 }
 
 @media (max-width: 1300px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        max-width: 200px; /* ännu mindre */
-        opacity: 0.6;
-        lätt transparent för mjukare övergång
+        max-width: 200px;
+        opacity: 0.6; /* lätt transparent för mjukare övergång */
     }
 }
 
 @media (max-width: 1000px) {
     .topleft-corner-flower,
-    .bottomright-corner-flower {
-        display: none; /* försvinner helt på mindre skärmar */
-    }
+    .bottomright-corner-flower { display: none; }
 }
 
 @media (max-width: 1100px) {
@@ -153,14 +119,11 @@
     .leftcorner-image,
     .topleft-corner-flower,
     .bottomright-corner-flower,
-    .bottom-line {
-        display: none; /* försvinner helt på mindre skärmar */
-    }
+    .bottom-line { display: none; }
 }
 
-
 button {
-    background-color: var(--btn-bg, #f8f9fa); /* Standard light mode */
+    background-color: var(--btn-bg, #f8f9fa);
     color: var(--btn-text, #212529);
     border: 1px solid var(--btn-border, #ced4da);
     padding: 0.5rem 1rem;
@@ -170,12 +133,16 @@ button {
     transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
-    button:hover {
-        background-color: var(--btn-hover-bg, #e2e6ea);
-        border-color: var(--btn-hover-border, #dae0e5);
-    }
+button:hover {
+    background-color: var(--btn-hover-bg, #e2e6ea);
+    border-color: var(--btn-hover-border, #dae0e5);
+}
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
@@ -185,13 +152,9 @@ button {
     width: 100%;
 }
 
-.text-faded {
-    color: rgba(33, 37, 41, 0.50); /* 0.95 ger en ytterst liten transparens */
-}
-
+.text-faded { color: rgba(33, 37, 41, 0.50); }
 
 html {
-    <img src="/img/logo/övrehörnhöger.png" alt="Övre hörn höger" class="right-img">;
     height: 100%;
     margin: 0;
     padding: 0;
@@ -209,9 +172,7 @@ body {
     color: #212529;
 }
 
-header {
-    color: #212529;
-}
+header { color: #212529; }
 
 .navbar,
 .navbar a,
@@ -221,9 +182,7 @@ header {
     color: #212529 !important;
 }
 
-div {
-    color: #212529;
-}
+div { color: #212529; }
 
 .container-site {
     max-width: 850px;
@@ -235,18 +194,14 @@ div {
 .cards-container .card img {
     width: 100%;
     height: 140px;
-    object-fit: cover; /* beskär bilden så den fyller ytan utan att förvrängas */
+    object-fit: contain;
+    background-color: transparent;
     border-radius: 12px 12px 0 0;
     display: block;
 }
 
-.linebreak {
-    white-space: pre-wrap;
-}
-
-.linebreakormal {
-    white-space: nowrap;
-}
+.linebreak { white-space: pre-wrap; }
+.linebreakormal { white-space: nowrap; }
 
 .header-container {
     display: flex;
@@ -292,82 +247,73 @@ div {
     align-items: stretch;
 }
 
-    .cards-container .card-link {
-        flex: 0 0 250px;
-        width: 250px;
-        display: flex;
-        align-items: stretch;
-    }
+.cards-container .card-link {
+    flex: 0 0 250px;
+    width: 250px;
+    display: flex;
+    align-items: stretch;
+}
 
-    .cards-container .card {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-        border-radius: 20px;
-        padding: 1rem;
-        background: white;
-        min-height: 340px; /* justera efter behov */
-        height: 100%; /* <-- viktigt: fyll ut till kortlänkens höjd */
-        box-shadow: none;
-        border: none;
-        text-align: center;
-    }
+.cards-container .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: 20px;
+    padding: 1rem;
+    background: white;
+    min-height: 340px;
+    height: 100%;
+    box-shadow: none;
+    border: none;
+    text-align: center;
+}
 
-    .cards-container .card-title {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.25rem;
-        max-width: 100%;
-        word-break: break-all;
-        overflow-wrap: break-word;
-        white-space: normal;
-    }
+.cards-container .card-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    max-width: 100%;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
 
-    .cards-container .card-link,
-    .cards-container .card {
-        min-width: 250px;
-        max-width: 250px;
-        box-sizing: border-box;
-    }
+.cards-container .card-link,
+.cards-container .card {
+    min-width: 250px;
+    max-width: 250px;
+    box-sizing: border-box;
+}
 
+.cards-container .flower {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+}
 
-    .cards-container .flower {
-        font-size: 2rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .cards-container .card-content {
-        font-size: 1rem;
-        /*font-family: 'Karla';*/
-        line-height: 1.2em;
-        max-width: 30ch;
-        white-space: normal;
-        overflow-wrap: break-word;
-        margin: 0 auto;
-        text-overflow: clip;
-        display: block;
-    }
+.cards-container .card-content {
+    font-size: 1rem;
+    line-height: 1.2em;
+    max-width: 30ch;
+    white-space: normal;
+    overflow-wrap: break-word;
+    margin: 0 auto;
+    text-overflow: clip;
+    display: block;
+}
 
 .card-content {
     min-height: 3em;
     white-space: pre-wrap;
 }
 
-.content-container {
-    display: flex;
-    gap: 2rem;
-}
-
-.blog-posts {
-    flex: 1 1 auto;
-}
+.content-container { display: flex; gap: 2rem; }
+.blog-posts { flex: 1 1 auto; }
 
 .om-mig-box {
     max-width: 500px;
     flex-shrink: 0;
     margin-top: 3rem;
 }
-
 
 .right-side {
     display: flex;
@@ -381,87 +327,50 @@ div {
     object-fit: cover;
     border-radius: 50%;
     flex-shrink: 0;
-    margin: 0 auto; /* centrera på mobil */
+    margin: 0 auto;
 }
 
 .aboutme-wrapper {
     display: flex;
-    flex-direction: row; /* desktop: bredvid varandra */
+    flex-direction: row;
     align-items: flex-start;
     gap: 1rem;
 }
 
 @media (max-width: 768px) {
-
     .aboutme-wrapper {
         flex-direction: column;
         align-items: center;
         text-align: center;
     }
 
-        .aboutme-wrapper > div {
-            text-align: center;
-            width: 100%;
-        }
-
-    .three-dots-container {
-        display: flex;
-        justify-content: center;
+    .aboutme-wrapper > div {
+        text-align: center;
         width: 100%;
     }
 
-    .logo-img {
-        height: 110px;
-        width: auto;
+    .three-dots-container { display: flex; justify-content: center; width: 100%; }
+    .logo-img { height: 110px; width: auto; }
+    .header-container { flex-direction: column; align-items: center; }
+    .header-text { font-size: 2rem; text-align: center; }
+    .right-img { height: 250px; }
+    .content-container { flex-direction: column; }
+    .cards-container { justify-content: center !important; }
+
+    .cards-container .card-link {
+        flex: 1 1 100%;
+        width: 100%;
     }
 
-    .header-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .header-text {
-        font-size: 2rem;
-        text-align: center;
-    }
-
-    .right-img {
-        height: 250px;
-    }
-
-    .content-container {
-        flex-direction: column;
-    }
-
-    .cards-container {
-        justify-content: center !important;
-    }
-
-        .cards-container .card-link {
-            flex: 1 1 100%;
-            width: 100%;
-        }
-
-    .om-mig-box {
-        max-width: 100%;
-        margin-top: 2rem;
-    }
-
-    html {
-        font-size: 14px;
-    }
+    .om-mig-box { max-width: 100%; margin-top: 2rem; }
+    html { font-size: 14px; }
 }
 
 @media (max-width: 480px) {
-    .logo-img {
-        height: 80px; /* ännu mindre på små mobiler */
-        width: auto;
-    }
+    .logo-img { height: 80px; width: auto; }
 }
 
-.container {
-    flex: 1;
-}
+.container { flex: 1; }
 
 .page-wrapper {
     min-height: 100vh;
@@ -477,18 +386,10 @@ footer {
     backdrop-filter: blur(5px);
 }
 
-.social-icons a svg {
-	color: #6c757d;
-	transition: color 0.2s;
-}
+.social-icons a svg { color: #6c757d; transition: color 0.2s; }
+.social-icons a:hover svg { color: #000; }
 
-.social-icons a:hover svg {
-	color: #000;
-}
-
-body.modal-open {
-    overflow: hidden;
-}
+body.modal-open { overflow: hidden; }
 
 #cookieConsentdiv {
     max-height: 90vh;
@@ -520,24 +421,31 @@ input[type="checkbox"] {
     transition: background-color 0.2s ease;
 }
 
-    input[type="checkbox"]:checked {
-        background-color: #fff;
-        border-color: #C48A7D;
-    }
+input[type="checkbox"]:checked {
+    background-color: #fff;
+    border-color: #C48A7D;
+}
 
-        input[type="checkbox"]:checked::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 70%;
-            height: 70%;
-            background-color: #C48A7D;
-            transform: translate(-50%, -50%);
-            border-radius: 2px;
-        }
+input[type="checkbox"]:checked::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 70%;
+    height: 70%;
+    background-color: #C48A7D;
+    transform: translate(-50%, -50%);
+    border-radius: 2px;
+}
 
-    input[type="checkbox"]:focus {
-        outline: none;
-        box-shadow: none;
-    }
+input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.img-wrapper { position: relative; display: inline-block; }
+.img-wrapper img { display: block; max-width: 100%; height: auto; pointer-events: none; }
+.img-wrapper form { pointer-events: auto; }
+.d-flex.flex-wrap.gap-2 { overflow: visible; }
+.img-wrapper button { pointer-events: auto; z-index: 3; }
+.delete-button { position: absolute; top: 2px; right: 2px; z-index: 3; }
