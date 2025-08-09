@@ -1,4 +1,4 @@
-![SarasBlogg](./wwwroot/img/sarasblogg-header.png)
+![SarasBlogg](./wwwroot/assets/sarasblogg-header.png)
 
 # SarasBlogg
 
