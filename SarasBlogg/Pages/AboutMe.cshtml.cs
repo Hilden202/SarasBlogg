@@ -40,27 +40,30 @@ namespace SarasBlogg.Pages
         {
             var currentAboutMe = await _aboutMeApiManager.GetAboutMeAsync();
 
-            // ✅ 1. Om användaren valt att ta bort bilden
+            // 1) Ta bort bild helt
             if (RemoveImage)
             {
                 if (currentAboutMe != null && !string.IsNullOrEmpty(currentAboutMe.Image))
                 {
-                    await _fileHelper.DeleteImageAsync(currentAboutMe.Image, "img/aboutme");
+                    // ändrat: "about" istället för "img/aboutme"
+                    await _fileHelper.DeleteImageAsync(currentAboutMe.Image, "about");
                 }
                 AboutMe.Image = null;
             }
-            // ✅ 2. Om användaren laddar upp en ny bild
+            // 2) Ny bild uppladdad -> ladda upp först, radera gammal efteråt
             else if (AboutMeImage != null)
             {
+                // ändrat: spara i uploads/about/...
+                var newUrl = await _fileHelper.SaveImageAsync(AboutMeImage, "about");
+
                 if (currentAboutMe != null && !string.IsNullOrEmpty(currentAboutMe.Image))
                 {
-                    await _fileHelper.DeleteImageAsync(currentAboutMe.Image, "img/aboutme");
+                    await _fileHelper.DeleteImageAsync(currentAboutMe.Image, "about");
                 }
 
-                var newFileName = await _fileHelper.SaveImageAsync(AboutMeImage, "img/aboutme");
-                AboutMe.Image = newFileName;
+                AboutMe.Image = newUrl;
             }
-            // ✅ 3. Annars – behåll tidigare bild
+            // 3) Behåll befintlig bild
             else if (currentAboutMe != null)
             {
                 AboutMe.Image = currentAboutMe.Image;
@@ -69,16 +72,13 @@ namespace SarasBlogg.Pages
             AboutMe.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (AboutMe.Id == 0)
-            {
-                await _aboutMeApiManager.SaveAboutMeAsync(AboutMe); // POST
-            }
+                await _aboutMeApiManager.SaveAboutMeAsync(AboutMe);  // POST
             else
-            {
                 await _aboutMeApiManager.UpdateAboutMeAsync(AboutMe); // PUT
-            }
 
             return RedirectToPage();
         }
+
 
     }
 

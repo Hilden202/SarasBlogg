@@ -42,7 +42,10 @@ namespace SarasBlogg.Services
             var extension = Path.GetExtension(file.FileName); // ".jpg", ".png"
             var fileName = $"{Guid.NewGuid().ToString().Replace("-", "")}{extension}";
 
-            var uploadPath = $"{_uploadFolder}/{fileName}";
+            var safeFolder = (folder ?? "").Trim().Trim('/', '\\');   // "about"
+            var uploadPath = string.IsNullOrEmpty(safeFolder)
+                ? $"{_uploadFolder}/{fileName}"
+                : $"{_uploadFolder}/{safeFolder}/{fileName}";
 
             using var ms = new MemoryStream();
             await file.CopyToAsync(ms);
