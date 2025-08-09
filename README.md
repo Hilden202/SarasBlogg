@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/sarasblogg-header.png" alt="SarasBlogg" width="700">
-</p>
+![SarasBlogg](./assets/sarasblogg-header.png)
 
 # SarasBlogg
 
