@@ -5,8 +5,7 @@ using SarasBlogg.Data;
 using SarasBlogg.Services;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using System.Security.Claims;
-using Microsoft.AspNetCore.DataProtection;
-using System.IO;
+using Microsoft.AspNetCore.HttpOverrides;
 
 
 namespace SarasBlogg
@@ -17,19 +16,19 @@ namespace SarasBlogg
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Bind endast i container (Render). Lokalt låter vi launchSettings styra.
+            var portEnv = Environment.GetEnvironmentVariable("PORT");
+            if (!string.IsNullOrEmpty(portEnv))
+            {
+                builder.WebHost.UseUrls($"http://0.0.0.0:{portEnv}");
+            }
+
             // Hämta och logga connection string (stöder både DefaultConnection och MyConnection)
             var connectionString =
                 builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? builder.Configuration.GetConnectionString("MyConnection")
                 ?? throw new InvalidOperationException(
                     "No connection string found. Expected 'DefaultConnection' or 'MyConnection'.");
-
-            // Maskera lösenordet innan loggning
-            var maskedConnectionString = System.Text.RegularExpressions.Regex.Replace(
-                connectionString, @"(Password\s*=\s*)([^;]+)", "$1***",
-                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-            Console.WriteLine($"[DEBUG] Using ConnectionString: {maskedConnectionString}");
 
             // Konfigurera
             //builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
@@ -38,15 +37,7 @@ namespace SarasBlogg
             //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
             //    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-            // Lagra DataProtection-nycklar på en plats som överlever container-restart
-            builder.Services.AddDataProtection()
-                .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
-                .SetApplicationName("SarasBloggSharedKeys");
-
             // DATABAS OCH IDENTITET
-            //builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            //    options.UseSqlServer(connectionString));
-
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
 
@@ -95,7 +86,6 @@ namespace SarasBlogg
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
             var app = builder.Build();
 
             app.UseCookiePolicy(); // slå på cookie policy
@@ -111,12 +101,20 @@ namespace SarasBlogg
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+
+                // Viktigt bakom proxy (Render)
+                app.UseForwardedHeaders(new ForwardedHeadersOptions
+                {
+                    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
+                });
+
+                // Stäng av redirect i container för att undvika "Failed to determine the https port"
+                // app.UseHttpsRedirection();
             }
 
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
+
 
             app.UseRouting();
 
@@ -163,6 +161,5 @@ namespace SarasBlogg
         //        }
         //    }
         //}
-
     }
 }

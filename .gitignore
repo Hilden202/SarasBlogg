@@ -45,4 +45,7 @@ SarasBlogg/Data/Migrations/
 # Mac-specifika filer
 .DS_Store
 
+# Ignorera DataProtection-nycklar
+keys/
+
 secrets.json
