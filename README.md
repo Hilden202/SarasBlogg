@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/sarasblogg-header.png" alt="SarasBlogg" width="700">
+</p>
+
 # SarasBlogg
 
 En bloggplattform byggd i **.NET Razor Pages** med ett separat **API-projekt** för databehandling, bildhantering och AI-funktioner.  
