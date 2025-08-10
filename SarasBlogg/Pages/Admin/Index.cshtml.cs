@@ -149,17 +149,24 @@ namespace SarasBlogg.Pages.Admin
                 await _bloggApi.UpdateBloggAsync(NewBlogg);
             }
 
-            // Hantera bilder via API
+            // Hantera bilder via API (sekventiellt + liten paus)
             if (BloggImages is { Length: > 0 })
             {
-                foreach (var image in BloggImages)
+                foreach (var f in BloggImages.Where(f => f != null && f.Length > 0))
                 {
-                    if (image is { Length: > 0 })
+                    try
                     {
-                        _ = await _imageApi.UploadImageAsync(image, NewBlogg.Id);
+                        await _imageApi.UploadImageAsync(f, NewBlogg.Id); // viktigt med await
+                        await Task.Delay(200); // liten paus hjälper Render + GitHub API
+                    }
+                    catch (Exception ex)
+                    {
+                        // valfritt: yta fel till sidan/logg
+                        ModelState.AddModelError(string.Empty, $"Kunde inte ladda upp {f.FileName}: {ex.Message}");
                     }
                 }
             }
+
 
             return RedirectToPage();
         }
