@@ -5,11 +5,11 @@
 }
 
 .menutext {
-    color: #548235 !important;
+    color: #7e6655 !important;
     font-size: 19px !important;
-    font-family: 'Patrick Hand', 'Caveat', 'Segoe Print', cursive;
+    font-family: 'Cormorant SC', serif;
     text-decoration: none;
-    -webkit-text-stroke: 0.2px #000; /* Smal kant */
+    -webkit-text-stroke: 0.2px #000;
 }
 
     .menutext:hover {
