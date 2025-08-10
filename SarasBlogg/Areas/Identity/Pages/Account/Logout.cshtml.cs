@@ -27,15 +27,15 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
             await _signInManager.SignOutAsync();
-            _logger.LogInformation("User logged out.");
+            _logger.LogInformation("Användare loggade ut.");
             if (returnUrl != null)
             {
                 return LocalRedirect(returnUrl);
             }
             else
             {
-                // This needs to be a redirect so that the browser performs a new
-                // request and the identity for the user gets updated.
+                // Detta behöver vara en redirect så att webbläsaren gör en ny
+                // förfrågan och användarens identitet uppdateras.
                 return RedirectToPage();
             }
         }

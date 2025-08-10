@@ -57,11 +57,11 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Phone]
-            [Display(Name = "Phone number")]
+            [Display(Name = "Telefonnummer")]
             public string PhoneNumber { get; set; }
 
             [Display(Name = "Namn")]
-            public string? Name { get; set; }
+            public string Name { get; set; }
 
             [Display(Name = "Födelseår")]
             public int? BirthYear { get; set; }
@@ -115,7 +115,7 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
                 var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
                 if (!setPhoneResult.Succeeded)
                 {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
+                    StatusMessage = "Ett oväntat fel inträffade när telefonnumret skulle uppdateras.";
                     return RedirectToPage();
                 }
 
@@ -133,7 +133,7 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
             await _userManager.UpdateAsync(user);
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
+            StatusMessage = "Din profil har uppdaterats.";
             return RedirectToPage();
         }
     }
