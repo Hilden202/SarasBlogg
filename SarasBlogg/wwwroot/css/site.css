@@ -583,3 +583,11 @@ input, textarea, select, button {
     right: 2px;
     z-index: 3;
 }
+
+nav.border-bottom {
+    border-bottom: none !important;
+}
+
+footer.border-top {
+    border-top: none !important;
+}

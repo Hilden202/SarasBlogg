@@ -56,12 +56,9 @@
 					<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 						<ul class="navbar-nav flex-grow-1 justify-content-center">
 						</ul>
-						@if (SignInManager.IsSignedIn(User))
-						{
-							<div class="d-flex align-items-center ms-3">
-								<partial name="_LoginPartial" />
-							</div>
-						}
+						<div class="d-flex align-items-center ms-3">
+							<partial name="_LoginPartial" />
+						</div>
 						@*<button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button> *@
 					</div>
 				</div>
