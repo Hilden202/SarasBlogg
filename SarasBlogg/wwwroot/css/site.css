@@ -591,3 +591,36 @@ nav.border-bottom {
 footer.border-top {
     border-top: none !important;
 }
+
+.navbar-nav .nav-item form button.nav-link {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    color: inherit !important;
+    font: inherit;
+    text-decoration: none;
+}
+
+    .navbar-nav .nav-item form button.nav-link:hover {
+        font-weight: bold;
+    }
+
+.navbar-nav .nav-item form {
+    display: inline; /* Gör så formuläret inte bryter rad */
+    margin: 0;
+    padding: 0;
+}
+
+    .navbar-nav .nav-item form .nav-link {
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+        color: inherit !important;
+        font: inherit;
+        line-height: inherit;
+        vertical-align: baseline;
+    }
+
+        .navbar-nav .nav-item form .nav-link:hover {
+            font-weight: bold;
+        }

@@ -6,18 +6,26 @@
     var userName = user?.Name ?? user?.UserName;
 }
 
+<!-- Dold POST-form för utloggning -->
+<form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout"
+      asp-route-returnUrl="@Url.Page("/Index", new { area = "" })"
+      method="post" class="d-none"></form>
+
 <ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-        <a class="nav-link theme-dependent" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hej @userName!</a>
-    </li>
-    <li class="nav-item">
-        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">
-                <button type="submit" class="nav-link btn btn-link theme-dependent">Logga ut</button>
-        </form>
-    </li>
-}
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a class="nav-link theme-dependent" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                Hej @userName!
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link theme-dependent" href="#"
+               onclick="document.getElementById('logoutForm').submit(); return false;">
+                Logga ut
+            </a>
+        </li>
+    }
     else
     {
         <li class="nav-item">
