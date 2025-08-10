@@ -12,7 +12,7 @@
         && !b.Hidden
         && b.LaunchDate <= DateTime.UtcNow)
         .OrderByDescending(b => b.LaunchDate)
-        .ThenByDescending(b => b.Id); // Nyast Id först vid lika datum
+        .ThenByDescending(b => b.Id);
 
         foreach (var blogg in filteredBloggs)
         {
@@ -76,12 +76,11 @@
                     : Url.Content(firstUrl ?? "/img/blogg/default.png");
 
                     <div class="card-img-wrapper mb-2" style="--img: url('@resolved')">
-                        <img class="bloggimg mb-4 rounded shadow-lg"
+                        <img class="bloggimg mb-4 rounded shadow-lg js-lightbox"
                              src="@resolved"
                              onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-                             alt="Blogg-bild"
-                             style="cursor:pointer"
-                             onclick="if (history.length>1) history.back(); else location.href='@Url.Page("/Index")';" />
+                             alt="Bloggbild"
+                             style="cursor:zoom-in" />
                     </div>
                 }
                 else
@@ -98,12 +97,11 @@
 
                                 <div class="carousel-item @(i == 0 ? "active" : "")">
                                     <div class="card-img-wrapper" style="--img: url('@resolved')">
-                                        <img class="bloggimg mb-4 rounded shadow-lg"
+                                        <img class="bloggimg mb-4 rounded shadow-lg js-lightbox"
                                              src="@resolved"
                                              onerror="this.onerror=null; this.src='/img/blogg/default.png';"
                                              alt="Bloggbild @(i + 1)"
-                                             style="cursor:pointer"
-                                             onclick="if (history.length>1) history.back(); else location.href='@Url.Page("/Index")';" />
+                                             style="cursor:zoom-in" />
                                     </div>
                                 </div>
                             }
@@ -131,6 +129,9 @@
                         </div>
                     </div>
                 }
+                <a href="javascript:history.back()" class="btn btn-outline-secondary mb-3">
+                    &larr; Tillbaka
+                </a>
 
                 <h3 class="card-title mb-3">@Model.Blogg.Title</h3>
                 <p class="card-text linebreak">@Model.Blogg.Content</p>
@@ -146,47 +147,36 @@
                 <hr class="mb-3" />
             </div>
         </div>
-        @* --- SLUT DETALJVY --- *@
-
-        @if (Model.Comments != null && Model.Comments.Any(c => c.BloggId == Model.Blogg.Id))
-        {
-            <div class="comments-section mt-4">
-                <h5>Kommentarer</h5>
-                @foreach (var comment in Model.Comments.Where(c => c.BloggId == Model.Blogg.Id).Reverse())
-                {
-                    <div>
-                        <div class="card-body">
-                            <strong>@comment.Name</strong> <span class="text-faded">(@comment.CreatedAt.ToString("yyyy-MM-dd HH:mm"))</span>
-                            @if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
-                            {
-                                <form method="post" asp-route-deleteCommentId="@comment.Id" class="d-inline ms-2">
-                                    <input type="submit" value="Ta bort" />
-                                </form>
-                            }
-                            <p>@comment.Content</p>
-                        </div>
-                    </div>
-                }
-            </div>
-            <hr class="mb-3" />
-            <h5>Ny Kommentar</h5>
-        }
-        else
-        {
-            <p class="text-faded">Inga kommentarer ännu.</p>
-        }
-        <form method="post" id="commentForm" class="p-3 border rounded shadow-sm">
-            <label asp-for="Comment.Name"></label>
-            <input asp-for="Comment.Name" class="form-control" placeholder="Ange ditt namn" />
-            <span asp-validation-for="Comment.Name" class="text-danger"></span>
-            <br />
-            <label asp-for="Comment.Content"></label>
-            <textarea asp-for="Comment.Content" rows="4" cols="50" class="form-control" placeholder="Skriv en kommentar"></textarea>
-            <span asp-validation-for="Comment.Content" class="text-danger"></span>
-            <br />
-            <input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
-            <input type="hidden" asp-for="Comment.CreatedAt" value="@DateTime.UtcNow" />
-            <input type="submit" value="Skicka kommentar" />
-        </form>
     }
 </div>
+
+<!-- Fullscreen Image Modal -->
+<div class="modal fade" id="imageLightbox" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content bg-black">
+            <div class="modal-body p-0 d-flex align-items-center justify-content-center">
+                <img id="lightboxImg" alt="Bloggbild"
+                     style="max-width:100vw; max-height:100vh; object-fit:contain; cursor:zoom-out;" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('click', function (e) {
+        const img = e.target.closest('.js-lightbox');
+        if (!img) return;
+
+        document.getElementById('lightboxImg').src = img.src;
+
+        const modalEl = document.getElementById('imageLightbox');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    });
+
+    document.getElementById('lightboxImg').addEventListener('click', function () {
+        const modalEl = document.getElementById('imageLightbox');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+    });
+</script>
