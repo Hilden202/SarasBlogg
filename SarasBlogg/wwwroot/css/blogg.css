@@ -66,6 +66,16 @@
     display: block;
 }
 
+/* Samma höjd i varje slide */
+.carousel .card-img-wrapper {
+    aspect-ratio: 3 / 2; /* byt vid behov */
+    border-radius: 10px;
+}
+
+.carousel .bloggimg {
+    object-fit: contain;
+}
+
 .mynav {
     display: flex;
     justify-content: space-between;

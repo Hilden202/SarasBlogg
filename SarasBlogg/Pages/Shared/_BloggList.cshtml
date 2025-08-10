@@ -1,5 +1,7 @@
 ﻿@using SarasBlogg.Extensions
 @using SarasBlogg.Models
+@using SarasBlogg.DTOs
+
 @model SarasBlogg.ViewModels.BloggViewModel
 
 <div class="container-site">
@@ -16,16 +18,20 @@
             .OrderBy(i => i.Order)
             .FirstOrDefault()?.FilePath;
 
-            var isExternal = !string.IsNullOrEmpty(imageUrl) &&
-            (imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"));
+            var resolvedUrl = (!string.IsNullOrEmpty(imageUrl) &&
+            (imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://")))
+            ? imageUrl
+            : Url.Content(imageUrl ?? "/img/blogg/default.png");
 
-            <a asp-route-showId="@blogg.Id" class="text-decoration-none blogg-link" id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
+            <a asp-route-showId="@blogg.Id"
+               class="text-decoration-none blogg-link"
+               id="reloadPageFormSection-@blogg.Id"
+               data-blogg-id="@blogg.Id">
                 <div class="card m-2 shadow-lg mx-auto">
                     <div class="card-body">
-                        <div class="card-img-wrapper mb-2"
-                             style="--img: url('@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))')">
+                        <div class="card-img-wrapper mb-2" style="--img: url('@resolvedUrl')">
                             <img class="bloggimg mb-4 shadow-lg"
-                                 src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
+                                 src="@resolvedUrl"
                                  onerror="this.onerror=null; this.src='/img/blogg/default.png';"
                                  alt="Bild för @blogg.Title" />
                         </div>
@@ -52,24 +58,79 @@
     }
     else
     {
-        var imageUrl = Model.Blogg.Images?
-        .OrderBy(i => i.Order)
-        .FirstOrDefault()?.FilePath;
-
-        var isExternal = !string.IsNullOrEmpty(imageUrl) &&
-        (imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"));
+        @* --- DETALJVY MED KARUSELL --- *@
+        var images = (Model.Blogg.Images ?? new List<BloggImageDto>())
+        .OrderBy(i => i.Order).ToList();
+        var carouselId = $"blogCarousel-{Model.Blogg.Id}";
 
         <div class="card m-2 shadow-lg mx-auto" id="bloggTopSection">
             <div class="card-body">
-                <div class="card-img-wrapper mb-2"
-                     style="--img: url('@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))')">
-                    <img class="bloggimg mb-4 rounded shadow-lg"
-                         onclick="reloadCurrentPage(@Model.Blogg.Id)"
-                         style="cursor: pointer"
-                         src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
-                         onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-                         alt="Blogg-bild saknas" />
-                </div>
+
+                @if (images.Count <= 1)
+                {
+                    var firstUrl = images.FirstOrDefault()?.FilePath;
+                    var resolved = !string.IsNullOrWhiteSpace(firstUrl) &&
+                    (firstUrl.StartsWith("http://") || firstUrl.StartsWith("https://"))
+                    ? firstUrl
+                    : Url.Content(firstUrl ?? "/img/blogg/default.png");
+
+                    <div class="card-img-wrapper mb-2" style="--img: url('@resolved')">
+                        <img class="bloggimg mb-4 rounded shadow-lg"
+                             src="@resolved"
+                             onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+                             alt="Blogg-bild"
+                             style="cursor:pointer"
+                             onclick="if (history.length>1) history.back(); else location.href='@Url.Page("/Index")';" />
+                    </div>
+                }
+                else
+                {
+                    <div id="@carouselId" class="carousel slide mb-2" data-bs-interval="false">
+                        <div class="carousel-inner">
+                            @for (var i = 0; i < images.Count; i++)
+                            {
+                                var url = images[i].FilePath;
+                                var resolved = !string.IsNullOrWhiteSpace(url) &&
+                                (url.StartsWith("http://") || url.StartsWith("https://"))
+                                ? url
+                                : Url.Content(url ?? "/img/blogg/default.png");
+
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <div class="card-img-wrapper" style="--img: url('@resolved')">
+                                        <img class="bloggimg mb-4 rounded shadow-lg"
+                                             src="@resolved"
+                                             onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+                                             alt="Bloggbild @(i + 1)"
+                                             style="cursor:pointer"
+                                             onclick="if (history.length>1) history.back(); else location.href='@Url.Page("/Index")';" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <button class="carousel-control-prev" type="button" data-bs-target="#@carouselId" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Föregående</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#@carouselId" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Nästa</span>
+                        </button>
+
+                        <div class="carousel-indicators">
+                            @for (var i = 0; i < images.Count; i++)
+                            {
+                                <button type="button"
+                                        data-bs-target="#@carouselId"
+                                        data-bs-slide-to="@i"
+                                        class="@(i==0 ? "active" : "")"
+                                        aria-current="@(i==0 ? "true" : "false")"
+                                        aria-label="Bild @(i+1)"></button>
+                            }
+                        </div>
+                    </div>
+                }
+
                 <h3 class="card-title mb-3">@Model.Blogg.Title</h3>
                 <p class="card-text linebreak">@Model.Blogg.Content</p>
                 <p class="text-faded">
@@ -84,6 +145,7 @@
                 <hr class="mb-3" />
             </div>
         </div>
+        @* --- SLUT DETALJVY --- *@
 
         @if (Model.Comments != null && Model.Comments.Any(c => c.BloggId == Model.Blogg.Id))
         {
