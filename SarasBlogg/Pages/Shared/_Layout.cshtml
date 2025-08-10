@@ -132,11 +132,31 @@
 		@await RenderSectionAsync("Scripts", required: false)
 		<partial name="_ValidationScriptsPartial" />
 	</div>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			function copyBackground(target) {
+				if (!target) return;
+				const cs = getComputedStyle(document.body);
+				target.style.backgroundColor = cs.backgroundColor;
+				target.style.backgroundImage = cs.backgroundImage;
+				target.style.backgroundRepeat = cs.backgroundRepeat;
+				target.style.backgroundPosition = cs.backgroundPosition;
+				target.style.backgroundSize = cs.backgroundSize;
+				target.style.backgroundAttachment = cs.backgroundAttachment;
+			}
+
+			// Apply to loading overlay
+			copyBackground(document.getElementById('loading-overlay'));
+
+			// Apply to image modal
+			copyBackground(document.querySelector('#imageLightbox .modal-content'));
+		});
+	</script>
+
 	<script>
 		window.addEventListener('load', function () {
 			const overlay = document.getElementById('loading-overlay');
-
-			// Visa bara om det inte redan är markerat
 			const shown = sessionStorage.getItem('sarasbloggLoadingShown');
 
 			if (!shown && overlay) {
@@ -145,11 +165,12 @@
 				setTimeout(() => {
 					overlay.style.opacity = 0;
 					setTimeout(() => overlay.style.display = 'none', 500);
-				}, 300); // visa i 0.3 sekunder
+				}, 300);
 			} else if (overlay) {
-				overlay.style.display = 'none'; // hoppa över helt
+				overlay.style.display = 'none';
 			}
 		});
 	</script>
+
 </body>
 </html>
