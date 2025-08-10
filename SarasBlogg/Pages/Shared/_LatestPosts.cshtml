@@ -11,13 +11,20 @@
         var isExternal = !string.IsNullOrEmpty(imageUrl) &&
         (imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"));
 
+        // ✅ Samma URL används för både src och blur-bakgrund
+        var resolvedUrl = isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png");
+
         <a asp-page="/Blogg" asp-route-showId="@post.Id" class="text-decoration-none blogg-link" title="@post.Title">
             <div class="card">
-                <img src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
-                     onerror="this.onerror=null;this.src='/img/blogg/default.png';"
-                     alt="Bild för @post.Title"
-                     class="card-image"
-                     style="max-width: 220px; border-radius: 5px;" />
+                <!-- ✅ NYTT: wrapper + CSS-var för blur-bakgrund -->
+                <div class="card-img-wrapper" style="--img: url('@resolvedUrl')">
+                    <img class="bloggimg"
+                         src="@resolvedUrl"
+                         onerror="this.onerror=null;this.src='/img/blogg/default.png';"
+                         alt="Bild för @post.Title"
+                         loading="lazy" />
+                </div>
+
                 <div class="flower">🌸</div>
                 <h4 class="card-title text-dark">@post.Title.LimitLength(20)</h4>
 
