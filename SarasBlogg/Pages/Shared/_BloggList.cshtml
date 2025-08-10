@@ -10,7 +10,9 @@
         var filteredBloggs = (Model.Bloggs ?? new List<Blogg>())
         .Where(b => (Model.IsArchiveView ? b.IsArchived : !b.IsArchived)
         && !b.Hidden
-        && b.LaunchDate <= DateTime.Today);
+        && b.LaunchDate <= DateTime.UtcNow)
+        .OrderByDescending(b => b.LaunchDate)
+        .ThenByDescending(b => b.Id); // Nyast Id först vid lika datum
 
         foreach (var blogg in filteredBloggs)
         {
@@ -53,7 +55,6 @@
                     </div>
                 </div>
             </a>
-            @* <hr class="m-4 border" /> *@
         }
     }
     else
