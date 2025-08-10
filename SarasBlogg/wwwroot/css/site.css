@@ -624,3 +624,25 @@ footer.border-top {
         .navbar-nav .nav-item form .nav-link:hover {
             font-weight: bold;
         }
+
+/* Hamburger-ikon mörk på transparent bakgrund */
+.navbar.navbar-light.bg-transparent {
+    --bs-navbar-toggler-icon-bg: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba(33,37,41,0.85)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E") !important;
+}
+
+/* Transparent knapp, tunn markering vid fokus */
+.navbar-toggler {
+    background-color: transparent !important;
+    border-color: rgba(33,37,41,.2) !important;
+}
+
+    .navbar-toggler:focus,
+    .navbar-toggler:focus-visible,
+    .navbar-toggler:active {
+        outline: none !important;
+        box-shadow: 0 0 0 .10rem rgba(33,37,41,.3) !important; /* tunn & diskret */
+    }
+
+.navbar {
+    --bs-navbar-toggler-focus-width: .10rem; /* extra säkerhet */
+}
