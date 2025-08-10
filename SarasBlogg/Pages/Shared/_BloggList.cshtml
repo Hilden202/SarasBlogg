@@ -22,7 +22,8 @@
             <a asp-route-showId="@blogg.Id" class="text-decoration-none blogg-link" id="reloadPageFormSection-@blogg.Id" data-blogg-id="@blogg.Id">
                 <div class="card m-2 shadow-lg mx-auto">
                     <div class="card-body">
-                        <div class="card-img-wrapper mb-2">
+                        <div class="card-img-wrapper mb-2"
+                             style="--img: url('@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))')">
                             <img class="bloggimg mb-4 shadow-lg"
                                  src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
                                  onerror="this.onerror=null; this.src='/img/blogg/default.png';"
@@ -60,7 +61,8 @@
 
         <div class="card m-2 shadow-lg mx-auto" id="bloggTopSection">
             <div class="card-body">
-                <div class="card-img-wrapper mb-2">
+                <div class="card-img-wrapper mb-2"
+                     style="--img: url('@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))')">
                     <img class="bloggimg mb-4 rounded shadow-lg"
                          onclick="reloadCurrentPage(@Model.Blogg.Id)"
                          style="cursor: pointer"
