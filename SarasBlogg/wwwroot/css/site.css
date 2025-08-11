@@ -74,7 +74,7 @@
 .bottom-line {
     position: fixed;
     height: auto; /* behåll proportioner */
-    z-index: 9999;
+    z-index: 9999 !important;
     pointer-events: none;
 }
 
@@ -491,6 +491,22 @@ footer {
     padding: 0rem;
     backdrop-filter: blur(5px);
 }
+
+    footer.footer {
+        position: sticky !important;
+        bottom: 0; /* gör sticky aktiv i botten */
+        background-color: rgba(255, 255, 255, 0.55); /* halvtransparent */
+        border-top: 1px solid #ddd;
+        padding: 0rem;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px); /* Safari */
+        z-index: 1000; /* över innehållet */
+    }
+img, .content img, .admin-blog-img {
+    position: relative; /* eller static */
+    z-index: 0 !important; /* se till att de inte går över footern */
+}
+
 
 .social-icons a svg {
     color: #6c757d;
