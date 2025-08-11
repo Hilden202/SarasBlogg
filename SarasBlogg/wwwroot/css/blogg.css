@@ -118,3 +118,8 @@
         margin-bottom: 2rem;
     }
 }
+
+/* Modal för fullscreen-bild ska ärva sidans bakgrund */
+#imageLightbox .modal-content {
+    background: inherit !important;
+}

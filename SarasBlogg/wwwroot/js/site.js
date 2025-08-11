@@ -77,3 +77,52 @@ window.addEventListener('DOMContentLoaded', function () {
 });
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+// loading-overlay.js
+(function () {
+    const overlay = document.getElementById('loading-overlay');
+    if (!overlay) return;
+
+    const KEY = 'sb_first_visit_done';
+    const MIN_SHOW_MS = 600; // minstid så det inte blinkar
+    const SAFETY_MS = 10000;
+
+    // Har användaren redan laddat en sida i denna flik? Visa aldrig overlay igen.
+    if (sessionStorage.getItem(KEY)) {
+        overlay.classList.remove('show');
+        // valfritt: ta bort noden helt så den inte kan blinka av misstag
+        overlay.remove();
+        return;
+    }
+
+    // Första besöket i denna flik → visa direkt
+    overlay.classList.add('show');
+    const start = performance.now();
+
+    function finish() {
+        const elapsed = performance.now() - start;
+        const wait = Math.max(0, MIN_SHOW_MS - elapsed);
+
+        setTimeout(() => {
+            overlay.classList.remove('show');
+            sessionStorage.setItem(KEY, '1');
+            // ta bort efter fade ut (matcha din CSS .3s)
+            setTimeout(() => overlay.remove(), 350);
+        }, wait);
+    }
+
+    if (document.readyState === 'complete') {
+        // Allt är redan klart (cache/snabb laddning)
+        finish();
+    } else {
+        // När ALLT (inkl. bilder) är klart → stäng
+        window.addEventListener('load', finish, { once: true });
+        // säkerhetsnät
+        setTimeout(finish, SAFETY_MS);
+    }
+
+    // bfcache (iOS/Safari): om sidan återanvänds direkt, se till att overlay är gömd
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) overlay.classList.remove('show');
+    });
+})();

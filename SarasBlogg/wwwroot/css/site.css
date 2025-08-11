@@ -1,21 +1,26 @@
 #loading-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--site-background, #f9f4f0);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 1;
-    transition: opacity 0.5s ease; /* Fade OUT */
+    inset: 0;
+    display: none; /* dold som default */
+    place-items: center; /* centrerar innehåll */
+    opacity: 0;
+    transition: opacity .3s ease;
+    background: inherit; /* ärv sidans bakgrund (fixar mobil också) */
+    z-index: 10000;
 }
 
-.loader-content {
-    text-align: center;
-}
+    #loading-overlay.show {
+        display: grid;
+        opacity: 1;
+    }
+
+    #loading-overlay .loader-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* horisontell centrering */
+        justify-content: center; /* vertikal centrering */
+        text-align: center; /* säkerställ textcentrering */
+    }
 
 .dot-loader {
     display: inline-block;
@@ -506,10 +511,11 @@ body.modal-open {
     overscroll-behavior: contain;
 }
 
-.alert, .modal-content {
+#cookieConsentdiv {
     background-color: #fff !important;
     color: #000 !important;
 }
+
 
 input, textarea, select, button {
     background-color: white !important;
@@ -647,11 +653,6 @@ footer.border-top {
     --bs-navbar-toggler-focus-width: .10rem; /* extra säkerhet */
 }
 
-/* Låt overlay ärva exakt samma bakgrund som sidan */
-#loading-overlay {
-    background: inherit !important; /* funkar för både färg och ev. bild */
-    /* om du vill tona ner lite kan du använda rgba(...) ovanpå, men börja så här */
-}
 
 #imageLightbox .modal-content {
     background: inherit !important; /* ärver sidans bakgrund */
@@ -670,4 +671,3 @@ footer.border-top {
     position: relative;
     z-index: 1; /* ovanpå mörkläggningen */
 }
-
