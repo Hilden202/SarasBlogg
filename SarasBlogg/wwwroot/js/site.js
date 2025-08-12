@@ -86,28 +86,24 @@ window.addEventListener('DOMContentLoaded', function () {
     const KEY = 'sb_first_visit_done';
     const SAFETY_MS = 10000;
 
-    // Om redan besökt i fliken → CSS har redan dolt den
-    if (sessionStorage.getItem(KEY)) {
-        overlay.remove();
-        return;
-    }
+    if (sessionStorage.getItem(KEY)) { overlay.remove(); return; }
 
-    // Visa direkt (redan synlig via CSS), ta bort när sidan är klar
+    // starttid när overlay visas (den är synlig via CSS)
+    const startTime = performance.now();
+
     function finish() {
-        const startTime = performance.now();
         const elapsed = performance.now() - startTime;
-        const remaining = Math.max(0, 1000 - elapsed); // 1000 ms = 1s
+        const remaining = Math.max(0, 1000 - elapsed); // min 1s
 
         setTimeout(() => {
-            overlay.classList.add('hiding');
+            overlay.classList.add('hiding'); // se till att .hiding sätter opacity:0 (+ gärna pointer-events:none)
             sessionStorage.setItem(KEY, '1');
-            setTimeout(() => overlay.remove(), 350); // matcha fade-out
+            setTimeout(() => overlay.remove(), 350);
         }, remaining);
     }
 
-    if (document.readyState === 'complete') {
-        finish();
-    } else {
+    if (document.readyState === 'complete') finish();
+    else {
         window.addEventListener('load', finish, { once: true });
         setTimeout(finish, SAFETY_MS);
     }
