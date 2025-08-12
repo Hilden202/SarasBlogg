@@ -1,26 +1,48 @@
 #loading-overlay {
     position: fixed;
     inset: 0;
-    display: none; /* dold som default */
-    place-items: center; /* centrerar innehåll */
-    opacity: 0;
+    display: grid;
+    place-items: center;
+    opacity: 1;
     transition: opacity .3s ease;
-    background: inherit; /* ärv sidans bakgrund (fixar mobil också) */
+    background: inherit;
     z-index: 10000;
+    will-change: opacity;
 }
 
-    #loading-overlay.show {
-        display: grid;
-        opacity: 1;
-    }
+.sb-seen #loading-overlay {
+    display: none !important;
+    opacity: 0 !important;
+}
 
-    #loading-overlay .loader-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center; /* horisontell centrering */
-        justify-content: center; /* vertikal centrering */
-        text-align: center; /* säkerställ textcentrering */
-    }
+#loading-overlay.show {
+    display: grid;
+    opacity: 1;
+}
+
+#loading-overlay.hiding {
+    opacity: 0; /* transition: opacity .3s löser resten */
+}
+
+#loading-overlay .loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* horisontell centrering */
+    justify-content: center; /* vertikal centrering */
+    text-align: center;
+    height: 100%; /* gör att vertikal centrering fungerar */
+}
+
+.dot-loader {
+    display: inline-block;
+    font-size: 2rem;
+    letter-spacing: 0.2rem;
+    font-weight: bold;
+    color: #C48A7D; /* SarasBlogg-rosa */
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
 
 .dot-loader {
     display: inline-block;

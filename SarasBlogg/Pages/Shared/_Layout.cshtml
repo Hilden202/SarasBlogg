@@ -15,6 +15,11 @@
 	<meta property="og:image:type" content="image/png" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<title>@ViewData["Title"] - SarasBlogg</title>
+	<script>
+		if (sessionStorage.getItem('sb_first_visit_done')) {
+		  document.documentElement.classList.add('sb-seen');
+		}
+	</script>
 	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 	<link rel="stylesheet" href="~/css/blogg.css" asp-append-version="true" />

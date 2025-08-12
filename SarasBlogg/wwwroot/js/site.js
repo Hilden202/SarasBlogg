@@ -84,45 +84,35 @@ window.addEventListener('DOMContentLoaded', function () {
     if (!overlay) return;
 
     const KEY = 'sb_first_visit_done';
-    const MIN_SHOW_MS = 600; // minstid så det inte blinkar
     const SAFETY_MS = 10000;
 
-    // Har användaren redan laddat en sida i denna flik? Visa aldrig overlay igen.
+    // Om redan besökt i fliken → CSS har redan dolt den
     if (sessionStorage.getItem(KEY)) {
-        overlay.classList.remove('show');
-        // valfritt: ta bort noden helt så den inte kan blinka av misstag
         overlay.remove();
         return;
     }
 
-    // Första besöket i denna flik → visa direkt
-    overlay.classList.add('show');
-    const start = performance.now();
-
+    // Visa direkt (redan synlig via CSS), ta bort när sidan är klar
     function finish() {
-        const elapsed = performance.now() - start;
-        const wait = Math.max(0, MIN_SHOW_MS - elapsed);
+        const startTime = performance.now();
+        const elapsed = performance.now() - startTime;
+        const remaining = Math.max(0, 1000 - elapsed); // 1000 ms = 1s
 
         setTimeout(() => {
-            overlay.classList.remove('show');
+            overlay.classList.add('hiding');
             sessionStorage.setItem(KEY, '1');
-            // ta bort efter fade ut (matcha din CSS .3s)
-            setTimeout(() => overlay.remove(), 350);
-        }, wait);
+            setTimeout(() => overlay.remove(), 350); // matcha fade-out
+        }, remaining);
     }
 
     if (document.readyState === 'complete') {
-        // Allt är redan klart (cache/snabb laddning)
         finish();
     } else {
-        // När ALLT (inkl. bilder) är klart → stäng
         window.addEventListener('load', finish, { once: true });
-        // säkerhetsnät
         setTimeout(finish, SAFETY_MS);
     }
 
-    // bfcache (iOS/Safari): om sidan återanvänds direkt, se till att overlay är gömd
     window.addEventListener('pageshow', (e) => {
-        if (e.persisted) overlay.classList.remove('show');
+        if (e.persisted) overlay.classList.add('hiding');
     });
 })();
