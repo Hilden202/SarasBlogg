@@ -6,9 +6,9 @@ using SarasBlogg.Services;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using System.Security.Claims;
 using Microsoft.AspNetCore.HttpOverrides;
-using Polly;                         // 🔹 tillagd
-using Polly.Extensions.Http;         // 🔹 tillagd
-using System.Net.Http;               // 🔹 tillagd
+using Polly;
+using Polly.Extensions.Http;
+using System.Net.Http;
 
 namespace SarasBlogg
 {
@@ -146,7 +146,6 @@ namespace SarasBlogg
 
             app.UseCookiePolicy(); // slå på cookie policy
 
-            // konfigurera
             //CreateAdminUserAsync(app).GetAwaiter().GetResult(); // nödvändigt för att skapa admin-användaren innan appen startar. kommentera in om databasen  är ny
 
             // Configure the HTTP request pipeline.
@@ -170,14 +169,26 @@ namespace SarasBlogg
             }
 
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthentication();
-
             app.UseAuthorization();
 
             app.MapRazorPages();
+
+            // Enkel health-check endpoint (Render kan pinga denna)
+            app.MapGet("/healthz", () => Results.Ok("ok"));
+
+            // Middleware som svarar direkt på HEAD requests
+            app.Use(async (ctx, next) =>
+            {
+                if (HttpMethods.IsHead(ctx.Request.Method))
+                {
+                    ctx.Response.StatusCode = StatusCodes.Status200OK;
+                    await ctx.Response.CompleteAsync();
+                    return;
+                }
+                await next();
+            });
 
             app.Run();
         }
@@ -189,17 +200,17 @@ namespace SarasBlogg
         //    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         //    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-
+        //
         //    string adminEmail = config["AdminUser:Email"];
         //    string adminPassword = config["AdminUser:Password"];
         //    string superAdminRole = "superadmin";
-
+        //
         //    // Skapa rollen superadmin om den inte finns
         //    if (!await roleManager.RoleExistsAsync(superAdminRole))
         //    {
         //        await roleManager.CreateAsync(new IdentityRole(superAdminRole));
         //    }
-
+        //
         //    // Kolla om admin-användaren finns, annars skapa den
         //    var adminUser = await userManager.FindByEmailAsync(adminEmail);
         //    if (adminUser == null)
