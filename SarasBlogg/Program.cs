@@ -6,7 +6,9 @@ using SarasBlogg.Services;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using System.Security.Claims;
 using Microsoft.AspNetCore.HttpOverrides;
-
+using Polly;                         // 🔹 tillagd
+using Polly.Extensions.Http;         // 🔹 tillagd
+using System.Net.Http;               // 🔹 tillagd
 
 namespace SarasBlogg
 {
@@ -23,24 +25,16 @@ namespace SarasBlogg
                 builder.WebHost.UseUrls($"http://0.0.0.0:{portEnv}");
             }
 
-            // Hämta och logga connection string (stöder både DefaultConnection och MyConnection)
+            // Hämta connection string (stöder både DefaultConnection och MyConnection)
             var connectionString =
                 builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? builder.Configuration.GetConnectionString("MyConnection")
                 ?? throw new InvalidOperationException(
                     "No connection string found. Expected 'DefaultConnection' or 'MyConnection'.");
 
-            // Konfigurera
-            //builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
-
-            // Konfigurera apptjänster och databasanslutning
-            //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-            //    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
             // DATABAS OCH IDENTITET
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(connectionString));
-
+                options.UseNpgsql(connectionString));
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -68,16 +62,78 @@ namespace SarasBlogg
                 options.Conventions.AuthorizePage("/RoleAdmin", "SkaVaraSuperAdmin");
             });
 
+            // 🔹 Polly-retry-policy för API-anrop (tål kallstart på Render)
+            static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+            {
+                var jitter = new Random();
+                return HttpPolicyExtensions
+                    .HandleTransientHttpError()                // 5xx, 408, nätfel
+                    .OrResult(msg => (int)msg.StatusCode == 429)
+                    .WaitAndRetryAsync(5, retryAttempt =>
+                        TimeSpan.FromMilliseconds(200 * Math.Pow(2, retryAttempt)) +
+                        TimeSpan.FromMilliseconds(jitter.Next(0, 250)));
+            }
+
             // TJÄNSTER
             builder.Services.AddScoped<IFileHelper, GitHubFileHelper>();
             builder.Services.AddScoped<BloggService>();
-            builder.Services.AddScoped<BloggAPIManager>();
-            builder.Services.AddHttpClient<BloggImageAPIManager>();
-            builder.Services.AddScoped<CommentAPIManager>();
-            builder.Services.AddScoped<ForbiddenWordAPIManager>();
-            builder.Services.AddScoped<AboutMeAPIManager>();
-            builder.Services.AddScoped<ContactMeAPIManager>();
-            builder.Services.AddSingleton<UserAPIManager>();
+
+            // 🟨 Originalregistreringar — behållna men utkommenterade nedan:
+            // builder.Services.AddScoped<BloggAPIManager>();
+            // builder.Services.AddHttpClient<BloggImageAPIManager>();
+            // builder.Services.AddScoped<CommentAPIManager>();
+            // builder.Services.AddScoped<ForbiddenWordAPIManager>();
+            // builder.Services.AddScoped<AboutMeAPIManager>();
+            // builder.Services.AddScoped<ContactMeAPIManager>();
+            // builder.Services.AddSingleton<UserAPIManager>();
+
+            // 🔹 Nytt: registrera typed HttpClient för alla API-managers med BaseAddress + Polly
+            var apiBase = builder.Configuration["ApiSettings:BaseAddress"]; // ex: https://sarasbloggapi.onrender.com/
+            if (string.IsNullOrWhiteSpace(apiBase))
+            {
+                // fallback om ej satt – hellre tom än null
+                apiBase = "https://sarasbloggapi.onrender.com/";
+            }
+
+            builder.Services.AddHttpClient<BloggAPIManager>(c =>
+            {
+                c.BaseAddress = new Uri(apiBase);
+                c.Timeout = TimeSpan.FromSeconds(15);
+            }).AddPolicyHandler(GetRetryPolicy());
+
+            builder.Services.AddHttpClient<BloggImageAPIManager>(c =>
+            {
+                c.BaseAddress = new Uri(apiBase);
+                c.Timeout = TimeSpan.FromSeconds(15);
+            }).AddPolicyHandler(GetRetryPolicy());
+
+            builder.Services.AddHttpClient<CommentAPIManager>(c =>
+            {
+                c.BaseAddress = new Uri(apiBase);
+                c.Timeout = TimeSpan.FromSeconds(15);
+            }).AddPolicyHandler(GetRetryPolicy());
+
+            builder.Services.AddHttpClient<ForbiddenWordAPIManager>(c =>
+            {
+                c.BaseAddress = new Uri(apiBase);
+                c.Timeout = TimeSpan.FromSeconds(15);
+            }).AddPolicyHandler(GetRetryPolicy());
+
+            builder.Services.AddHttpClient<AboutMeAPIManager>(c =>
+            {
+                c.BaseAddress = new Uri(apiBase);
+                c.Timeout = TimeSpan.FromSeconds(15);
+            }).AddPolicyHandler(GetRetryPolicy());
+
+            builder.Services.AddHttpClient<ContactMeAPIManager>(c =>
+            {
+                c.BaseAddress = new Uri(apiBase);
+                c.Timeout = TimeSpan.FromSeconds(15);
+            }).AddPolicyHandler(GetRetryPolicy());
+
+            // Om UserAPIManager behöver HttpClient: byt till typed klient
+            // (om klassen inte tar HttpClient i konstruktorn, låt din Singleton stå kvar)
+            builder.Services.AddSingleton<UserAPIManager>(); // ✅ lämnas oförändrad om den inte använder HttpClient
 
             // COOKIEPOLICY
             builder.Services.Configure<CookiePolicyOptions>(options =>
@@ -115,7 +171,6 @@ namespace SarasBlogg
 
             app.UseStaticFiles();
 
-
             app.UseRouting();
 
             app.UseAuthentication();
@@ -126,6 +181,7 @@ namespace SarasBlogg
 
             app.Run();
         }
+
         //public static async Task CreateAdminUserAsync(WebApplication app)
         //{
         //    // Hämta UserManager och RoleManager från DI

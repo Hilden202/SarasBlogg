@@ -1,43 +1,41 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using SarasBlogg.Models;
 
 namespace SarasBlogg.DAL
 {
     public class ContactMeAPIManager
     {
-        private readonly Uri _baseAddress;
-
-        public ContactMeAPIManager(IConfiguration config)
+        private readonly HttpClient _httpClient;
+        private static readonly JsonSerializerOptions _jsonOpts = new()
         {
-            _baseAddress = new Uri(config["ApiSettings:BaseAddress"]);
+            PropertyNameCaseInsensitive = true
+        };
+
+        public ContactMeAPIManager(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
         }
 
         public async Task<List<ContactMe>> GetAllMessagesAsync()
         {
-            using var client = new HttpClient { BaseAddress = _baseAddress };
-            var response = await client.GetAsync("api/ContactMe");
+            var resp = await _httpClient.GetAsync("api/ContactMe");
+            if (!resp.IsSuccessStatusCode) return new List<ContactMe>();
 
-            if (!response.IsSuccessStatusCode)
-                return new List<ContactMe>();
-
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<List<ContactMe>>(json) ?? new List<ContactMe>();
+            var json = await resp.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<List<ContactMe>>(json, _jsonOpts) ?? new List<ContactMe>();
         }
 
         public async Task<string?> SaveMessageAsync(ContactMe contact)
         {
-            using var client = new HttpClient { BaseAddress = _baseAddress };
-            var json = JsonSerializer.Serialize(contact);
-            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-
-            var response = await client.PostAsync("api/ContactMe", content);
-            return response.IsSuccessStatusCode ? null : await response.Content.ReadAsStringAsync();
+            var content = new StringContent(JsonSerializer.Serialize(contact), Encoding.UTF8, "application/json");
+            var resp = await _httpClient.PostAsync("api/ContactMe", content);
+            return resp.IsSuccessStatusCode ? null : await resp.Content.ReadAsStringAsync();
         }
 
         public async Task DeleteMessageAsync(int id)
         {
-            using var client = new HttpClient { BaseAddress = _baseAddress };
-            await client.DeleteAsync($"api/ContactMe/{id}");
+            await _httpClient.DeleteAsync($"api/ContactMe/{id}");
         }
     }
 }

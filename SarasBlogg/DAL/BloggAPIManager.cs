@@ -6,27 +6,20 @@ namespace SarasBlogg.DAL
 {
     public class BloggAPIManager
     {
-        private readonly Uri _baseAddress;
+        private readonly HttpClient _httpClient;
         private static readonly JsonSerializerOptions _jsonOpts = new()
         {
             PropertyNameCaseInsensitive = true
         };
 
-        public BloggAPIManager(IConfiguration config)
+        public BloggAPIManager(HttpClient httpClient)
         {
-            _baseAddress = new Uri(config["ApiSettings:BaseAddress"]);
-        }
-
-        private HttpClient CreateClient()
-        {
-            var client = new HttpClient { BaseAddress = _baseAddress };
-            return client;
+            _httpClient = httpClient;
         }
 
         public async Task<List<Blogg>> GetAllBloggsAsync()
         {
-            using var client = CreateClient();
-            var resp = await client.GetAsync("api/Blogg");
+            var resp = await _httpClient.GetAsync("api/Blogg");
             if (!resp.IsSuccessStatusCode) return new List<Blogg>();
 
             var json = await resp.Content.ReadAsStringAsync();
@@ -35,8 +28,7 @@ namespace SarasBlogg.DAL
 
         public async Task<Blogg?> GetBloggAsync(int id)
         {
-            using var client = CreateClient();
-            var resp = await client.GetAsync($"api/Blogg/{id}");
+            var resp = await _httpClient.GetAsync($"api/Blogg/{id}");
             if (!resp.IsSuccessStatusCode) return null;
 
             var json = await resp.Content.ReadAsStringAsync();
@@ -45,9 +37,8 @@ namespace SarasBlogg.DAL
 
         public async Task<Blogg?> SaveBloggAsync(Blogg blogg)
         {
-            using var client = CreateClient();
             var content = new StringContent(JsonSerializer.Serialize(blogg), Encoding.UTF8, "application/json");
-            var resp = await client.PostAsync("api/Blogg", content);
+            var resp = await _httpClient.PostAsync("api/Blogg", content);
             if (!resp.IsSuccessStatusCode) return null;
 
             var json = await resp.Content.ReadAsStringAsync();
@@ -56,15 +47,13 @@ namespace SarasBlogg.DAL
 
         public async Task UpdateBloggAsync(Blogg blogg)
         {
-            using var client = CreateClient();
             var content = new StringContent(JsonSerializer.Serialize(blogg), Encoding.UTF8, "application/json");
-            await client.PutAsync($"api/Blogg/{blogg.Id}", content);
+            await _httpClient.PutAsync($"api/Blogg/{blogg.Id}", content);
         }
 
         public async Task DeleteBloggAsync(int id)
         {
-            using var client = CreateClient();
-            await client.DeleteAsync($"api/Blogg/{id}");
+            await _httpClient.DeleteAsync($"api/Blogg/{id}");
         }
     }
 }

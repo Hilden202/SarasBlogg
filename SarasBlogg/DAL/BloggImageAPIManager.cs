@@ -9,18 +9,14 @@ namespace SarasBlogg.DAL
     public class BloggImageAPIManager
     {
         private readonly HttpClient _http;
-        private readonly IConfiguration _config;
-
         private static readonly JsonSerializerOptions _jsonOpts = new()
         {
             PropertyNameCaseInsensitive = true
         };
 
-        public BloggImageAPIManager(HttpClient http, IConfiguration config)
+        public BloggImageAPIManager(HttpClient http)
         {
             _http = http;
-            _config = config;
-            _http.BaseAddress = new Uri(_config["ApiSettings:BaseAddress"]);
         }
 
         public async Task<List<BloggImageDto>> GetImagesByBloggIdAsync(int bloggId)
@@ -41,7 +37,6 @@ namespace SarasBlogg.DAL
             var streamContent = new StreamContent(file.OpenReadStream());
             streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 
-            // Model binding i API:t är case-insensitive, "file" funkar mot BloggImageUploadDto.File
             content.Add(streamContent, "file", file.FileName);
             content.Add(new StringContent(bloggId.ToString(), Encoding.UTF8), "bloggId");
 
