@@ -112,3 +112,37 @@ window.addEventListener('DOMContentLoaded', function () {
         if (e.persisted) overlay.classList.add('hiding');
     });
 })();
+
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// --- Miniatyrer styr Bootstrap-karusell ---
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.thumb[data-carousel-id]');
+    if (!btn) return;
+
+    const carouselId = btn.dataset.carouselId;
+    const index = parseInt(btn.dataset.index, 10);
+    const carouselEl = document.getElementById(carouselId);
+    if (!carouselEl || Number.isNaN(index)) return;
+
+    const carousel = bootstrap.Carousel.getOrCreateInstance(carouselEl);
+    carousel.to(index);
+});
+
+// Håll miniatyrerna i synk när man bläddrar i karusellen (pilar, swipe, etc.)
+function syncThumbsFor(carouselEl) {
+    const id = carouselEl.id;
+    const items = carouselEl.querySelectorAll('.carousel-item');
+    const activeIndex = Array.from(items).findIndex(x => x.classList.contains('active'));
+    const thumbs = document.querySelectorAll(`.thumb-strip .thumb[data-carousel-id="${id}"]`);
+    thumbs.forEach((t, i) => {
+        t.classList.toggle('active', i === activeIndex);
+        t.setAttribute('aria-current', i === activeIndex ? 'true' : 'false');
+    });
+    const activeThumb = thumbs[activeIndex];
+    if (activeThumb) activeThumb.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+}
+
+// Lyssna på alla karuseller på sidan
+document.querySelectorAll('.carousel').forEach(el => {
+    el.addEventListener('slid.bs.carousel', () => syncThumbsFor(el));
+});

@@ -123,3 +123,31 @@
 #imageLightbox .modal-content {
     background: inherit !important;
 }
+
+.thumb-strip {
+    display: flex;
+    gap: .5rem;
+    overflow-x: auto;
+    padding: .25rem 0 .5rem;
+}
+
+.thumb {
+    border: 2px solid transparent;
+    background: none;
+    padding: 0;
+    border-radius: .5rem;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+    .thumb img {
+        width: 72px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: .5rem;
+        display: block;
+    }
+
+    .thumb.active {
+        border-color: #C48A7D; /* din rosa */
+    }

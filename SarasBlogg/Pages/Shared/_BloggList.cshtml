@@ -106,7 +106,6 @@
                                 </div>
                             }
                         </div>
-
                         <button class="carousel-control-prev" type="button" data-bs-target="#@carouselId" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Föregående</span>
@@ -128,6 +127,27 @@
                             }
                         </div>
                     </div>
+                        <div class="thumb-strip mt-2" aria-label="Bildminiatyrer">
+                            @for (var i = 0; i < images.Count; i++)
+                            {
+                                var url = images[i].FilePath;
+                                var resolvedThumb = !string.IsNullOrWhiteSpace(url) &&
+                                (url.StartsWith("http://") || url.StartsWith("https://"))
+                                ? url
+                                : Url.Content(url ?? "/img/blogg/default.png");
+
+                                <button type="button"
+                                        class="thumb @(i == 0 ? "active" : "")"
+                                        data-carousel-id="@carouselId"
+                                        data-index="@i"
+                                        aria-label="Visa bild @(i + 1)"
+                                        aria-current="@(i == 0 ? "true" : "false")">
+                                    <img src="@resolvedThumb"
+                                         alt="Miniatyr för bild @(i + 1)"
+                                         loading="lazy" />
+                                </button>
+                            }
+                        </div>
                 }
                 <a href="javascript:history.back()" class="btn btn-outline-secondary mb-3">
                     &larr; Tillbaka
