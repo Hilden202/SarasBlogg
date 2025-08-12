@@ -43,16 +43,6 @@
     text-align: center;
 }
 
-
-.dot-loader {
-    display: inline-block;
-    font-size: 2rem;
-    letter-spacing: 0.2rem;
-    font-weight: bold;
-    color: #C48A7D; /* SarasBlogg-rosa */
-    margin-top: 0.5rem;
-}
-
     .dot-loader span {
         animation: dotFlashing 1.2s ease-in-out infinite;
     }
