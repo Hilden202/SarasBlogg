@@ -21,7 +21,8 @@
 }
 
 #loading-overlay.hiding {
-    opacity: 0; /* transition: opacity .3s löser resten */
+    opacity: 0;
+    pointer-events: none;
 }
 
 #loading-overlay .loader-content {
