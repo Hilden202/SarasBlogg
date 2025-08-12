@@ -84,33 +84,48 @@ window.addEventListener('DOMContentLoaded', function () {
     if (!overlay) return;
 
     const KEY = 'sb_first_visit_done';
-    const SAFETY_MS = 10000;
+    const SAFETY_MS = 10000;  // hård timeout
+    const apiCompleteEvent = 'sb_api_first_load_complete';
 
-    if (sessionStorage.getItem(KEY)) { overlay.remove(); return; }
+    // Om inte första besöket i session → ta bort direkt
+    if (sessionStorage.getItem(KEY)) {
+        overlay.remove();
+        return;
+    }
 
-    // starttid när overlay visas (den är synlig via CSS)
     const startTime = performance.now();
 
-    function finish() {
-        const elapsed = performance.now() - startTime;
-        const remaining = Math.max(0, 1000 - elapsed); // min 1s
+    function hideOverlay(reason) {
+        if (!document.body.contains(overlay)) return;
+        console.log(`Overlay tas bort pga: ${reason}`);
+
+        overlay.classList.add('hiding'); // CSS: opacity:0, pointer-events:none
+        sessionStorage.setItem(KEY, '1');
 
         setTimeout(() => {
-            overlay.classList.add('hiding'); // se till att .hiding sätter opacity:0 (+ gärna pointer-events:none)
-            sessionStorage.setItem(KEY, '1');
-            setTimeout(() => overlay.remove(), 350);
-        }, remaining);
+            if (document.body.contains(overlay)) overlay.remove();
+        }, 350); // matcha CSS-transition
     }
 
-    if (document.readyState === 'complete') finish();
-    else {
-        window.addEventListener('load', finish, { once: true });
-        setTimeout(finish, SAFETY_MS);
-    }
+    // Lyssna på special-event från API-koden när första laddningen är klar
+    window.addEventListener(apiCompleteEvent, () => {
+        hideOverlay('Första API-anropet klart');
+    }, { once: true });
 
-    window.addEventListener('pageshow', (e) => {
-        if (e.persisted) overlay.classList.add('hiding');
-    });
+    // Fallback: ta bort overlay när window.load triggas
+    window.addEventListener('load', () => {
+        // Om API-event inte redan har triggat
+        if (document.body.contains(overlay)) {
+            hideOverlay('window.load fallback');
+        }
+    }, { once: true });
+
+    // Hård timeout
+    setTimeout(() => {
+        if (document.body.contains(overlay)) {
+            hideOverlay(`Safety timeout ${SAFETY_MS}ms`);
+        }
+    }, SAFETY_MS);
 })();
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
