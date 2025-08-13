@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Polly;
 using Polly.Extensions.Http;
 using System.Net.Http;
+using HealthChecks.NpgSql;
 
 namespace SarasBlogg
 {
@@ -25,6 +26,9 @@ namespace SarasBlogg
                 builder.WebHost.UseUrls($"http://0.0.0.0:{portEnv}");
             }
 
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+
             // Hämta connection string (stöder både DefaultConnection och MyConnection)
             var connectionString =
                 builder.Configuration.GetConnectionString("DefaultConnection")
@@ -32,10 +36,33 @@ namespace SarasBlogg
                 ?? throw new InvalidOperationException(
                     "No connection string found. Expected 'DefaultConnection' or 'MyConnection'.");
 
-            // DATABAS OCH IDENTITET
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(connectionString));
+            //    - SSL krävs ofta: "SSL Mode=Require; Trust Server Certificate=true"
+            //    - Håll liv efter kallstart: "Keepalive=30"
+            //    - Kortare login-timeout: "Timeout=15"
+            var csb = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
+            {
+                SslMode = Npgsql.SslMode.Require,
+                TrustServerCertificate = true,
+                KeepAlive = 30,
+                Timeout = 15
+            };
+            var pgConn = csb.ConnectionString;
 
+            // Health checks
+            builder.Services.AddHealthChecks()
+                .AddNpgSql(pgConn, name: "postgres");
+
+            // EF Core med retry-on - failure
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(pgConn, npgsql =>
+                {
+                    npgsql.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorCodesToAdd: null);
+                }));
+
+            // DATABAS OCH IDENTITET
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
@@ -150,89 +177,97 @@ namespace SarasBlogg
 
             var app = builder.Build();
 
-            app.UseCookiePolicy(); // slå på cookie policy
-
-            //CreateAdminUserAsync(app).GetAwaiter().GetResult(); // nödvändigt för att skapa admin-användaren innan appen startar. kommentera in om databasen  är ny
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            // Viktigt bakom proxy (Render) – tidigt i pipelinen
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
-                app.UseMigrationsEndPoint();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                app.UseHsts();
-
-                // Viktigt bakom proxy (Render)
-                app.UseForwardedHeaders(new ForwardedHeadersOptions
-                {
-                    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
-                });
-
-                // Stäng av redirect i container för att undvika "Failed to determine the https port"
-                // app.UseHttpsRedirection();
-            }
-
-            app.UseStaticFiles();
-            app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.MapRazorPages();
-
-            // Enkel health-check endpoint (Render kan pinga denna)
-            app.MapGet("/healthz", () => Results.Ok("ok"));
-
-            // Middleware som svarar direkt på HEAD requests
-            app.Use(async (ctx, next) =>
-            {
-                if (HttpMethods.IsHead(ctx.Request.Method))
-                {
-                    ctx.Response.StatusCode = StatusCodes.Status200OK;
-                    await ctx.Response.CompleteAsync();
-                    return;
-                }
-                await next();
+                ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
             });
 
-            app.Run();
-        }
+            try
+            {
+                app.UseCookiePolicy();
 
-        //public static async Task CreateAdminUserAsync(WebApplication app)
-        //{
-        //    // Hämta UserManager och RoleManager från DI
-        //    using var scope = app.Services.CreateScope();
-        //    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        //    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-        //
-        //    string adminEmail = config["AdminUser:Email"];
-        //    string adminPassword = config["AdminUser:Password"];
-        //    string superAdminRole = "superadmin";
-        //
-        //    // Skapa rollen superadmin om den inte finns
-        //    if (!await roleManager.RoleExistsAsync(superAdminRole))
-        //    {
-        //        await roleManager.CreateAsync(new IdentityRole(superAdminRole));
-        //    }
-        //
-        //    // Kolla om admin-användaren finns, annars skapa den
-        //    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        //    if (adminUser == null)
-        //    {
-        //        adminUser = new ApplicationUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
-        //        var result = await userManager.CreateAsync(adminUser, adminPassword);
-        //        if (result.Succeeded)
-        //        {
-        //            await userManager.AddToRoleAsync(adminUser, superAdminRole);
-        //        }
-        //        else
-        //        {
-        //            // Hantera fel, t.ex. logga det eller kasta exception
-        //            throw new Exception("Misslyckades skapa admin-användaren: " + string.Join(", ", result.Errors.Select(e => e.Description)));
-        //        }
-        //    }
-        //}
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseMigrationsEndPoint();
+                }
+                else
+                {
+                    app.UseExceptionHandler("/Error");
+                    app.UseHsts();
+                    // app.UseHttpsRedirection(); // fortsatt avstängt i container om du vill undvika https-portvarning
+                }
+
+                app.UseStaticFiles();
+                app.UseRouting();
+                app.UseAuthentication();
+                app.UseAuthorization();
+
+                // Health endpoints
+                app.MapGet("/healthz", () => Results.Ok("ok"));
+
+                // HEAD-svar direkt
+                app.Use(async (ctx, next) =>
+                {
+                    if (HttpMethods.IsHead(ctx.Request.Method))
+                    {
+                        ctx.Response.StatusCode = StatusCodes.Status200OK;
+                        await ctx.Response.CompleteAsync();
+                        return;
+                    }
+                    await next();
+                });
+
+                app.MapRazorPages();
+
+                // Health endpoints
+                app.MapHealthChecks("/health/db");
+
+                app.Run();
+            }
+            catch (Exception ex)
+            {
+                // Logga ALLT till stderr (Render fångar upp)
+                Console.Error.WriteLine("❌ Fatal startup exception:");
+                Console.Error.WriteLine(ex.ToString());
+                throw; // låt processen faila så Render visar tydlig logg
+            }
+
+            //public static async Task CreateAdminUserAsync(WebApplication app)
+            //{
+            //    // Hämta UserManager och RoleManager från DI
+            //    using var scope = app.Services.CreateScope();
+            //    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            //    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            //
+            //    string adminEmail = config["AdminUser:Email"];
+            //    string adminPassword = config["AdminUser:Password"];
+            //    string superAdminRole = "superadmin";
+            //
+            //    // Skapa rollen superadmin om den inte finns
+            //    if (!await roleManager.RoleExistsAsync(superAdminRole))
+            //    {
+            //        await roleManager.CreateAsync(new IdentityRole(superAdminRole));
+            //    }
+            //
+            //    // Kolla om admin-användaren finns, annars skapa den
+            //    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            //    if (adminUser == null)
+            //    {
+            //        adminUser = new ApplicationUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
+            //        var result = await userManager.CreateAsync(adminUser, adminPassword);
+            //        if (result.Succeeded)
+            //        {
+            //            await userManager.AddToRoleAsync(adminUser, superAdminRole);
+            //        }
+            //        else
+            //        {
+            //            // Hantera fel, t.ex. logga det eller kasta exception
+            //            throw new Exception("Misslyckades skapa admin-användaren: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+            //        }
+            //    }
+            //}
+        }
     }
 }
