@@ -126,43 +126,85 @@ namespace SarasBlogg
             {
                 c.BaseAddress = new Uri(apiBase);
                 c.Timeout = TimeSpan.FromSeconds(15);
-            }).AddPolicyHandler(GetRetryPolicy());
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(2),   // byt ut anslutningar regelbundet
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1) // släng riktigt gamla idle-anslutningar
+            })
+            .AddPolicyHandler(GetRetryPolicy());
 
             builder.Services.AddHttpClient<BloggImageAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
                 c.Timeout = TimeSpan.FromSeconds(15);
-            }).AddPolicyHandler(GetRetryPolicy());
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(2),   // byt ut anslutningar regelbundet
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1) // släng riktigt gamla idle-anslutningar
+            })
+            .AddPolicyHandler(GetRetryPolicy());
 
             builder.Services.AddHttpClient<CommentAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
                 c.Timeout = TimeSpan.FromSeconds(15);
-            }).AddPolicyHandler(GetRetryPolicy());
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(2),   // byt ut anslutningar regelbundet
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1) // släng riktigt gamla idle-anslutningar
+            })
+            .AddPolicyHandler(GetRetryPolicy());
 
             builder.Services.AddHttpClient<ForbiddenWordAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
                 c.Timeout = TimeSpan.FromSeconds(15);
-            }).AddPolicyHandler(GetRetryPolicy());
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(2),   // byt ut anslutningar regelbundet
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1) // släng riktigt gamla idle-anslutningar
+            })
+            .AddPolicyHandler(GetRetryPolicy());
 
             builder.Services.AddHttpClient<AboutMeAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
                 c.Timeout = TimeSpan.FromSeconds(15);
-            }).AddPolicyHandler(GetRetryPolicy());
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(2),   // byt ut anslutningar regelbundet
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1) // släng riktigt gamla idle-anslutningar
+            })
+            .AddPolicyHandler(GetRetryPolicy());
 
             builder.Services.AddHttpClient<AboutMeImageAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
                 c.Timeout = TimeSpan.FromSeconds(15);
-            }).AddPolicyHandler(GetRetryPolicy());
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(2),   // byt ut anslutningar regelbundet
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1) // släng riktigt gamla idle-anslutningar
+            })
+            .AddPolicyHandler(GetRetryPolicy());
 
             builder.Services.AddHttpClient<ContactMeAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
                 c.Timeout = TimeSpan.FromSeconds(15);
-            }).AddPolicyHandler(GetRetryPolicy());
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(2),   // byt ut anslutningar regelbundet
+                PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1) // släng riktigt gamla idle-anslutningar
+            })
+            .AddPolicyHandler(GetRetryPolicy());
 
             // Om UserAPIManager behöver HttpClient: byt till typed klient
             // (om klassen inte tar HttpClient i konstruktorn, låt din Singleton stå kvar)
