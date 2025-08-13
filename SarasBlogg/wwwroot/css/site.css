@@ -1,4 +1,7 @@
-#loading-overlay {
+/* --- Laddningsoverlay och progressiv bildinladdning pausad tillfälligt ---
+   Kan aktiveras igen genom att avkommentera hela detta block.
+*/
+/*#loading-overlay {
     position: fixed;
     inset: 0;
     display: grid;
@@ -36,24 +39,24 @@
 #loading-overlay .loader-content {
     display: flex;
     flex-direction: column;
-    align-items: center; /* horisontell centrering */
-    justify-content: center; /* vertikal centrering */
-    text-align: center;
-    height: 100%; /* gör att vertikal centrering fungerar */
-}
+    align-items: center;*/ /* horisontell centrering */
+    /*justify-content: center;*/ /* vertikal centrering */
+    /*text-align: center;
+    height: 100%;*/ /* gör att vertikal centrering fungerar */
+/*}*/
 
 /* Endast bilder du vill fadea in får klassen .progressive */
-img.progressive {
+/*img.progressive {
     opacity: 0;
     transition: opacity .3s ease;
 }
 
     img.progressive.is-loaded {
         opacity: 1;
-    }
+    }*/
 
 /* Overlay-loggan påverkas inte */
-#loading-overlay .loading-logo,
+/*#loading-overlay .loading-logo,
 #loading-overlay img.no-fade {
     opacity: 1 !important;
 }
@@ -64,8 +67,8 @@ img.progressive {
     font-size: 2rem;
     letter-spacing: 0.2rem;
     font-weight: bold;
-    color: #C48A7D; /* SarasBlogg-rosa */
-    margin-top: 0.5rem;
+    color: #C48A7D;*/ /* SarasBlogg-rosa */
+    /*margin-top: 0.5rem;
     text-align: center;
 }
 
@@ -99,17 +102,17 @@ img.progressive {
     width: 200px;
     max-width: 80%;
     height: auto;
-}
+}*/
 
 /* Mjuk fade-in för icke-kritiska bilder */
-img:not([data-critical="1"]) {
+/*img:not([data-critical="1"]) {
     opacity: 0;
     transition: opacity 0.4s ease;
 }
 
 img.is-loaded {
     opacity: 1;
-}
+}*/
 
 
 .navbar-logo {

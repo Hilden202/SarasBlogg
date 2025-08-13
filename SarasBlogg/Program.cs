@@ -48,6 +48,7 @@ namespace SarasBlogg
             };
             var pgConn = csb.ConnectionString;
 
+
             // Health checks
             builder.Services.AddHealthChecks()
                 .AddNpgSql(pgConn, name: "postgres");
@@ -125,7 +126,7 @@ namespace SarasBlogg
             builder.Services.AddHttpClient<BloggAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
-                c.Timeout = TimeSpan.FromSeconds(15);
+                c.Timeout = TimeSpan.FromSeconds(30);
             })
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
@@ -137,7 +138,7 @@ namespace SarasBlogg
             builder.Services.AddHttpClient<BloggImageAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
-                c.Timeout = TimeSpan.FromSeconds(15);
+                c.Timeout = TimeSpan.FromSeconds(30);
             })
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
@@ -149,7 +150,7 @@ namespace SarasBlogg
             builder.Services.AddHttpClient<CommentAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
-                c.Timeout = TimeSpan.FromSeconds(15);
+                c.Timeout = TimeSpan.FromSeconds(30);
             })
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
@@ -161,7 +162,7 @@ namespace SarasBlogg
             builder.Services.AddHttpClient<ForbiddenWordAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
-                c.Timeout = TimeSpan.FromSeconds(15);
+                c.Timeout = TimeSpan.FromSeconds(30);
             })
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
@@ -173,7 +174,7 @@ namespace SarasBlogg
             builder.Services.AddHttpClient<AboutMeAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
-                c.Timeout = TimeSpan.FromSeconds(15);
+                c.Timeout = TimeSpan.FromSeconds(30);
             })
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
@@ -185,7 +186,7 @@ namespace SarasBlogg
             builder.Services.AddHttpClient<AboutMeImageAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
-                c.Timeout = TimeSpan.FromSeconds(15);
+                c.Timeout = TimeSpan.FromSeconds(30);
             })
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
@@ -197,7 +198,7 @@ namespace SarasBlogg
             builder.Services.AddHttpClient<ContactMeAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
-                c.Timeout = TimeSpan.FromSeconds(15);
+                c.Timeout = TimeSpan.FromSeconds(30);
             })
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
@@ -216,6 +217,8 @@ namespace SarasBlogg
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+            builder.Services.AddHostedService<WarmupService>();
 
             var app = builder.Build();
 

@@ -32,7 +32,8 @@
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
 </head>
 <body>
-	<div id="loading-overlay" aria-live="polite" aria-busy="true">
+	@* Loading overlay temporärt inaktiverad för att felsöka kallstartsproblem *@
+@* 	<div id="loading-overlay" aria-live="polite" aria-busy="true">
 		<div class="loader-content">
 			<img src="/img/logo/sarasblogg_loading_text.png"
 				 alt="SarasBlogg logga"
@@ -44,15 +45,13 @@
 			</div>
 			<p id="loader-status-text" class="loader-status">Startar…</p>
 		</div>
-	</div>
+	</div> *@
 	<div class="page-wrapper">
 		<img src="/img/logo/top-line.png" data-critical="1" alt="Top line" class="top-line" />
 		<img src="/img/logo/top-corner-right.png" data-critical="1" alt="Högerhörnbild" class="rightcorner-image" />
 		<img src="/img/logo/bottom-corner-left.png" data-critical="1" alt="Vänsterhörnbild" class="leftcorner-image" />
 		<img src="/img/logo/top-left-corner-flower.png" data-critical="1" alt="Flower top left corner" class="topleft-corner-flower" />
 		<img src="/img/logo/bottom-right-corner-flower.png" data-critical="1" alt="Flower bottom right corner" class="bottomright-corner-flower" />
-
-
 		<header>
 			<nav class="navbar navbar-expand-sm navbar-light">
 				<div class="container">
