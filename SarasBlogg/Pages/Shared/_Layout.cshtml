@@ -16,7 +16,10 @@
 	<meta name="twitter:card" content="summary_large_image" />
 	<title>@ViewData["Title"] - SarasBlogg</title>
 	<script>
-		if (sessionStorage.getItem('sb_first_visit_done')) {
+		if (
+		  sessionStorage.getItem('sb_first_visit_done') ||
+		  sessionStorage.getItem('sb_first_visit_done_v2')
+		) {
 		  document.documentElement.classList.add('sb-seen');
 		}
 	</script>
@@ -33,7 +36,8 @@
 		<div class="loader-content">
 			<img src="/img/logo/sarasblogg_loading_text.png"
 				 alt="SarasBlogg logga"
-				 class="loading-logo" />
+				 class="loading-logo no-fade"
+				 data-critical="1"/>
 			<p>Laddar SarasBlogg...</p>
 			<div class="dot-loader" aria-hidden="true">
 				<span>.</span><span>.</span><span>.</span>

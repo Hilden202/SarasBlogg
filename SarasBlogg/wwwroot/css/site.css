@@ -42,6 +42,23 @@
     height: 100%; /* gör att vertikal centrering fungerar */
 }
 
+/* Endast bilder du vill fadea in får klassen .progressive */
+img.progressive {
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+    img.progressive.is-loaded {
+        opacity: 1;
+    }
+
+/* Overlay-loggan påverkas inte */
+#loading-overlay .loading-logo,
+#loading-overlay img.no-fade {
+    opacity: 1 !important;
+}
+
+
 .dot-loader {
     display: inline-block;
     font-size: 2rem;
@@ -83,6 +100,17 @@
     max-width: 80%;
     height: auto;
 }
+
+/* Mjuk fade-in för icke-kritiska bilder */
+img:not([data-critical="1"]) {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+img.is-loaded {
+    opacity: 1;
+}
+
 
 .navbar-logo {
     max-height: 20px;

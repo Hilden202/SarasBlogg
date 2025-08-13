@@ -79,110 +79,139 @@ window.addEventListener('DOMContentLoaded', function () {
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // Kallas från _Layout när första sidans data är klar
-window.sbApiFirstLoadDone = function () {
-    window.dispatchEvent(new Event('sb_api_first_load_complete'));
+    window.sbApiFirstLoadDone = function () {
+        window.dispatchEvent(new Event('sb_api_first_load_complete'));
 };
 
-// loading-overlay.js (med fas-visning)
+// loading-overlay.js (med fas-visning + progressiv bild-inladdning)
 (() => {
     const overlay = document.getElementById('loading-overlay');
     if (!overlay) return;
 
-    const KEY = 'sb_first_visit_done_v2';
-    const SAFETY_MS = 60000;     // absolut timeout
-    const MIN_SHOW_MS = 400;     // min tid total för att undvika blink
-    const MIN_PHASE_MS = 350;    // min tid per fas så texten hinner synas
+    const KEY          = 'sb_first_visit_done_v2';
+    const SAFETY_MS    = 60000;  // absolut timeout
+    const MIN_SHOW_MS  = 400;    // min total overlay-tid (mot blink)
+    const MIN_PHASE_MS = 350;    // min per fas (så text hinner synas)
 
-    if (sessionStorage.getItem(KEY)) { overlay.remove(); return; }
+    // Första besöket per TAB/SESSION
+    if (sessionStorage.getItem(KEY)) {overlay.remove(); return; }
 
-    const start = performance.now();
+    const start      = performance.now();
     const statusText = document.getElementById('loader-status-text');
-    const log = (...a) => console.debug('[overlay]', ...a);
-    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+    const log        = (...a) => console.debug('[overlay]', ...a);
+    const wait       = (ms) => new Promise(r => setTimeout(r, ms));
 
     let lastPhaseAt = performance.now();
     function setPhase(text) {
         if (statusText) statusText.textContent = text;
-        lastPhaseAt = performance.now();
-        log('Phase:', text);
+    lastPhaseAt = performance.now();
+    log('Phase:', text);
     }
     async function ensureMinPhaseTime() {
         const elapsed = performance.now() - lastPhaseAt;
-        if (elapsed < MIN_PHASE_MS) await wait(MIN_PHASE_MS - elapsed);
+    if (elapsed < MIN_PHASE_MS) await wait(MIN_PHASE_MS - elapsed);
     }
 
     async function waitForWindowLoad() {
         setPhase('Laddar sidan…');
-        if (document.readyState === 'complete') return;
-        await new Promise(res => window.addEventListener('load', res, { once: true }));
-        await ensureMinPhaseTime();
+    if (document.readyState === 'complete') return;
+        await new Promise(res => window.addEventListener('load', res, {once: true }));
+    await ensureMinPhaseTime();
     }
 
     async function waitForOptionalApiSignal(timeoutMs) {
         setPhase('Hämtar data…');
         await new Promise(res => {
-            const t = setTimeout(() => { log('API-signal timeout'); res(); }, timeoutMs);
+            const t = setTimeout(res, timeoutMs); // auto-continue efter timeout
             window.addEventListener('sb_api_first_load_complete', () => {
-                clearTimeout(t);
-                res();
-            }, { once: true });
+        clearTimeout(t);
+    res();
+            }, {once: true });
         });
-        setPhase('Data klar – startar sidan…');
-        await ensureMinPhaseTime();
+    setPhase('Data klar – startar sidan…');
+    await ensureMinPhaseTime();
     }
 
     async function waitForImages(timeoutMs) {
         setPhase('Laddar bilder…');
-        const imgs = Array.from(document.images || []);
-        if (imgs.length === 0) { await ensureMinPhaseTime(); return; }
+
+    // Välj ENDAST bilder utanför overlay + inte markerade som kritiska
+    const allImgs = Array.from(document.images || []);
+        const imgs = allImgs.filter(img =>
+    !overlay.contains(img) && img.dataset.critical !== '1'
+    );
+
+    if (imgs.length === 0) {await ensureMinPhaseTime(); return; }
 
         const promises = imgs.map(img => {
-            if ((img.complete && img.naturalWidth > 0) || img.dataset.skipDecode === '1') return Promise.resolve();
-            if (img.decode) return img.decode().catch(() => { });
+            // markera som "visbar" när den är klar (för fade-in)
+            const markLoaded = () => img.classList.add('is-loaded');
+
+            if ((img.complete && img.naturalWidth > 0)) {
+        markLoaded();
+    return Promise.resolve();
+            }
+
+    // försök decode för bättre upplevelse
+    if (typeof img.decode === 'function') {
+                return img.decode()
+    .then(markLoaded)
+                         .catch(() => {markLoaded(); });
+            }
+
+            // fallback: lyssna på load/error
             return new Promise(res => {
-                const done = () => { img.removeEventListener('load', done); img.removeEventListener('error', done); res(); };
-                img.addEventListener('load', done, { once: true });
-                img.addEventListener('error', done, { once: true });
+                const done = () => {
+        img.removeEventListener('load', done);
+    img.removeEventListener('error', done);
+    markLoaded();
+    res();
+                };
+    img.addEventListener('load', done, {once: true });
+    img.addEventListener('error', done, {once: true });
             });
         });
 
-        const all = Promise.allSettled(promises);
-        const to = new Promise(res => setTimeout(res, timeoutMs));
-        await Promise.race([all, to]);
-        await ensureMinPhaseTime();
+    const all = Promise.allSettled(promises);
+        const to  = new Promise(res => setTimeout(res, timeoutMs));
+    await Promise.race([all, to]);
+    await ensureMinPhaseTime();
     }
 
     (async () => {
         try {
-            await waitForWindowLoad();
-            await waitForOptionalApiSignal(15000);
-            await waitForImages(30000);
+        await waitForWindowLoad();
+    await waitForOptionalApiSignal(15000);
+    await waitForImages(30000);
 
-            const totalElapsed = performance.now() - start;
-            const remain = Math.max(0, MIN_SHOW_MS - totalElapsed);
+    const totalElapsed = performance.now() - start;
+    const remain = Math.max(0, MIN_SHOW_MS - totalElapsed);
 
-            await wait(remain);
-            overlay.classList.add('hiding');
-            sessionStorage.setItem(KEY, '1');
+    await wait(remain);
+    setPhase('Klart – startar sidan…');
+    await ensureMinPhaseTime();
+
+    overlay.classList.add('hiding');
+    sessionStorage.setItem(KEY, '1');
             setTimeout(() => overlay.remove(), 350);
         } catch (e) {
-            console.error('Overlay fel:', e);
-            overlay.classList.add('hiding');
-            sessionStorage.setItem(KEY, '1');
+        console.error('Overlay fel:', e);
+    overlay.classList.add('hiding');
+    sessionStorage.setItem(KEY, '1');
             setTimeout(() => overlay.remove(), 350);
         }
     })();
 
+    // Absolut säkerhet (om något skulle hänga sig)
     setTimeout(() => {
         if (document.body.contains(overlay)) {
-            log('Safety timeout, stänger overlay');
-            overlay.classList.add('hiding');
-            sessionStorage.setItem(KEY, '1');
+        log('Safety timeout – stänger overlay');
+    overlay.classList.add('hiding');
+    sessionStorage.setItem(KEY, '1');
             setTimeout(() => overlay.remove(), 350);
         }
     }, SAFETY_MS);
 })();
-
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // --- Miniatyrer styr Bootstrap-karusell ---
