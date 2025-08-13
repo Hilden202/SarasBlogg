@@ -79,51 +79,86 @@ window.addEventListener('DOMContentLoaded', function () {
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // loading-overlay.js
-(function () {
+(() => {
     const overlay = document.getElementById('loading-overlay');
     if (!overlay) return;
 
-    const KEY = 'sb_first_visit_done';
-    const SAFETY_MS = 10000;  // hård timeout
-    const apiCompleteEvent = 'sb_api_first_load_complete';
+    const KEY = 'sb_first_visit_done_v2';
+    const SAFETY_MS = 60000;    // hård timeout (60s)
+    const MIN_SHOW_MS = 400;    // undvik blink (0.4s)
 
-    // Om inte första besöket i session → ta bort direkt
+    // Visa bara vid första sidvisningen per TAB/SESSION
     if (sessionStorage.getItem(KEY)) {
         overlay.remove();
         return;
     }
 
-    const startTime = performance.now();
+    const start = performance.now();
 
-    function hideOverlay(reason) {
-        if (!document.body.contains(overlay)) return;
-        console.log(`Overlay tas bort pga: ${reason}`);
+    // Hjälpare: vänta tills alla IMG i dokumentet är klara (eller timeout)
+    function waitForImages(timeoutMs) {
+        const imgs = Array.from(document.images || []);
+        if (imgs.length === 0) return Promise.resolve();
 
-        overlay.classList.add('hiding'); // CSS: opacity:0, pointer-events:none
-        sessionStorage.setItem(KEY, '1');
+        const promises = imgs.map(img => {
+            // redan klar?
+            if ((img.complete && img.naturalWidth > 0) || img.dataset.skipDecode === '1') {
+                return Promise.resolve();
+            }
+            // försök decode() för att veta när den är visningsbar
+            if (img.decode) {
+                return img.decode().catch(() => { }); // svälj decode-fel
+            }
+            // fallback: lyssna på load/error
+            return new Promise(res => {
+                const done = () => { img.removeEventListener('load', done); img.removeEventListener('error', done); res(); };
+                img.addEventListener('load', done, { once: true });
+                img.addEventListener('error', done, { once: true });
+            });
+        });
 
-        setTimeout(() => {
-            if (document.body.contains(overlay)) overlay.remove();
-        }, 350); // matcha CSS-transition
+        const all = Promise.allSettled(promises);
+        const to = new Promise(res => setTimeout(res, timeoutMs));
+        return Promise.race([all, to]);
     }
 
-    // Lyssna på special-event från API-koden när första laddningen är klar
-    window.addEventListener(apiCompleteEvent, () => {
-        hideOverlay('Första API-anropet klart');
-    }, { once: true });
+    // Vänta på window.load (allt statiskt klart)
+    function waitForWindowLoad() {
+        if (document.readyState === 'complete') return Promise.resolve();
+        return new Promise(res => window.addEventListener('load', () => res(), { once: true }));
+    }
 
-    // Fallback: ta bort overlay när window.load triggas
-    window.addEventListener('load', () => {
-        // Om API-event inte redan har triggat
-        if (document.body.contains(overlay)) {
-            hideOverlay('window.load fallback');
-        }
-    }, { once: true });
+    // Om du i framtiden vill signalera från klientkod att “första data är klar”,
+    // kan du dispatcha: window.dispatchEvent(new Event('sb_api_first_load_complete'));
+    function waitForOptionalApiSignal(timeoutMs) {
+        return new Promise(res => {
+            let t = setTimeout(res, timeoutMs);
+            window.addEventListener('sb_api_first_load_complete', () => { clearTimeout(t); res(); }, { once: true });
+        });
+    }
 
-    // Hård timeout
+    // Kör: load -> (API-signal valfri) -> bilder
+    Promise.resolve()
+        .then(waitForWindowLoad)
+        .then(() => waitForOptionalApiSignal(15000)) // valfri – times out efter 15s
+        .then(() => waitForImages(30000))            // vänta på bilder max 30s
+        .then(() => {
+            const elapsed = performance.now() - start;
+            const remain = Math.max(0, MIN_SHOW_MS - elapsed);
+
+            setTimeout(() => {
+                overlay.classList.add('hiding');     // du har redan CSS för .hiding
+                sessionStorage.setItem(KEY, '1');    // visa inte overlay igen i denna session
+                setTimeout(() => overlay.remove(), 350); // matchar din CSS‑transition
+            }, remain);
+        });
+
+    // Absolut säkerhet
     setTimeout(() => {
         if (document.body.contains(overlay)) {
-            hideOverlay(`Safety timeout ${SAFETY_MS}ms`);
+            overlay.classList.add('hiding');
+            sessionStorage.setItem(KEY, '1');
+            setTimeout(() => overlay.remove(), 350);
         }
     }, SAFETY_MS);
 })();
