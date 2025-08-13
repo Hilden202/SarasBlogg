@@ -1,86 +1,59 @@
-﻿using System.Security.Claims;
+﻿// Pages/AboutMe.cshtml.cs
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.DAL;
-using SarasBlogg.Services;
 
 namespace SarasBlogg.Pages
 {
     public class AboutMeModel : PageModel
     {
         private readonly AboutMeAPIManager _aboutMeApiManager;
-        private readonly IFileHelper _fileHelper;
+        private readonly AboutMeImageAPIManager _aboutMeImageApi;
 
-        public AboutMeModel(AboutMeAPIManager aboutMeAPIManager, IFileHelper fileHelper)
+        public AboutMeModel(AboutMeAPIManager aboutMeAPIManager, AboutMeImageAPIManager aboutMeImageApi)
         {
             _aboutMeApiManager = aboutMeAPIManager;
-            _fileHelper = fileHelper;
+            _aboutMeImageApi = aboutMeImageApi;
         }
 
-        [BindProperty]
-        public Models.AboutMe AboutMe { get; set; }
-
-        [BindProperty]
-        public IFormFile? AboutMeImage { get; set; }
-
-        [BindProperty]
-        public bool RemoveImage { get; set; }
+        [BindProperty] public Models.AboutMe AboutMe { get; set; } = new();
+        [BindProperty] public IFormFile? AboutMeImage { get; set; }
+        [BindProperty] public bool RemoveImage { get; set; }
 
         public async Task OnGetAsync()
         {
-            AboutMe = await _aboutMeApiManager.GetAboutMeAsync();
-
-            if (AboutMe == null)
-            {
-                AboutMe = new Models.AboutMe();
-            }
+            AboutMe = await _aboutMeApiManager.GetAboutMeAsync() ?? new Models.AboutMe();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             var currentAboutMe = await _aboutMeApiManager.GetAboutMeAsync();
 
-            // 1) Ta bort bild helt
             if (RemoveImage)
             {
-                if (currentAboutMe != null && !string.IsNullOrEmpty(currentAboutMe.Image))
-                {
-                    // ändrat: "about" istället för "img/aboutme"
-                    await _fileHelper.DeleteImageAsync(currentAboutMe.Image, "about");
-                }
-                AboutMe.Image = null;
+                await _aboutMeImageApi.DeleteAsync();   // tar bort i GitHub + nollar i DB
+                AboutMe.Image = null;                   // spegla lokalt
             }
-            // 2) Ny bild uppladdad -> ladda upp först, radera gammal efteråt
-            else if (AboutMeImage != null)
+            else if (AboutMeImage is { Length: > 0 })
             {
-                // ändrat: spara i uploads/about/...
-                var newUrl = await _fileHelper.SaveImageAsync(AboutMeImage, "about");
-
-                if (currentAboutMe != null && !string.IsNullOrEmpty(currentAboutMe.Image))
-                {
-                    await _fileHelper.DeleteImageAsync(currentAboutMe.Image, "about");
-                }
-
-                AboutMe.Image = newUrl;
+                using var s = AboutMeImage.OpenReadStream();
+                var url = await _aboutMeImageApi.UploadAsync(s, AboutMeImage.FileName, AboutMeImage.ContentType);
+                AboutMe.Image = url;                    // spegla lokalt
             }
-            // 3) Behåll befintlig bild
             else if (currentAboutMe != null)
             {
-                AboutMe.Image = currentAboutMe.Image;
+                AboutMe.Image = currentAboutMe.Image;   // oförändrad
             }
 
             AboutMe.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (AboutMe.Id == 0)
-                await _aboutMeApiManager.SaveAboutMeAsync(AboutMe);  // POST
+                await _aboutMeApiManager.SaveAboutMeAsync(AboutMe);   // POST
             else
                 await _aboutMeApiManager.UpdateAboutMeAsync(AboutMe); // PUT
 
             return RedirectToPage();
         }
-
-
     }
-
 }
-

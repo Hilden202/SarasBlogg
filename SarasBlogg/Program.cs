@@ -75,7 +75,6 @@ namespace SarasBlogg
             }
 
             // TJÄNSTER
-            builder.Services.AddScoped<IFileHelper, GitHubFileHelper>();
             builder.Services.AddScoped<BloggService>();
 
             // 🟨 Originalregistreringar — behållna men utkommenterade nedan:
@@ -84,6 +83,7 @@ namespace SarasBlogg
             // builder.Services.AddScoped<CommentAPIManager>();
             // builder.Services.AddScoped<ForbiddenWordAPIManager>();
             // builder.Services.AddScoped<AboutMeAPIManager>();
+            // builder.Services.AddHttpClient<AboutMeImageAPIManager>();
             // builder.Services.AddScoped<ContactMeAPIManager>();
             // builder.Services.AddSingleton<UserAPIManager>();
 
@@ -120,6 +120,12 @@ namespace SarasBlogg
             }).AddPolicyHandler(GetRetryPolicy());
 
             builder.Services.AddHttpClient<AboutMeAPIManager>(c =>
+            {
+                c.BaseAddress = new Uri(apiBase);
+                c.Timeout = TimeSpan.FromSeconds(15);
+            }).AddPolicyHandler(GetRetryPolicy());
+
+            builder.Services.AddHttpClient<AboutMeImageAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
                 c.Timeout = TimeSpan.FromSeconds(15);

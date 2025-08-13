@@ -21,7 +21,6 @@ namespace SarasBlogg.DAL
         {
             var resp = await _httpClient.GetAsync("api/AboutMe");
             if (!resp.IsSuccessStatusCode) return null;
-
             var json = await resp.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<AboutMe>(json, _jsonOpts);
         }
