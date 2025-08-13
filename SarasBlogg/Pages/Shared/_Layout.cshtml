@@ -29,11 +29,16 @@
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
 </head>
 <body>
-	<div id="loading-overlay">
+	<div id="loading-overlay" aria-live="polite" aria-busy="true">
 		<div class="loader-content">
-			<img src="/img/logo/sarasblogg_loading_text.png" alt="SarasBlogg logga" class="loading-logo" />
+			<img src="/img/logo/sarasblogg_loading_text.png"
+				 alt="SarasBlogg logga"
+				 class="loading-logo" />
 			<p>Laddar SarasBlogg...</p>
-			<div class="dot-loader"><span>.</span><span>.</span><span>.</span></div>
+			<div class="dot-loader" aria-hidden="true">
+				<span>.</span><span>.</span><span>.</span>
+			</div>
+			<p id="loader-status-text" class="loader-status">Startar…</p>
 		</div>
 	</div>
 	<div class="page-wrapper">
@@ -133,6 +138,10 @@
 		<script src="~/js/site.js" asp-append-version="true"></script>
 		@await RenderSectionAsync("Scripts", required: false)
 		<partial name="_ValidationScriptsPartial" />
+		@if (ViewData["ApiFirstLoadDone"] is true)
+		{
+			<script>window.sbApiFirstLoadDone?.();</script>
+		}
 	</div>
 </body>
 </html>

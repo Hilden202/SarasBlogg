@@ -20,11 +20,18 @@
     opacity: 1;
 }
 
+#loading-overlay .loader-status {
+    margin-top: .5rem;
+    font-size: .95rem;
+    color: #666;
+}
+
 #loading-overlay.hiding {
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.35s ease;
+    transition: opacity .35s ease;
 }
+
 
 #loading-overlay .loader-content {
     display: flex;
