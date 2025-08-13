@@ -623,6 +623,23 @@ input, textarea, select, button {
             box-shadow: none;
         }
 
+/* Endast bilder du vill fadea in får klassen .progressive */
+img.progressive {
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+    img.progressive.is-loaded {
+        opacity: 1;
+    }
+
+/* Overlay-loggan påverkas inte */
+#loading-overlay .loading-logo,
+#loading-overlay img.no-fade {
+    opacity: 1 !important;
+}
+
+
 .img-wrapper {
     position: relative;
     display: inline-block;

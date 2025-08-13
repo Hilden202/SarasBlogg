@@ -1,62 +1,74 @@
 ﻿@using Microsoft.AspNetCore.Http.Features
 @{
-	var consentFeatureFlag = Context.Features.Get<ITrackingConsentFeature>();
-	var showBannerFlag = !consentFeatureFlag?.CanTrack ?? false;
-	var cookieString = consentFeatureFlag?.CreateConsentCookie();
+    var consentFeatureFlag = Context.Features.Get<ITrackingConsentFeature>();
+    var showBannerFlag = !consentFeatureFlag?.CanTrack ?? false;
+    var cookieString = consentFeatureFlag?.CreateConsentCookie();
 }
 
 @if (showBannerFlag)
 {
-    <div id="cookieConsentdiv" class="position-fixed bottom-0 start-50 translate-middle-x alert alert-secondary shadow-lg rounded-4 p-3 text-center" style="z-index: 2000; min-width: 320px; max-width: 95vw; width: 500px;">
-		<h3 class="display-6">Vår cookie-policy</h3>
-		<p>Vi använder endast nödvändiga cookies för att webbplatsen ska fungera korrekt. Genom att klicka på Acceptera godkänner du detta – och du slipper dessutom se den här rutan igen.</p>
-		<a href="#" id="showPrivacyContent">Läs mer här</a>
-		<div id="privacyContent" style="display:none; margin-top:1em;">
-			@await Html.PartialAsync("_PrivacyContent")
-		</div>
-		<button type="button" data-cookie-string="@cookieString" class="btn btn-primary mt-2">
-			Acceptera
-		</button>
-	</div>
+    <div id="cookieConsentdiv" class="position-fixed bottom-0 start-50 translate-middle-x alert alert-secondary shadow-lg rounded-4 p-3 text-center"
+         style="z-index:2000; min-width:320px; max-width:95vw; width:500px;">
+        <h3 class="display-6">Vår cookie-policy</h3>
+        <p>Vi använder endast nödvändiga cookies för att webbplatsen ska fungera korrekt. Genom att klicka på Acceptera godkänner du detta – och du slipper dessutom se den här rutan igen.</p>
+        <a href="#" id="showPrivacyContent">Läs mer här</a>
+        <div id="privacyContent" style="display:none; margin-top:1em;">
+            @await Html.PartialAsync("_PrivacyContent")
+        </div>
+        <button type="button" data-cookie-string="@cookieString" class="btn btn-primary mt-2">
+            Acceptera
+        </button>
+    </div>
 
-	<script type="text/javascript">
-		$(document).ready(function () {
-			const $body = $('body');
-			const $banner = $("#cookieConsentdiv");
+    <script>
+        (function () {
+            const banner = document.getElementById("cookieConsentdiv");
+            const body = document.body;
 
-			// ⬅️ Om localStorage redan har samtycke, göm bannern direkt
-@* 			if (localStorage.getItem("cookieAccepted") === "true") {
-				$banner.hide();
-				return;
-			} *@
+            // HJÄLPARE: kolla om consent-cookien redan finns (utan localStorage)
+            function hasConsent() {
+                return document.cookie.split("; ").some(c => c.indexOf(".AspNet.Consent=") === 0)
+                    || document.cookie.includes(".AspNet.Consent=yes");
+            }
 
-			// Hantera "Acceptera"-knappen
-			$("#cookieConsentdiv button[data-cookie-string]").on("click", function () {
-				document.cookie = ".AspNet.Consent=yes; path=/";
-				@* localStorage.setItem("cookieAccepted", "true"); *@
-				$banner.hide();
-				$body.removeClass("modal-open");
+            // Om cookien redan finns → göm direkt (utan reload)
+            if (hasConsent()) {
+                if (banner) banner.style.display = "none";
+                return;
+            }
 
-				// ⬅️ Tvinga server att uppfatta cookien
-				window.location.reload();
-			});
+            // Visa/dölj sekretessinnehåll
+            const toggle = document.getElementById("showPrivacyContent");
+            if (toggle) {
+                toggle.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const box = document.getElementById("privacyContent");
+                    const show = box.style.display !== "block";
+                    box.style.display = show ? "block" : "none";
+                    toggle.textContent = show ? "Visa mindre" : "Läs mer här";
+                    body.classList.toggle("modal-open", show);
+                });
+            }
 
-			// Visa/dölj sekretessinnehållet
-			$("#showPrivacyContent").on("click", function (e) {
-				e.preventDefault();
-				const $privacyContent = $("#privacyContent");
-				const isVisible = $privacyContent.is(":visible");
+            // Klick på Acceptera → sätt samtyckes-cookie och göm bannern (ingen reload)
+            const btn = banner && banner.querySelector("button[data-cookie-string]");
+            if (btn) {
+                btn.addEventListener("click", function () {
+                    // Sätt den server-förväntade cookien
+                    // (värdet i data-cookie-string funkar också; den kan innehålla path/expiry)
+                    document.cookie = ".AspNet.Consent=yes; path=/";
 
-				$privacyContent.toggle();
+                    // Göm bannern mjukt
+                    banner.style.transition = "opacity .25s ease";
+                    banner.style.opacity = "0";
+                    setTimeout(() => {
+                        banner.style.display = "none";
+                        body.classList.remove("modal-open");
+                    }, 250);
 
-				if (isVisible) {
-					$(this).text("Läs mer här");
-					$body.removeClass("modal-open");
-				} else {
-					$(this).text("Visa mindre");
-					$body.addClass("modal-open");
-				}
-			});
-		});
-	</script>
+                    // OBS: ingen window.location.reload();
+                });
+            }
+        })();
+    </script>
 }
