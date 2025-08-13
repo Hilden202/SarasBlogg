@@ -208,7 +208,6 @@ namespace SarasBlogg
             .AddPolicyHandler(GetRetryPolicy());
 
             // Om UserAPIManager behöver HttpClient: byt till typed klient
-            // (om klassen inte tar HttpClient i konstruktorn, låt din Singleton stå kvar)
             builder.Services.AddSingleton<UserAPIManager>(); // ✅ lämnas oförändrad om den inte använder HttpClient
 
             // COOKIEPOLICY
