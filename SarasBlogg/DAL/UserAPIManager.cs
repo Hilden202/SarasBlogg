@@ -1,6 +1,6 @@
-﻿using System.Text;
+﻿// SarasBlogg/DAL/UserAPIManager.cs
 using System.Text.Json;
-using NuGet.Protocol.Plugins;
+using System.Net.Http.Json;
 using SarasBlogg.DTOs;
 
 namespace SarasBlogg.DAL
@@ -8,7 +8,13 @@ namespace SarasBlogg.DAL
     public class UserAPIManager
     {
         private readonly HttpClient _http;
-        private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
+
+        // Läser case-insensitive och skriver camelCase i request
+        private static readonly JsonSerializerOptions _json = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
 
         public UserAPIManager(HttpClient http)
         {
@@ -18,22 +24,15 @@ namespace SarasBlogg.DAL
         // ==== AUTH ====
         public async Task<LoginResponse?> LoginAsync(string userOrEmail, string password, bool rememberMe)
         {
-            var payload = new
-            {
-                userNameOrEmail = userOrEmail,
-                password = password,
-                rememberMe = rememberMe
-            };
+            var payload = new LoginRequest(userOrEmail, password, rememberMe);
 
-            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-            var res = await _http.PostAsync("api/auth/login", content);
+            var res = await _http.PostAsJsonAsync("api/auth/login", payload, _json);
             if (!res.IsSuccessStatusCode) return null;
 
-            var json = await res.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<LoginResponse>(json, _json);
+            return await res.Content.ReadFromJsonAsync<LoginResponse>(_json);
         }
 
-        // ==== USERS/ROLES (oförändrad funktionalitet, men använder _http istället för new HttpClient) ====
+        // ==== USERS/ROLES (oförändrad funktionalitet, använder _http) ====
         public async Task<List<UserDto>> GetAllUsersAsync()
         {
             var response = await _http.GetAsync("api/User/all");

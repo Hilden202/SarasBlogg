@@ -107,12 +107,16 @@ namespace SarasBlogg
             static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
             {
                 var jitter = new Random();
+
                 return HttpPolicyExtensions
-                    .HandleTransientHttpError()                // 5xx, 408, nätfel
+                    .HandleTransientHttpError()               // 5xx, 408, HttpRequestException
                     .OrResult(msg => (int)msg.StatusCode == 429)
-                    .WaitAndRetryAsync(5, retryAttempt =>
-                        TimeSpan.FromMilliseconds(200 * Math.Pow(2, retryAttempt)) +
-                        TimeSpan.FromMilliseconds(jitter.Next(0, 250)));
+                    .WaitAndRetryAsync(
+                        retryCount: 8,
+                        sleepDurationProvider: attempt =>
+                            TimeSpan.FromSeconds(Math.Min(Math.Pow(2, attempt), 15)) +
+                            TimeSpan.FromMilliseconds(jitter.Next(0, 250))
+                    );
             }
 
             // TJÄNSTER

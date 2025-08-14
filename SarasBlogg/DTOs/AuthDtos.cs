@@ -1,5 +1,7 @@
 ﻿namespace SarasBlogg.DTOs
 {
+    public record LoginRequest(string UserNameOrEmail, string Password, bool RememberMe);
+
     public class LoginResponse
     {
         public string AccessToken { get; set; } = "";
