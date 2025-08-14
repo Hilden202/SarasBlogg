@@ -71,6 +71,19 @@ namespace SarasBlogg
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Identity/Account/Login";
+                options.LogoutPath = "/Identity/Account/Logout";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.Cookie.Name = "SarasAuth";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.Lax; // Använd None om du kör olika domäner i prod
+                options.SlidingExpiration = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+            });
+
             builder.Services.Configure<IdentityOptions>(options =>
             {
                 options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
@@ -115,13 +128,16 @@ namespace SarasBlogg
             // builder.Services.AddScoped<ContactMeAPIManager>();
             // builder.Services.AddSingleton<UserAPIManager>();
 
-            // 🔹 Nytt: registrera typed HttpClient för alla API-managers med BaseAddress + Polly
-            var apiBase = builder.Configuration["ApiSettings:BaseAddress"]; // ex: https://sarasbloggapi.onrender.com/
-            if (string.IsNullOrWhiteSpace(apiBase))
+            // 🔹 API base URL från konfig (dev: appsettings.Development.json, prod: env ApiSettings__BaseAddress)
+            var apiBase = builder.Configuration["ApiSettings:BaseAddress"]
+                         ?? throw new InvalidOperationException("ApiSettings:BaseAddress is missing.");
+
+            builder.Services.AddHttpClient<UserAPIManager>(c =>
             {
-                // fallback om ej satt – hellre tom än null
-                apiBase = "https://sarasbloggapi.onrender.com/";
-            }
+                c.BaseAddress = new Uri(apiBase);
+                c.Timeout = TimeSpan.FromSeconds(30);
+            })
+            .AddPolicyHandler(GetRetryPolicy());
 
             builder.Services.AddHttpClient<BloggAPIManager>(c =>
             {
@@ -206,9 +222,6 @@ namespace SarasBlogg
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1) // släng riktigt gamla idle-anslutningar
             })
             .AddPolicyHandler(GetRetryPolicy());
-
-            // Om UserAPIManager behöver HttpClient: byt till typed klient
-            builder.Services.AddSingleton<UserAPIManager>(); // ✅ lämnas oförändrad om den inte använder HttpClient
 
             // COOKIEPOLICY
             builder.Services.Configure<CookiePolicyOptions>(options =>
