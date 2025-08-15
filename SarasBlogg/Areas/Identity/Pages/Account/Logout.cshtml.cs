@@ -4,40 +4,43 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using SarasBlogg.DAL;
 using SarasBlogg.Data;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account
 {
     public class LogoutModel : PageModel
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserAPIManager _userApi;
         private readonly ILogger<LogoutModel> _logger;
 
-        public LogoutModel(SignInManager<ApplicationUser> signInManager, ILogger<LogoutModel> logger)
+        public LogoutModel(UserAPIManager userApi, ILogger<LogoutModel> logger)
         {
-            _signInManager = signInManager;
+            _userApi = userApi;
             _logger = logger;
         }
 
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
-            await _signInManager.SignOutAsync();
-            _logger.LogInformation("Användare loggade ut.");
+            // Logga ut i API:t
+            await _userApi.LogoutAsync();
+
+            // Ta även bort den lokala Identity-cookie som sattes vid login
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+
+            _logger.LogInformation("Användare loggade ut via API.");
+
             if (returnUrl != null)
-            {
                 return LocalRedirect(returnUrl);
-            }
-            else
-            {
-                // Detta behöver vara en redirect så att webbläsaren gör en ny
-                // förfrågan och användarens identitet uppdateras.
-                return RedirectToPage();
-            }
+
+            return RedirectToPage();
         }
+
     }
 }

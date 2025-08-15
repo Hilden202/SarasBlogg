@@ -22,14 +22,25 @@ namespace SarasBlogg.DAL
         }
 
         // ==== AUTH ====
-        public async Task<LoginResponse?> LoginAsync(string userOrEmail, string password, bool rememberMe)
+        public async Task<LoginResponse?> LoginAsync(string userOrEmail, string password, bool rememberMe, CancellationToken ct = default)
         {
             var payload = new LoginRequest(userOrEmail, password, rememberMe);
-
-            var res = await _http.PostAsJsonAsync("api/auth/login", payload, _json);
+            using var res = await _http.PostAsJsonAsync("api/auth/login", payload, _json, ct);
             if (!res.IsSuccessStatusCode) return null;
+            return await res.Content.ReadFromJsonAsync<LoginResponse>(_json, ct);
+        }
 
-            return await res.Content.ReadFromJsonAsync<LoginResponse>(_json);
+        public async Task<bool> LogoutAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                using var res = await _http.PostAsync("api/auth/logout", content: null, ct);
+                return res.IsSuccessStatusCode; // 200 OK förväntas
+            }
+            catch
+            {
+                return false; // best-effort, ignorera nätverksfel
+            }
         }
 
         // ==== USERS/ROLES (oförändrad funktionalitet, använder _http) ====
