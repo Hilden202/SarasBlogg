@@ -1,4 +1,49 @@
-﻿.header-title {
+﻿.blogg-logo-wrapper {
+    text-align: center;
+}
+
+.blogg-logo-img {
+    max-height: 200px; /* justera storlek */
+    width: auto;
+    display: inline-block;
+}
+
+
+.index-hero {
+    position: relative;
+    text-align: center;
+}
+
+/* Huvudloggan (centrerad) */
+.index-hero-text {
+    display: inline-block;
+    max-height: 200px; /* justera efter smak */
+    width: auto;
+}
+
+.index-hero-family {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(180px, -50%);
+    max-height: 200px;
+    width: auto;
+    pointer-events: none;
+}
+
+/* Mobil: dölj dekoren och skala ner huvudloggan */
+@media (max-width: 768px) {
+    .index-hero-family {
+        display: none;
+    }
+
+    .index-hero-text {
+        max-height: 120px;
+    }
+}
+
+
+.header-title {
     font-size: 73px;
     font-weight: normal;
     font-family: 'Dancing Script', 'Script MT', 'Brush Script MT', 'Segoe Script', cursive;

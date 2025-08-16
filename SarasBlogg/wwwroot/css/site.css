@@ -113,10 +113,52 @@
 img.is-loaded {
     opacity: 1;
 }*/
+.page-wrapper {
+    position: relative; /* gör att absoluta element fäster här */
+}
+/* Bas för alla moln */
+.cloud {
+    position: absolute;
+    width: 450px; /* justera som du vill */
+    height: auto;
+    opacity: 0.85; /* lite transparent */
+    pointer-events: none; /* dekor – ej klickbar */
+    z-index: 50; /* under övrig dekor, över bakgrund */
+    user-select: none;
+}
 
+/* Moln 1: lite till höger högre upp */
+.cloud-1 {
+    top: 50vh; /* höjd från toppen */
+    left: 80vw; /* lite till höger */
+    transform: translate(-50%, -50%);
+}
+
+/* Moln 2: någonstans till vänster */
+.cloud-2 {
+    top: 75vh;
+    left: 22vw;
+    transform: translate(-50%, -50%);
+    width: 450px; /* kan vara lite större */
+}
+
+/* Moln 3: lite till höger, nedre halvan nära mitten */
+.cloud-3 {
+    top: 110vh;
+    left: 60vw;
+    transform: translate(-50%, -50%);
+    width: 450px;
+}
+
+/* Dölj moln på små skärmar om du vill */
+@media (max-width: 768px) {
+    .cloud {
+        display: none;
+    }
+}
 
 .navbar-logo {
-    max-height: 20px;
+    max-height: 125px;
     height: auto;
     width: auto;
 }
@@ -155,14 +197,25 @@ img.is-loaded {
 }
 
 .topleft-corner-flower {
-    top: 0;
-    left: 0;
+    position: absolute;
+    top: -220px;
+    left: -210px;
+    width: 500px;
+    height: auto;
+    z-index: 1000;
+    pointer-events: none; /* dekorativt – inte klickbart */
 }
 
 .bottomright-corner-flower {
-    bottom: 2.5rem;
-    right: 1rem;
+    position: fixed; /* fästs mot skärmen */
+    bottom: -250px; /* halva under skärmen */
+    right: -200px; /* halva utanför till höger */
+    width: 500px;
+    height: auto;
+    pointer-events: none; /* dekorativt */
+    z-index: 100; /* under/över innehåll beroende på behov */
 }
+
 
 .topleft-corner-flower,
 .bottomright-corner-flower {
@@ -320,14 +373,15 @@ div {
 }
 
 .header-container {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* mittkolumn = loggan */
+    align-items: start;
     gap: 1rem;
+    position: relative;
 }
 
 .logo-img {
-    height: 175px;
+    height: 400px;
     width: auto;
     display: block;
 }
@@ -339,9 +393,35 @@ div {
 }
 
 .left-side {
+    grid-column: 2; /* mitten */
+    justify-self: center; /* centrera horisontellt */
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    align-items: center; /* centrera innehållet (bilden) */
+}
+
+.right-side {
+    grid-column: 3; /* höger */
+    justify-self: end; /* tryck ut till högerkant */
+    display: flex;
+    align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+    .header-container {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .left-side,
+    .right-side {
+        grid-column: 1;
+        justify-self: center;
+    }
+
+    .right-side {
+        margin-top: 1rem;
+    }
 }
 
 .header-text {
@@ -534,6 +614,7 @@ div {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 footer {
