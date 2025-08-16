@@ -1,7 +1,6 @@
 ﻿@using SarasBlogg.Extensions
 @using SarasBlogg.Models
 @using SarasBlogg.DTOs
-
 @model SarasBlogg.ViewModels.BloggViewModel
 
 <div class="container-site">
@@ -48,7 +47,9 @@
                                 @if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
                                 {
                                     <br />
-                                    <span class="badge bg-info mt-2 d-inline-block">Visningar: @blogg.ViewCount</span>
+                                    <span class="badge bg-info mt-2 d-inline-block">
+                                        Visningar: @blogg.ViewCount
+                                    </span>
                                 }
                             </small>
                         </p>
@@ -59,7 +60,7 @@
     }
     else
     {
-        @* --- DETALJVY MED KARUSELL --- *@
+        @* --- DETALJVY MED KARUSELL + KOMMENTARER --- *@
         var images = (Model.Blogg.Images ?? new List<BloggImageDto>())
         .OrderBy(i => i.Order).ToList();
         var carouselId = $"blogCarousel-{Model.Blogg.Id}";
@@ -67,6 +68,7 @@
         <div class="card m-2 shadow-lg mx-auto" id="bloggTopSection">
             <div class="card-body">
 
+                @* Bilder *@
                 @if (images.Count <= 1)
                 {
                     var firstUrl = images.FirstOrDefault()?.FilePath;
@@ -127,28 +129,30 @@
                             }
                         </div>
                     </div>
-                        <div class="thumb-strip mt-2" aria-label="Bildminiatyrer">
-                            @for (var i = 0; i < images.Count; i++)
-                            {
-                                var url = images[i].FilePath;
-                                var resolvedThumb = !string.IsNullOrWhiteSpace(url) &&
-                                (url.StartsWith("http://") || url.StartsWith("https://"))
-                                ? url
-                                : Url.Content(url ?? "/img/blogg/default.png");
 
-                                <button type="button"
-                                        class="thumb @(i == 0 ? "active" : "")"
-                                        data-carousel-id="@carouselId"
-                                        data-index="@i"
-                                        aria-label="Visa bild @(i + 1)"
-                                        aria-current="@(i == 0 ? "true" : "false")">
-                                    <img src="@resolvedThumb"
-                                         alt="Miniatyr för bild @(i + 1)"
-                                         loading="lazy" />
-                                </button>
-                            }
-                        </div>
+                    <div class="thumb-strip mt-2" aria-label="Bildminiatyrer">
+                        @for (var i = 0; i < images.Count; i++)
+                        {
+                            var url = images[i].FilePath;
+                            var resolvedThumb = !string.IsNullOrWhiteSpace(url) &&
+                            (url.StartsWith("http://") || url.StartsWith("https://"))
+                            ? url
+                            : Url.Content(url ?? "/img/blogg/default.png");
+
+                            <button type="button"
+                                    class="thumb @(i == 0 ? "active" : "")"
+                                    data-carousel-id="@carouselId"
+                                    data-index="@i"
+                                    aria-label="Visa bild @(i + 1)"
+                                    aria-current="@(i == 0 ? "true" : "false")">
+                                <img src="@resolvedThumb"
+                                     alt="Miniatyr för bild @(i + 1)"
+                                     loading="lazy" />
+                            </button>
+                        }
+                    </div>
                 }
+
                 <a href="javascript:history.back()" class="btn btn-outline-secondary mb-3">
                     &larr; Tillbaka
                 </a>
@@ -161,9 +165,12 @@
                     @if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
                     {
                         <br />
-                        <span class="badge bg-info mt-2 d-inline-block">Visningar: @Model.Blogg.ViewCount</span>
+                        <span class="badge bg-info mt-2 d-inline-block">
+                            Visningar: @Model.Blogg.ViewCount
+                        </span>
                     }
                 </p>
+
                 <hr class="mb-3" />
 
                 <!-- 🗨️ Kommentarer -->
@@ -174,27 +181,49 @@
                             @((Model.Comments?.Count(c => c.BloggId == Model.Blogg.Id) ?? 0))
                         </small>
                     </h5>
+
                     <!-- Lista kommentarer -->
                     @foreach (var c in (Model.Comments ?? new List<Comment>())
                    .Where(c => c.BloggId == Model.Blogg.Id)
                    .OrderBy(c => c.CreatedAt))
                     {
                         <div class="comment mb-3 p-2 border rounded">
-                            <div class="comment-header mb-1">
-                                <span class="fw-bold">
-                                    @c.Name
-                                    @if (User.Identity?.IsAuthenticated == true
-                                   && string.Equals(c.Name, User.Identity.Name, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        @: @Model.RoleSymbol
-                                    }
-                                </span>
-                                <small class="text-muted ms-2">
-                                    @($"{(c.CreatedAt.Kind == DateTimeKind.Utc ? c.CreatedAt.ToLocalTime() : c.CreatedAt):yyyy-MM-dd HH:mm}")
-                                </small>
-                            </div>
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="comment-header mb-1">
+                                        <span class="fw-bold">
+                                            @if (Model.RoleCssByName != null && Model.RoleCssByName.ContainsKey(c.Name))
+                                            {
+                                                <span class="@Model.RoleCssByName[c.Name]">@c.Name</span>
+                                                @: @Model.RoleSymbolByName[c.Name]
+                                            }
+                                            else
+                                            {
+                                                @c.Name
+                                            }
+                                        </span>
+                                        <small class="text-muted ms-2">
+                                            @($"{(c.CreatedAt.Kind == DateTimeKind.Utc ? c.CreatedAt.ToLocalTime() : c.CreatedAt):yyyy-MM-dd HH:mm}")
+                                        </small>
+                                    </div>
+                                    <div class="comment-body">@c.Content</div>
+                                </div>
 
-                            <div class="comment-body">@c.Content</div>
+                                @* Visa ta bort för admin/superadmin/superuser ELLER kommentarsägaren *@
+                                @if (User.IsInRole("superadmin") || User.IsInRole("admin") || User.IsInRole("superuser")
+                               || (User.Identity?.IsAuthenticated == true
+                               && string.Equals(c.Name, User.Identity.Name, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    if (c.Id != null)
+                                    {
+                                        <form method="post" class="ms-2" onsubmit="return confirm('Ta bort kommentaren?')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="deleteCommentId" value="@c.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Ta bort">🗑</button>
+                                        </form>
+                                    }
+                                }
+                            </div>
                         </div>
                     }
 
@@ -209,10 +238,11 @@
                         {
                             <div class="mb-2">
                                 <span class="text-muted">Skriver som</span>
-                                <strong class="ms-1">@User.Identity.Name @Model.RoleSymbol</strong>
+                                <strong class="ms-1">
+                                    <span class="@Model.RoleCss">@User.Identity.Name</span> @Model.RoleSymbol
+                                </strong>
                                 <span class="badge bg-success ms-2 align-middle">inloggad</span>
                             </div>
-                            <!-- Hidden name – servern skriver ändå över vid post -->
                             <input type="hidden" asp-for="Comment.Name" value="@User.Identity.Name" />
                         }
                         else
@@ -233,7 +263,6 @@
                         <button type="submit" class="btn btn-primary">Skicka kommentar</button>
                     </form>
                 </section>
-
             </div>
         </div>
     }

@@ -2,101 +2,176 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.Services;
 using SarasBlogg.ViewModels;
+using SarasBlogg.DAL;
 
 namespace SarasBlogg.Pages
 {
     public class BloggModel : PageModel
     {
         private readonly BloggService _bloggService;
+        private readonly UserAPIManager _userApi;
 
-        public BloggModel(BloggService bloggService)
+        public BloggModel(BloggService bloggService, UserAPIManager userApi)
         {
             _bloggService = bloggService;
+            _userApi = userApi;
         }
 
         [BindProperty]
         public BloggViewModel ViewModel { get; set; } = new();
+
+        // För inloggad skribent (formuläret)
         public string RoleSymbol => GetRoleSymbol();
+        public string RoleCss => GetRoleCss();
 
         private bool IsAuth => User?.Identity?.IsAuthenticated == true;
         private string CurrentUserName => IsAuth ? (User?.Identity?.Name ?? "") : "";
 
+        // Ikoner (unicode)
         private string GetRoleSymbol()
         {
             if (User.IsInRole("superadmin")) return "\U0001F451"; // 👑
-            if (User.IsInRole("admin")) return "\u2B50";     // ⭐
-            if (User.IsInRole("superuser")) return "\u26A1";     // ⚡
-            if (User.IsInRole("user")) return "\U0001F338"; // 🌸
+            if (User.IsInRole("admin")) return "\u2B50";          // ⭐
+            if (User.IsInRole("superuser")) return "\u26A1";      // ⚡
+            if (User.IsInRole("user")) return "\U0001F338";       // 🌸
             return "";
         }
+
+        private string GetRoleCss()
+        {
+            if (User.IsInRole("superadmin")) return "role-superadmin";
+            if (User.IsInRole("admin")) return "role-admin";
+            if (User.IsInRole("superuser")) return "role-superuser";
+            if (User.IsInRole("user")) return "role-user";
+            return string.Empty;
+        }
+
+        // Hjälp för att visa färg/ikon för ALLA kommentarer (även för utloggade)
+        private static readonly Dictionary<string, int> Rank = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["superadmin"] = 0,
+            ["admin"] = 1,
+            ["superuser"] = 2,
+            ["user"] = 3
+        };
+
+        private static string GetTopRole(IEnumerable<string> roles) =>
+            roles.OrderBy(r => Rank.TryGetValue(r, out var i) ? i : 999).FirstOrDefault() ?? "";
+
+        private static (string css, string sym) MapTopRole(string? top) =>
+            top?.ToLower() switch
+            {
+                "superadmin" => ("role-superadmin", "\U0001F451"), // 👑
+                "admin" => ("role-admin", "\u2B50"),               // ⭐
+                "superuser" => ("role-superuser", "\u26A1"),       // ⚡
+                "user" => ("role-user", "\U0001F338"),             // 🌸
+                _ => ("", "")
+            };
+
+        private async Task HydrateRoleLookupsForCurrentPostAsync()
+        {
+            var postId = ViewModel.Blogg?.Id ?? 0;
+            if (postId == 0 || ViewModel.Comments == null) return;
+
+            // Hämta alla användare en gång
+            var allUsers = await _userApi.GetAllUsersAsync(); // ← den här finns redan hos dig
+            if (allUsers == null) return;
+
+            // Bygg uppslag per UserName (case-insensitive)
+            var byUserName = allUsers
+                .Where(u => !string.IsNullOrWhiteSpace(u.UserName))
+                .GroupBy(u => u.UserName!, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+            // Samla alla unika namn i denna posts kommentarer
+            var names = ViewModel.Comments
+                .Where(c => c.BloggId == postId && !string.IsNullOrWhiteSpace(c.Name))
+                .Select(c => c.Name!)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            foreach (var name in names)
+            {
+                if (!byUserName.TryGetValue(name, out var user) || user.Roles == null || user.Roles.Count == 0)
+                    continue;
+
+                var top = GetTopRole(user.Roles);
+                var (css, sym) = MapTopRole(top);
+
+                if (!string.IsNullOrEmpty(css))
+                    ViewModel.RoleCssByName[name] = css;
+
+                if (!string.IsNullOrEmpty(sym))
+                    ViewModel.RoleSymbolByName[name] = sym;
+            }
+        }
+
 
         public async Task OnGetAsync(int showId, int id)
         {
             if (showId != 0)
-            {
                 await _bloggService.UpdateViewCountAsync(showId);
-            }
+
             ViewModel = await _bloggService.GetBloggViewModelAsync(false, showId);
 
+            // för formuläret (inloggad skribent)
             ViewModel.RoleSymbol = GetRoleSymbol();
+            ViewModel.RoleCss = GetRoleCss();
+
+            // för list-rendering (alla ser färg/ikon på alla kommentarer)
+            await HydrateRoleLookupsForCurrentPostAsync();
         }
 
         public async Task<IActionResult> OnPostAsync(int deleteCommentId)
         {
-            // 1) Delete som tidigare
+            // 1) Delete
             if (deleteCommentId != 0)
             {
                 var existing = await _bloggService.GetCommentAsync(deleteCommentId);
                 if (existing != null)
                 {
                     await _bloggService.DeleteCommentAsync(deleteCommentId);
-                    return RedirectToPage(
-                        pageName: null,                 // <= stanna på samma sida
-                        pageHandler: null,
-                        routeValues: new { showId = existing.BloggId },
-                        fragment: "comments");
+                    return RedirectToPage(pageName: null, pageHandler: null,
+                        routeValues: new { showId = existing.BloggId }, fragment: "comments");
                 }
             }
 
-            // 2) Direkt efter model binding: tvinga inloggades namn och relaxa ev. validering
+            // 2) Tvinga namn = inloggat UserName
             if (IsAuth && ViewModel?.Comment != null)
             {
                 ViewModel.Comment.Name = CurrentUserName;
-
-                // Täck både möjliga nycklar beroende på hur asp-for är skrivet i vyn
                 ModelState.Remove("ViewModel.Comment.Name");
                 ModelState.Remove("Comment.Name");
             }
 
-            // 3) Sätt CreatedAt i UTC för nya kommentarer
+            // 3) CreatedAt i UTC för nya kommentarer
             if (ViewModel?.Comment != null && ViewModel.Comment.Id == null)
-            {
                 ViewModel.Comment.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
-            }
 
             // 4) Validera + spara
             if (ModelState.IsValid && ViewModel?.Comment?.Id == null)
             {
                 string errorMessage = await _bloggService.SaveCommentAsync(ViewModel.Comment);
-
                 if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
-                    // Visa fel och rendera om sidan med data
                     ModelState.AddModelError("Comment.Content", errorMessage);
+
                     ViewModel = await _bloggService.GetBloggViewModelAsync(false, ViewModel.Comment?.BloggId ?? 0);
 
+                    // för formuläret
                     ViewModel.RoleSymbol = GetRoleSymbol();
+                    ViewModel.RoleCss = GetRoleCss();
+
+                    // för list-rendering
+                    await HydrateRoleLookupsForCurrentPostAsync();
 
                     return Page();
                 }
             }
 
             // 5) Tillbaka till samma blogg
-            return RedirectToPage(
-                pageName: null,                 // <= stanna på samma sida
-                pageHandler: null,
-                routeValues: new { showId = ViewModel?.Comment?.BloggId },
-                fragment: "comments");
+            return RedirectToPage(pageName: null, pageHandler: null,
+                routeValues: new { showId = ViewModel?.Comment?.BloggId }, fragment: "comments");
         }
     }
 }

@@ -127,5 +127,14 @@ namespace SarasBlogg.DAL
             var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
             return body ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
         }
+        public async Task<UserDto?> GetUserByUserNameAsync(string username)
+        {
+            var response = await _http.GetAsync($"/api/users/by-username/{username}");
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            return await response.Content.ReadFromJsonAsync<UserDto>(_json);
+        }
+
     }
 }
