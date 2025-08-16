@@ -141,7 +141,13 @@ namespace SarasBlogg
                 c.BaseAddress = new Uri(apiBase);
                 c.Timeout = TimeSpan.FromSeconds(30);
             })
-            .AddPolicyHandler(GetRetryPolicy());
+            .AddPolicyHandler((request) =>
+            {
+                // ✅ Retry endast för idempotenta anrop
+                return (request.Method == HttpMethod.Get || request.Method == HttpMethod.Head)
+                    ? GetRetryPolicy()
+                    : Policy.NoOpAsync<HttpResponseMessage>();
+            });
 
             builder.Services.AddHttpClient<BloggAPIManager>(c =>
             {
