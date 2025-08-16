@@ -106,7 +106,6 @@ namespace SarasBlogg.Pages
             }
         }
 
-
         public async Task OnGetAsync(int showId, int id)
         {
             if (showId != 0)
