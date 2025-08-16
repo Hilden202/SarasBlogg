@@ -135,6 +135,30 @@ namespace SarasBlogg.DAL
 
             return await response.Content.ReadFromJsonAsync<UserDto>(_json);
         }
+        public async Task<BasicResultDto?> ResendConfirmationAsync(string email, CancellationToken ct = default)
+        {
+            var payload = new EmailDto(email);
+            using var res = await _http.PostAsJsonAsync("api/auth/resend-confirmation", payload, _json, ct);
+            var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
+            return body ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
+        }
+
+        public async Task<BasicResultDto?> ForgotPasswordAsync(string email, CancellationToken ct = default)
+        {
+            var payload = new EmailDto(email);
+            using var res = await _http.PostAsJsonAsync("api/auth/forgot-password", payload, _json, ct);
+            var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
+            return body ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
+        }
+
+        public async Task<BasicResultDto?> ResetPasswordAsync(string userId, string token, string newPassword, CancellationToken ct = default)
+        {
+            var payload = new ResetPasswordDto(userId, token, newPassword);
+            using var res = await _http.PostAsJsonAsync("api/auth/reset-password", payload, _json, ct);
+            var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
+            return body ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
+        }
+
 
     }
 }

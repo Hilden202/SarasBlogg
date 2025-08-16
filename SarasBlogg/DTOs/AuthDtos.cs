@@ -27,4 +27,8 @@
         public string UserId { get; set; } = "";
         public string Code { get; set; } = "";
     }
+    public record EmailDto(string Email);
+
+    public record ResetPasswordDto(string UserId, string Token, string NewPassword);
+
 }
