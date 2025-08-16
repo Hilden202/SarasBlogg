@@ -108,7 +108,6 @@ namespace SarasBlogg.Pages.Admin.RoleAdmin
                 return Forbid();
 
             var result = await _userApiManager.ChangeUserNameAsync(TargetUserId, NewUserName);
-            TempData["StatusMessage"] = result?.Message ?? (result?.Succeeded == true ? "Användarnamn uppdaterat." : "Kunde inte uppdatera användarnamn.");
             return RedirectToPage();
         }
     }

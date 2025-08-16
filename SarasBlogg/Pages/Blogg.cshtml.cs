@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+Ôªøusing Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.Services;
 using SarasBlogg.ViewModels;
@@ -23,10 +23,10 @@ namespace SarasBlogg.Pages
 
         private string GetRoleSymbol()
         {
-            if (User.IsInRole("superadmin")) return "\U0001F451"; // ??
-            if (User.IsInRole("admin")) return "\u2B50";     // ?
-            if (User.IsInRole("superuser")) return "\u26A1";     // ?
-            if (User.IsInRole("user")) return "\U0001F464"; // ??
+            if (User.IsInRole("superadmin")) return "\U0001F451"; // üëë
+            if (User.IsInRole("admin")) return "\u2B50";     // ‚≠ê
+            if (User.IsInRole("superuser")) return "\u26A1";     // ‚ö°
+            if (User.IsInRole("user")) return "\U0001F338"; // üå∏
             return "";
         }
 
@@ -51,7 +51,7 @@ namespace SarasBlogg.Pages
                 {
                     await _bloggService.DeleteCommentAsync(deleteCommentId);
                     return RedirectToPage(
-                        pageName: null,                 // <= stanna pÂ samma sida
+                        pageName: null,                 // <= stanna p√• samma sida
                         pageHandler: null,
                         routeValues: new { showId = existing.BloggId },
                         fragment: "comments");
@@ -63,12 +63,12 @@ namespace SarasBlogg.Pages
             {
                 ViewModel.Comment.Name = CurrentUserName;
 
-                // T‰ck bÂde mˆjliga nycklar beroende pÂ hur asp-for ‰r skrivet i vyn
+                // T√§ck b√•de m√∂jliga nycklar beroende p√• hur asp-for √§r skrivet i vyn
                 ModelState.Remove("ViewModel.Comment.Name");
                 ModelState.Remove("Comment.Name");
             }
 
-            // 3) S‰tt CreatedAt i UTC fˆr nya kommentarer
+            // 3) S√§tt CreatedAt i UTC f√∂r nya kommentarer
             if (ViewModel?.Comment != null && ViewModel.Comment.Id == null)
             {
                 ViewModel.Comment.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
@@ -93,7 +93,7 @@ namespace SarasBlogg.Pages
 
             // 5) Tillbaka till samma blogg
             return RedirectToPage(
-                pageName: null,                 // <= stanna pÂ samma sida
+                pageName: null,                 // <= stanna p√• samma sida
                 pageHandler: null,
                 routeValues: new { showId = ViewModel?.Comment?.BloggId },
                 fragment: "comments");
