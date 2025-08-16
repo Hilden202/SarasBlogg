@@ -165,6 +165,75 @@
                     }
                 </p>
                 <hr class="mb-3" />
+
+                <!-- 🗨️ Kommentarer -->
+                <section id="comments">
+                    <h5 class="mb-3">
+                        Kommentarer
+                        <small class="text-muted ms-2">
+                            @((Model.Comments?.Count(c => c.BloggId == Model.Blogg.Id) ?? 0))
+                        </small>
+                    </h5>
+                    <!-- Lista kommentarer -->
+                    @foreach (var c in (Model.Comments ?? new List<Comment>())
+                   .Where(c => c.BloggId == Model.Blogg.Id)
+                   .OrderBy(c => c.CreatedAt))
+                    {
+                        <div class="comment mb-3 p-2 border rounded">
+                            <div class="comment-header mb-1">
+                                <span class="fw-bold">
+                                    @c.Name
+                                    @if (User.Identity?.IsAuthenticated == true
+                                   && string.Equals(c.Name, User.Identity.Name, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        @: @Model.RoleSymbol
+                                    }
+                                </span>
+                                <small class="text-muted ms-2">
+                                    @($"{(c.CreatedAt.Kind == DateTimeKind.Utc ? c.CreatedAt.ToLocalTime() : c.CreatedAt):yyyy-MM-dd HH:mm}")
+                                </small>
+                            </div>
+
+                            <div class="comment-body">@c.Content</div>
+                        </div>
+                    }
+
+                    <hr />
+
+                    <!-- Formulär: inloggade slipper namnfält -->
+                    <form method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <div class="mb-2">
+                                <span class="text-muted">Skriver som</span>
+                                <strong class="ms-1">@User.Identity.Name @Model.RoleSymbol</strong>
+                                <span class="badge bg-success ms-2 align-middle">inloggad</span>
+                            </div>
+                            <!-- Hidden name – servern skriver ändå över vid post -->
+                            <input type="hidden" asp-for="Comment.Name" value="@User.Identity.Name" />
+                        }
+                        else
+                        {
+                            <div class="mb-3">
+                                <label asp-for="Comment.Name" class="form-label">Namn</label>
+                                <input asp-for="Comment.Name" class="form-control" />
+                                <span asp-validation-for="Comment.Name" class="text-danger"></span>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label asp-for="Comment.Content" class="form-label">Kommentar</label>
+                            <textarea asp-for="Comment.Content" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Comment.Content" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Skicka kommentar</button>
+                    </form>
+                </section>
+
             </div>
         </div>
     }

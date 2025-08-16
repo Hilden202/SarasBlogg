@@ -74,6 +74,14 @@ namespace SarasBlogg.DAL
             return response.IsSuccessStatusCode;
         }
 
+        public async Task<BasicResultDto?> ChangeUserNameAsync(string userId, string newUserName, CancellationToken ct = default)
+        {
+            var payload = new ChangeUserNameRequestDto { NewUserName = newUserName };
+            using var res = await _http.PutAsJsonAsync($"api/User/{userId}/username", payload, _json, ct);
+            return await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
+        }
+
+
         public async Task<bool> RemoveUserFromRoleAsync(string id, string roleName)
         {
             var response = await _http.DeleteAsync($"api/User/{id}/remove-role/{roleName}");
@@ -103,6 +111,21 @@ namespace SarasBlogg.DAL
         {
             var response = await _http.DeleteAsync($"api/Role/delete/{roleName}");
             return response.IsSuccessStatusCode;
+        }
+        public async Task<BasicResultDto?> RegisterAsync(string userName, string email, string password, CancellationToken ct = default)
+        {
+            var payload = new RegisterRequest { UserName = userName, Email = email, Password = password };
+            using var res = await _http.PostAsJsonAsync("api/auth/register", payload, _json, ct);
+            // Returnera även felmeddelande från API:t om det finns i body
+            var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
+            return body ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
+        }
+        public async Task<BasicResultDto?> ConfirmEmailAsync(string userId, string code, CancellationToken ct = default)
+        {
+            var payload = new ConfirmEmailRequestDto { UserId = userId, Code = code };
+            using var res = await _http.PostAsJsonAsync("api/auth/confirm-email", payload, _json, ct);
+            var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
+            return body ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
         }
     }
 }

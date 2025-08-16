@@ -1,84 +1,71 @@
 ﻿@page
-@model RegisterModel
+@model SarasBlogg.Areas.Identity.Pages.Account.RegisterModel
 @{
     ViewData["Title"] = "Registrera";
 }
 
 <h1>@ViewData["Title"]</h1>
 
+@if (TempData["RegisterInfo"] is string info)
+{
+    <div class="alert alert-info">@info</div>
+}
+
+@if (!string.IsNullOrEmpty(Model.DevConfirmLink))
+{
+    <div class="alert alert-warning">
+        <strong>Dev-läge:</strong> Bekräfta direkt via länken:<br />
+        <a href="@Model.DevConfirmLink" target="_blank">Klicka här för att bekräfta</a>
+    </div>
+}
+
 <div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Skapa nytt konto</h2>
-            <hr />
+    <div class="col-md-6">
+        <form id="registerForm" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
             <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="namn@exempel.com" />
-                <label asp-for="Input.Email">E-postadress</label>
+                <input asp-for="Input.UserName" class="form-control" placeholder="användarnamn" />
+                <label asp-for="Input.UserName"></label>
+                <span asp-validation-for="Input.UserName" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="namn@exempel.com" />
+                <label asp-for="Input.Email"></label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
 
             <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="lösenord" />
-                <label asp-for="Input.Password">Lösenord</label>
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" placeholder="lösenord" />
+                <label asp-for="Input.Password"></label>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
 
             <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="bekräfta lösenord" />
-                <label asp-for="Input.ConfirmPassword">Bekräfta lösenord</label>
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="bekräfta lösenord" />
+                <label asp-for="Input.ConfirmPassword"></label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
 
+            <!-- Frivilligt: sparas senare via profil -->
             <div class="form-floating mb-3">
-                <input asp-for="Input.Name" class="form-control" aria-required="true" placeholder="Namn" />
-                <label asp-for="Input.Name">Ditt namn</label>
+                <input asp-for="Input.Name" class="form-control" placeholder="Ditt namn (valfritt)" />
+                <label asp-for="Input.Name"></label>
                 <span asp-validation-for="Input.Name" class="text-danger"></span>
             </div>
 
             <div class="form-floating mb-3">
-                <input asp-for="Input.BirthYear" class="form-control" aria-required="true" placeholder="Födelseår" />
-                <label asp-for="Input.BirthYear">Födelseår</label>
+                <input asp-for="Input.BirthYear" class="form-control" placeholder="Födelseår (valfritt)" />
+                <label asp-for="Input.BirthYear"></label>
                 <span asp-validation-for="Input.BirthYear" class="text-danger"></span>
             </div>
 
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Registrera</button>
         </form>
     </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Använd en annan tjänst för att registrera</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            Inga externa inloggningstjänster är konfigurerade.
-                            Se denna <a href="https://go.microsoft.com/fwlink/?LinkID=532715">artikel</a>
-                            för att konfigurera denna ASP.NET-applikation så att den stöder inloggning via externa tjänster.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Logga in med ditt @provider.DisplayName-konto">@provider.DisplayName</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
-                }
-            }
-        </section>
-    </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+<partial name="_ValidationScriptsPartial" />
+ }

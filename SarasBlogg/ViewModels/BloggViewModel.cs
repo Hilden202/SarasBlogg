@@ -7,5 +7,6 @@
         public bool IsArchiveView { get; set; } = false;
         public List<Models.Comment>? Comments { get; set; }
         public Models.Comment? Comment { get; set; }
+        public string RoleSymbol { get; set; } = "";
     }
 }

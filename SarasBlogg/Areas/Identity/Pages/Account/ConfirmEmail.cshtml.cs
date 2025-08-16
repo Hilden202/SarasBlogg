@@ -1,50 +1,32 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-#nullable disable
-
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿#nullable enable
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using SarasBlogg.Data;
+using SarasBlogg.DAL;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account
 {
+    [AllowAnonymous]
     public class ConfirmEmailModel : PageModel
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserAPIManager _userApi;
+        public ConfirmEmailModel(UserAPIManager userApi) => _userApi = userApi;
 
-        public ConfirmEmailModel(UserManager<ApplicationUser> userManager)
-        {
-            _userManager = userManager;
-        }
-
-        [TempData]
-        public string StatusMessage { get; set; }
+        // 🔽 Inte TempData längre
+        public string Message { get; set; } = "";
 
         public async Task<IActionResult> OnGetAsync(string userId, string code)
         {
-            if (userId == null || code == null)
-            {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(code))
                 return RedirectToPage("/Index");
-            }
 
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound($"Kunde inte hitta användare med ID '{userId}'.");
-            }
+            var result = await _userApi.ConfirmEmailAsync(userId, code);
 
-            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-            StatusMessage = result.Succeeded
-                ? "Tack för att du bekräftade din e-postadress."
-                : "Ett fel uppstod vid bekräftelsen av din e-postadress.";
+            Message = result?.Succeeded == true
+                ? "Din e-post är bekräftad. Du kan nu logga in."
+                : "Ett fel uppstod vid bekräftelsen av din e-postadress."
+                  + (string.IsNullOrWhiteSpace(result?.Message) ? "" : $" ({result!.Message})");
+
             return Page();
         }
     }
