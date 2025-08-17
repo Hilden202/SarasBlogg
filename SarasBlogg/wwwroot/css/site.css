@@ -380,12 +380,6 @@ div {
     position: relative;
 }
 
-.logo-img {
-    height: 400px;
-    width: auto;
-    display: block;
-}
-
 .right-img {
     height: 350px;
     width: auto;
@@ -557,11 +551,6 @@ div {
         width: 100%;
     }
 
-    .logo-img {
-        height: 110px;
-        width: auto;
-    }
-
     .header-container {
         flex-direction: column;
         align-items: center;
@@ -599,12 +588,12 @@ div {
     }
 }
 
-@media (max-width: 480px) {
+/*@media (max-width: 480px) {
     .logo-img {
         height: 80px;
         width: auto;
     }
-}
+}*/
 
 .container {
     flex: 1;
@@ -837,3 +826,15 @@ footer.border-top {
     position: relative;
     z-index: 1; /* ovanpå mörkläggningen */
 }
+
+.logo-img {
+    height: clamp(300px, 55vw, 520px); /* större min och max */
+    width: auto;
+    display: block;
+    max-width: 98vw; /* nästan hela bredden */
+}
+
+.header-container .left-side .logo-img {
+    height: clamp(300px, 55vw, 520px);
+}
+
