@@ -826,51 +826,13 @@ footer.border-top {
     height: clamp(300px, 55vw, 520px);
 }
 
-/* Om mig – lås centrering och proportioner */
-.om-mig-box {
-    max-width: 720px; /* lås rimlig totalbredd */
-    margin: 3rem auto 0; /* alltid centrerad */
-    padding: 0 1rem; /* lite luft, påverkar inte centrering */
-}
-
-.aboutme-wrapper {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center; /* centrera vertikalt när det är rad-läge */
-    justify-content: center; /* håll hela raden centrerad */
-    gap: 1.5rem;
-}
-
-.aboutme-img {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    flex: 0 0 120px; /* lås bildens plats – ingen “tick” */
-    margin: 0; /* ingen auto-centrering i rad-läge */
-}
-
-/* Begränsa text-delen så raden inte börjar “driva” */
-.aboutme-wrapper > div:last-child {
-    flex: 0 1 520px; /* texten får krympa lite men inte pressa ut layouten */
-    max-width: 520px;
-}
-
-/* Mobil – stapla och centrera allt igen */
-@media (max-width: 768px) {
-    .aboutme-wrapper {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
+/* Tablet & mobil – mindre buffert, snyggare centrering */
+@media (max-width: 991px) {
+    .om-mig-box {
+        padding-left: 12px;
     }
 
     .aboutme-img {
-        margin: 0 auto; /* centrera bilden i kolumn-läge */
-    }
-
-    .aboutme-wrapper > div:last-child {
-        flex: unset;
-        max-width: unset;
-        width: 100%;
+        margin-left: 8px; /* liten justering, känns inte trångt */
     }
 }
