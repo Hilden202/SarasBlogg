@@ -4,19 +4,9 @@
     ViewData["Title"] = "Bekräfta registrering";
 }
 
-<h1>@ViewData["Title"]</h1>
-
-@if (Model.DisplayConfirmAccountLink)
-{
-    <p>
-        Din e-post är inte bekräftad ännu. Klicka på länken nedan för att bekräfta:
-        <br />
-        <a id="confirm-link" href="@Model.EmailConfirmationUrl">Bekräfta e-post</a>
-    </p>
-}
-else
-{
-    <p>
-        Kontrollera din e-post för att bekräfta kontot.
-    </p>
-}
+<h2>@ViewData["Title"]</h2>
+<p>
+    Tack för din registrering!
+    Ett bekräftelsemail har skickats till din adress.
+    Kontrollera din inkorg (och även skräppostmappen).
+</p>
