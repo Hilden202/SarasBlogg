@@ -167,7 +167,6 @@ namespace SarasBlogg.Pages.Admin
                 }
             }
 
-
             return RedirectToPage();
         }
 
