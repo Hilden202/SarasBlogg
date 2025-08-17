@@ -483,12 +483,6 @@ div {
     flex: 1 1 auto;
 }
 
-.om-mig-box {
-    max-width: 500px;
-    flex-shrink: 0;
-    margin-top: 3rem;
-}
-
 .right-side {
     display: flex;
     justify-content: center;
@@ -501,8 +495,9 @@ div {
     object-fit: cover;
     border-radius: 50%;
     flex-shrink: 0;
-    margin: 0 auto;
+    /* ta bort margin: 0 auto; så den inte “drar” mot kanten */
 }
+
 
 .aboutme-wrapper {
     display: flex;
@@ -516,6 +511,7 @@ div {
         flex-direction: column;
         align-items: center;
         text-align: center;
+
     }
 
         .aboutme-wrapper > div {
@@ -557,8 +553,28 @@ div {
         }
 
     .om-mig-box {
-        max-width: 100%;
-        margin-top: 2rem;
+        max-width: 500px;
+        flex-shrink: 0;
+        margin-top: 3rem;
+        /* nytt ↓ */
+        margin-right: clamp(48px, 8vw, 160px); /* flyttar boxen mot mitten */
+        position: relative; /* för z-index om du vill */
+        z-index: 20; /* ligger över botten-blomman (din blomma har z-index:10) */
+    }
+
+    /* Tablet: lite mindre intryckning */
+    @media (max-width: 1200px) {
+        .om-mig-box {
+            margin-right: clamp(24px, 5vw, 80px);
+        }
+    }
+
+    /* Mobil/stackad: centrera boxen och ta bort högermarginalen */
+    @media (max-width: 768px) {
+        .om-mig-box {
+            max-width: min(560px, 92%);
+            margin: 2rem auto 0; /* centrerad */
+        }
     }
 
     html {
@@ -808,4 +824,53 @@ footer.border-top {
 
 .header-container .left-side .logo-img {
     height: clamp(300px, 55vw, 520px);
+}
+
+/* Om mig – lås centrering och proportioner */
+.om-mig-box {
+    max-width: 720px; /* lås rimlig totalbredd */
+    margin: 3rem auto 0; /* alltid centrerad */
+    padding: 0 1rem; /* lite luft, påverkar inte centrering */
+}
+
+.aboutme-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center; /* centrera vertikalt när det är rad-läge */
+    justify-content: center; /* håll hela raden centrerad */
+    gap: 1.5rem;
+}
+
+.aboutme-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    flex: 0 0 120px; /* lås bildens plats – ingen “tick” */
+    margin: 0; /* ingen auto-centrering i rad-läge */
+}
+
+/* Begränsa text-delen så raden inte börjar “driva” */
+.aboutme-wrapper > div:last-child {
+    flex: 0 1 520px; /* texten får krympa lite men inte pressa ut layouten */
+    max-width: 520px;
+}
+
+/* Mobil – stapla och centrera allt igen */
+@media (max-width: 768px) {
+    .aboutme-wrapper {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .aboutme-img {
+        margin: 0 auto; /* centrera bilden i kolumn-läge */
+    }
+
+    .aboutme-wrapper > div:last-child {
+        flex: unset;
+        max-width: unset;
+        width: 100%;
+    }
 }
