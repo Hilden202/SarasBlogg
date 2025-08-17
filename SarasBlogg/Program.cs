@@ -238,6 +238,8 @@ namespace SarasBlogg
             })
             .AddPolicyHandler(GetRetryPolicy());
 
+            builder.Services.AddHttpClient<LikeAPIManager>();
+
             // COOKIEPOLICY
             builder.Services.Configure<CookiePolicyOptions>(options =>
             {

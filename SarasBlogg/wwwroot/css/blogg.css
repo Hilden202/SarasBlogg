@@ -218,5 +218,24 @@
     text-decoration: underline;
 }
 /* röd */
+.btn-like {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    border: 1px solid #ced4da;
+    background: #fff;
+    padding: .25rem .6rem;
+    border-radius: .5rem;
+}
+
+    .btn-like .like-heart {
+        font-size: 1.1rem;
+        line-height: 1;
+    }
+
+    .btn-like.liked .like-heart {
+        color: #dc3545;
+    }
+/* röd */
 
 

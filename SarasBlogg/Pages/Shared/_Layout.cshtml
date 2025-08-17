@@ -1,9 +1,8 @@
 ﻿<!DOCTYPE html>
-<html lang="sv" data-bs-theme="light" data-api-base-url="@Configuration["ApiBaseUrl"]">
+<html lang="sv" data-bs-theme="light" data-api-base-url="@Configuration["ApiSettings:BaseAddress"]">
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @inject IConfiguration Configuration
-
 <head>
 	<meta charset="utf-8" />
 	<link rel="icon" type="image/x-icon" href="~/img/logo/hjartafavicon.ico" />
@@ -11,8 +10,7 @@
 	<!-- Open Graph metadata for link previews -->
 	<meta property="og:title" content="SarasBlogg" />
 	<meta property="og:description" content="En personlig blogg av Sara Gustafsson" />
-	<meta property="og:image" content="https://sarasblogg.azurewebsites.net/img/logo/jagmedbarnenmeta.png" />
-	<meta property="og:url" content="https://sarasblogg.azurewebsites.net/" />
+	<meta property="og:url" content="https://sarasblogg.onrender.com/" />
 	<meta property="og:type" content="website" />
 	<meta property="og:image:type" content="image/png" />
 	<meta name="twitter:card" content="summary_large_image" />

@@ -241,3 +241,122 @@ function syncThumbsFor(carouselEl) {
 document.querySelectorAll('.carousel').forEach(el => {
     el.addEventListener('slid.bs.carousel', () => syncThumbsFor(el));
 });
+
+
+// LISTVY: endast visning (ingen gilla här)
+(function () {
+    let apiBase = document.documentElement.dataset.apiBaseUrl || '';
+    if (!apiBase) return;
+    apiBase = apiBase.replace(/\/+$/, '');
+
+    async function refreshListLikes() {
+        const nodes = document.querySelectorAll('.js-like');
+        if (!nodes.length) return;
+
+        nodes.forEach(async el => {
+            const bloggId = el.dataset.bloggId;
+            try {
+                const res = await fetch(`${apiBase}/api/likes/${bloggId}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const count = data.count || 0;
+                el.textContent = `${count > 0 ? "❤️" : "♡"} ${count}`;
+            } catch (e) {
+                console.error('GET /likes error', e);
+            }
+        });
+    }
+
+    // Kör nu och vid back/forward
+    refreshListLikes();
+
+    window.addEventListener('pageshow', (e) => {
+        if (sessionStorage.getItem('sbNeedsRefresh') === '1') {
+            sessionStorage.removeItem('sbNeedsRefresh');
+             location.reload(); // <-- bara om du vill hard-reloada istället för refetch
+        }
+        refreshListLikes();
+    });
+
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') refreshListLikes();
+    });
+})();
+
+// DETALJVY: hjärtknapp (TOGGLE) + flagga för snabb uppdatering i listan
+(function () {
+    let apiBase = document.documentElement.dataset.apiBaseUrl || '';
+    if (!apiBase) { console.warn('Likes: apiBase saknas'); return; }
+    apiBase = apiBase.replace(/\/+$/, '');
+
+    const btn = document.querySelector('[data-like-btn]');
+    if (!btn) return;
+
+    const bloggId = btn.dataset.bloggId;
+    const userId = btn.dataset.userId; // tom om utloggad
+    const heart = btn.querySelector('.like-heart');
+    const countEl = btn.querySelector('.like-count');
+
+    async function loadCount() {
+        try {
+            const res = await fetch(`${apiBase}/api/likes/${bloggId}/${encodeURIComponent(userId || "")}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            countEl.textContent = data.count;
+            if (data.liked) {
+                btn.classList.add('liked');
+                heart.textContent = '❤️';
+            } else {
+                btn.classList.remove('liked');
+                heart.textContent = '♡';
+            }
+        } catch (e) {
+            console.error('GET /likes error', e);
+        }
+    }
+
+    async function toggleLike() {
+        if (!userId) return;
+
+        btn.disabled = true;
+        try {
+            if (btn.classList.contains('liked')) {
+                // OGILLA
+                const res = await fetch(`${apiBase}/api/likes/${bloggId}/${encodeURIComponent(userId)}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('DELETE failed');
+                const data = await res.json();
+                countEl.textContent = data.count;
+                btn.classList.remove('liked');
+                heart.textContent = '♡';
+                sessionStorage.removeItem(`liked:${bloggId}`);
+            } else {
+                // GILLA
+                const res = await fetch(`${apiBase}/api/likes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bloggId: Number(bloggId), userId })
+                });
+                if (!res.ok) throw new Error('POST failed');
+                const data = await res.json();
+                countEl.textContent = data.count;
+                btn.classList.add('liked');
+                heart.textContent = '❤️';
+                sessionStorage.setItem(`liked:${bloggId}`, '1');
+            }
+        } catch (e) {
+            console.error('toggleLike error', e);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    loadCount();
+
+    if (userId) {
+        btn.addEventListener('click', toggleLike);
+        btn.disabled = false;
+    } else {
+        btn.disabled = true;
+    }
+})();
