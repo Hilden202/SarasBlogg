@@ -136,6 +136,11 @@ namespace SarasBlogg
             var apiBase = builder.Configuration["ApiSettings:BaseAddress"]
                          ?? throw new InvalidOperationException("ApiSettings:BaseAddress is missing.");
 
+            builder.Services.AddHttpClient("formspree", client =>
+            {
+                client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+            });
+
             builder.Services.AddHttpClient<UserAPIManager>(c =>
             {
                 c.BaseAddress = new Uri(apiBase);
