@@ -231,10 +231,12 @@
                                 <div>
                                     <div class="comment-header mb-1">
                                         <span class="fw-bold">
-                                            @if (Model.RoleCssByName != null && Model.RoleCssByName.ContainsKey(c.Name))
+                                            @if (!string.IsNullOrWhiteSpace(c.Name)
+                                           && Model.RoleCssByName != null
+                                           && Model.RoleCssByName.TryGetValue(c.Name, out var roleCss)
+                                           && !string.IsNullOrEmpty(roleCss))
                                             {
-                                                <span class="@Model.RoleCssByName[c.Name]">@c.Name</span>
-                                                @: @Model.RoleSymbolByName[c.Name]
+                                                <span class="@roleCss">@c.Name</span>
                                             }
                                             else
                                             {
@@ -278,7 +280,7 @@
                             <div class="mb-2">
                                 <span class="text-muted">Skriver som</span>
                                 <strong class="ms-1">
-                                    <span class="@Model.RoleCss">@User.Identity.Name</span> @Model.RoleSymbol
+                                    <span class="@Model.RoleCss">@User.Identity.Name</span>
                                 </strong>
                                 <span class="badge bg-success ms-2 align-middle">inloggad</span>
                             </div>

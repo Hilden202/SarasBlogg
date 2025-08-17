@@ -21,20 +21,20 @@ namespace SarasBlogg.Pages
         public BloggViewModel ViewModel { get; set; } = new();
 
         // formulärvisning för inloggad
-        public string RoleSymbol => GetRoleSymbol();
+        //public string RoleSymbol => GetRoleSymbol();
         public string RoleCss => GetRoleCss();
 
         private bool IsAuth => User?.Identity?.IsAuthenticated == true;
         private string CurrentUserName => IsAuth ? (User?.Identity?.Name ?? "") : "";
 
-        private string GetRoleSymbol()
-        {
-            if (User.IsInRole("superadmin")) return "\U0001F451"; // 👑
-            if (User.IsInRole("admin")) return "\u2B50";     // ⭐
-            if (User.IsInRole("superuser")) return "\u26A1";     // ⚡
-            if (User.IsInRole("user")) return "\U0001F338"; // 🌸
-            return "";
-        }
+        //private string GetRoleSymbol()
+        //{
+        //    if (User.IsInRole("superadmin")) return "\U0001F451"; // 👑
+        //    if (User.IsInRole("admin")) return "\u2B50";     // ⭐
+        //    if (User.IsInRole("superuser")) return "\u26A1";     // ⚡
+        //    if (User.IsInRole("user")) return "\U0001F338"; // 🌸
+        //    return "";
+        //}
         private string GetRoleCss()
         {
             if (User.IsInRole("superadmin")) return "role-superadmin";
@@ -54,14 +54,23 @@ namespace SarasBlogg.Pages
         };
         private static string GetTopRole(IEnumerable<string> roles)
             => roles.OrderBy(r => Rank.TryGetValue(r, out var i) ? i : 999).FirstOrDefault() ?? "";
-        private static (string css, string sym) MapTopRole(string? top) => top?.ToLower() switch
+        //private static (string css, string sym) MapTopRole(string? top) => top?.ToLower() switch
+        //{
+        //    "superadmin" => ("role-superadmin", "\U0001F451"),
+        //    "admin" => ("role-admin", "\u2B50"),
+        //    "superuser" => ("role-superuser", "\u26A1"),
+        //    "user" => ("role-user", "\U0001F338"),
+        //    _ => ("", "")
+        //};
+        private static string MapTopRoleToCss(string? top) => top?.ToLower() switch
         {
-            "superadmin" => ("role-superadmin", "\U0001F451"),
-            "admin" => ("role-admin", "\u2B50"),
-            "superuser" => ("role-superuser", "\u26A1"),
-            "user" => ("role-user", "\U0001F338"),
-            _ => ("", "")
+            "superadmin" => "role-superadmin",
+            "admin" => "role-admin",
+            "superuser" => "role-superuser",
+            "user" => "role-user",
+            _ => ""
         };
+
 
         private async Task HydrateRoleLookupsForCurrentPostAsync()
         {
@@ -89,9 +98,12 @@ namespace SarasBlogg.Pages
                     continue;
 
                 var top = GetTopRole(user.Roles);
-                var (css, sym) = MapTopRole(top);
-                if (!string.IsNullOrEmpty(css)) ViewModel.RoleCssByName[name] = css;
-                if (!string.IsNullOrEmpty(sym)) ViewModel.RoleSymbolByName[name] = sym;
+                //var (css, sym) = MapTopRole(top);
+                //if (!string.IsNullOrEmpty(css)) ViewModel.RoleCssByName[name] = css;
+                //if (!string.IsNullOrEmpty(sym)) ViewModel.RoleSymbolByName[name] = sym;
+                var css = MapTopRoleToCss(top);
+                if (!string.IsNullOrEmpty(css))
+                    ViewModel.RoleCssByName[name] = css;
             }
         }
         // ---------------------------------------------------------------
@@ -105,7 +117,7 @@ namespace SarasBlogg.Pages
             ViewModel = await _bloggService.GetBloggViewModelAsync(true, showId);
 
             // formulärinfo för inloggad
-            ViewModel.RoleSymbol = GetRoleSymbol();
+            //ViewModel.RoleSymbol = GetRoleSymbol();
             ViewModel.RoleCss = GetRoleCss();
 
             // rollfärg/ikon för alla kommentarer
@@ -149,7 +161,7 @@ namespace SarasBlogg.Pages
                     // ladda om i arkivläge
                     ViewModel = await _bloggService.GetBloggViewModelAsync(true, ViewModel.Comment?.BloggId ?? 0);
 
-                    ViewModel.RoleSymbol = GetRoleSymbol();
+                    //ViewModel.RoleSymbol = GetRoleSymbol();
                     ViewModel.RoleCss = GetRoleCss();
 
                     await HydrateRoleLookupsForCurrentPostAsync();

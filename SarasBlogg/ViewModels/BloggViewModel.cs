@@ -12,7 +12,7 @@
 
         // Extra dictionaries for role symbols and CSS classes
         public Dictionary<string, string> RoleCssByName { get; set; } = new(StringComparer.OrdinalIgnoreCase);
-        public Dictionary<string, string> RoleSymbolByName { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        //public Dictionary<string, string> RoleSymbolByName { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     }
 }
