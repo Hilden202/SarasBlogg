@@ -196,41 +196,31 @@ img.is-loaded {
     left: 0;
 }
 
-/* Placering – använd procent/vh så de alltid “kikar in” från hörnen */
 .topleft-corner-flower {
-    position: absolute; /* fäster mot .page-wrapper som du redan har position:relative */
-    top: -12vh; /* lite ovanför viewport */
-    left: -10vw; /* lite utanför till vänster */
-    width: clamp(120px, 22vw, 500px);
+    position: absolute;
+    top: -130px; /* fast avstånd */
+    left: -130px; /* fast avstånd */
+    width: clamp(300px, 28vw, 800px);
     height: auto;
     pointer-events: none;
     z-index: 1000;
 }
 
 .bottomright-corner-flower {
-    position: fixed; /* ska sitta i hörnet av skärmen */
-    bottom: -12vh; /* lite under kanten */
-    right: -10vw; /* lite utanför höger */
-    width: clamp(120px, 22vw, 500px);
+    position: fixed;
+    bottom: -130px; /* fast avstånd */
+    right: -130px; /* fast avstånd */
+    width: clamp(300px, 28vw, 800px);
     height: auto;
     pointer-events: none;
-    z-index: 10; /* lägre än social-ikonerna */
+    z-index: 10;
 }
 
-/* Grundstorlek på stora skärmar */
-.topleft-corner-flower,
-.bottomright-corner-flower {
-    max-width: 800px;
-    height: auto;
-    opacity: 1;
-    transition: max-width 0.4s ease, opacity 0.3s ease;
-}
-
-/* Krympa först på tablets och neråt */
+/* --- Krympning först på tablets och neråt --- */
 @media (max-width: 1200px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        max-width: 600px;
+        width: clamp(260px, 26vw, 600px);
         opacity: 0.95;
     }
 }
@@ -239,30 +229,19 @@ img.is-loaded {
 @media (max-width: 800px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        max-width: 400px;
-        opacity: 0.9;
-    }
-}
-
-/* Vanliga mobiler */
-@media (max-width: 500px) {
-    .topleft-corner-flower,
-    .bottomright-corner-flower {
-        max-width: 250px;
+        width: clamp(240px, 35vw, 500px);
         opacity: 0.85;
     }
 }
 
-/* Extremt små mobiler */
-@media (max-width: 320px) {
+/* 👇 På mobiler behåller vi samma som vid 800px */
+@media (max-width: 500px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        max-width: 200px;  /* större min */
-        opacity: 0.85;     /* lite mer synliga */
+        width: 240px; /* fast storlek, slutar krympa här */
+        opacity: 0.8;
     }
 }
-
-
 
 button {
     background-color: var(--btn-bg, #f8f9fa);
