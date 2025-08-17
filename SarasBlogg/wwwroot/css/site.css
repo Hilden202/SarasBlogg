@@ -1,4 +1,4 @@
-/* --- Laddningsoverlay och progressiv bildinladdning pausad tillfälligt ---
+ï»¿/* --- Laddningsoverlay och progressiv bildinladdning pausad tillfÃ¤lligt ---
    Kan aktiveras igen genom att avkommentera hela detta block.
 */
 /*#loading-overlay {
@@ -40,22 +40,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;*/ /* horisontell centrering */
-    /*justify-content: center;*/ /* vertikal centrering */
-    /*text-align: center;
-    height: 100%;*/ /* gör att vertikal centrering fungerar */
+/*justify-content: center;*/ /* vertikal centrering */
+/*text-align: center;
+    height: 100%;*/ /* gÃ¶r att vertikal centrering fungerar */
 /*}*/
 
-/* Endast bilder du vill fadea in får klassen .progressive */
+/* Endast bilder du vill fadea in fÃ¥r klassen .progressive */
 /*img.progressive {
     opacity: 0;
-    transition: opacity .3s ease;
+    transition: opacity 0.3s ease;
 }
 
     img.progressive.is-loaded {
         opacity: 1;
     }*/
 
-/* Overlay-loggan påverkas inte */
+/* Overlay-loggan pÃ¥verkas inte */
 /*#loading-overlay .loading-logo,
 #loading-overlay img.no-fade {
     opacity: 1 !important;
@@ -68,7 +68,7 @@
     letter-spacing: 0.2rem;
     font-weight: bold;
     color: #C48A7D;*/ /* SarasBlogg-rosa */
-    /*margin-top: 0.5rem;
+/*margin-top: 0.5rem;
     text-align: center;
 }
 
@@ -104,7 +104,7 @@
     height: auto;
 }*/
 
-/* Mjuk fade-in för icke-kritiska bilder */
+/* Mjuk fade-in fÃ¶r icke-kritiska bilder */
 /*img:not([data-critical="1"]) {
     opacity: 0;
     transition: opacity 0.4s ease;
@@ -114,35 +114,35 @@ img.is-loaded {
     opacity: 1;
 }*/
 .page-wrapper {
-    position: relative; /* gör att absoluta element fäster här */
+    position: relative; /* gÃ¶r att absoluta element fÃ¤ster hÃ¤r */
 }
-/* Bas för alla moln */
+/* Bas fÃ¶r alla moln */
 .cloud {
     position: absolute;
     width: 450px; /* justera som du vill */
     height: auto;
     opacity: 0.85; /* lite transparent */
-    pointer-events: none; /* dekor – ej klickbar */
-    z-index: 50; /* under övrig dekor, över bakgrund */
+    pointer-events: none; /* dekor â€“ ej klickbar */
+    z-index: 50; /* under Ã¶vrig dekor, Ã¶ver bakgrund */
     user-select: none;
 }
 
-/* Moln 1: lite till höger högre upp */
+/* Moln 1: lite till hÃ¶ger hÃ¶gre upp */
 .cloud-1 {
-    top: 50vh; /* höjd från toppen */
-    left: 80vw; /* lite till höger */
+    top: 50vh; /* hÃ¶jd frÃ¥n toppen */
+    left: 80vw; /* lite till hÃ¶ger */
     transform: translate(-50%, -50%);
 }
 
-/* Moln 2: någonstans till vänster */
+/* Moln 2: nÃ¥gonstans till vÃ¤nster */
 .cloud-2 {
     top: 75vh;
     left: 22vw;
     transform: translate(-50%, -50%);
-    width: 450px; /* kan vara lite större */
+    width: 450px; /* kan vara lite stÃ¶rre */
 }
 
-/* Moln 3: lite till höger, nedre halvan nära mitten */
+/* Moln 3: lite till hÃ¶ger, nedre halvan nÃ¤ra mitten */
 .cloud-3 {
     top: 110vh;
     left: 60vw;
@@ -150,7 +150,7 @@ img.is-loaded {
     width: 450px;
 }
 
-/* Dölj moln på små skärmar om du vill */
+/* DÃ¶lj moln pÃ¥ smÃ¥ skÃ¤rmar om du vill */
 @media (max-width: 768px) {
     .cloud {
         display: none;
@@ -167,7 +167,7 @@ img.is-loaded {
 .bottomright-corner-flower,
 .bottom-line {
     position: fixed;
-    height: auto; /* behåll proportioner */
+    height: auto; /* behÃ¥ll proportioner */
     z-index: 9999 !important;
     pointer-events: none;
 }
@@ -176,7 +176,7 @@ img.is-loaded {
 .rightcorner-image,
 .topleft-corner-flower {
     position: absolute;
-    height: auto; /* behåll proportioner */
+    height: auto; /* behÃ¥ll proportioner */
     z-index: 9999;
     pointer-events: none;
 }
@@ -196,74 +196,73 @@ img.is-loaded {
     left: 0;
 }
 
+/* Placering â€“ anvÃ¤nd procent/vh sÃ¥ de alltid â€œkikar inâ€ frÃ¥n hÃ¶rnen */
 .topleft-corner-flower {
-    position: absolute;
-    top: -220px;
-    left: -210px;
-    width: 500px;
+    position: absolute; /* fÃ¤ster mot .page-wrapper som du redan har position:relative */
+    top: -12vh; /* lite ovanfÃ¶r viewport */
+    left: -10vw; /* lite utanfÃ¶r till vÃ¤nster */
+    width: clamp(120px, 22vw, 500px);
     height: auto;
+    pointer-events: none;
     z-index: 1000;
-    pointer-events: none; /* dekorativt – inte klickbart */
 }
 
 .bottomright-corner-flower {
-    position: fixed; /* fästs mot skärmen */
-    bottom: -250px; /* halva under skärmen */
-    right: -200px; /* halva utanför till höger */
-    width: 500px;
+    position: fixed; /* ska sitta i hÃ¶rnet av skÃ¤rmen */
+    bottom: -12vh; /* lite under kanten */
+    right: -10vw; /* lite utanfÃ¶r hÃ¶ger */
+    width: clamp(120px, 22vw, 500px);
     height: auto;
-    pointer-events: none; /* dekorativt */
-    z-index: 100; /* under/över innehåll beroende på behov */
+    pointer-events: none;
+    z-index: 10; /* lÃ¤gre Ã¤n social-ikonerna */
 }
 
-
+/* Grundstorlek pÃ¥ stora skÃ¤rmar */
 .topleft-corner-flower,
 .bottomright-corner-flower {
-    max-width: 1000px; /* standardstorlek */
+    max-width: 800px;
     height: auto;
-    transition: max-width 0.3s ease, opacity 0.3s ease;
+    opacity: 1;
+    transition: max-width 0.4s ease, opacity 0.3s ease;
 }
 
-@media (max-width: 2000px) {
+/* Krympa fÃ¶rst pÃ¥ tablets och nerÃ¥t */
+@media (max-width: 1200px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
         max-width: 600px;
+        opacity: 0.95;
     }
 }
 
-@media (max-width: 1700px) {
+/* Mindre tablets / stÃ¶rre mobiler */
+@media (max-width: 800px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        max-width: 300px;
-        opacity: 0.8; /* lätt transparent för mjukare övergång */
+        max-width: 400px;
+        opacity: 0.9;
     }
 }
 
-@media (max-width: 1300px) {
+/* Vanliga mobiler */
+@media (max-width: 500px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        max-width: 200px;
-        opacity: 0.6; /* lätt transparent för mjukare övergång */
+        max-width: 250px;
+        opacity: 0.85;
     }
 }
 
-@media (max-width: 1000px) {
+/* Extremt smÃ¥ mobiler */
+@media (max-width: 320px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        display: none;
+        max-width: 200px;  /* stÃ¶rre min */
+        opacity: 0.85;     /* lite mer synliga */
     }
 }
 
-@media (max-width: 1100px) {
-    .top-line,
-    .rightcorner-image,
-    .leftcorner-image,
-    .topleft-corner-flower,
-    .bottomright-corner-flower,
-    .bottom-line {
-        display: none;
-    }
-}
+
 
 button {
     background-color: var(--btn-bg, #f8f9fa);
@@ -303,7 +302,7 @@ html {
     height: 100%;
     margin: 0;
     padding: 0;
-    color-scheme: light; /* Tvinga ljus rendering även vid dark mode */
+    color-scheme: light; /* Tvinga ljus rendering Ã¤ven vid dark mode */
 }
 
     /* Tvinga ljus tema-bakgrund oavsett Bootstrap-tema */
@@ -314,7 +313,7 @@ html {
         background-color: #fff4e4 !important;
     }
 
-/* Se till att inget ovanpå mörkar ner */
+/* Se till att inget ovanpÃ¥ mÃ¶rkar ner */
 .page-wrapper,
 header,
 main,
@@ -391,12 +390,12 @@ div {
     justify-self: center; /* centrera horisontellt */
     display: flex;
     flex-direction: column;
-    align-items: center; /* centrera innehållet (bilden) */
+    align-items: center; /* centrera innehÃ¥llet (bilden) */
 }
 
 .right-side {
-    grid-column: 3; /* höger */
-    justify-self: end; /* tryck ut till högerkant */
+    grid-column: 3; /* hÃ¶ger */
+    justify-self: end; /* tryck ut till hÃ¶gerkant */
     display: flex;
     align-items: flex-start;
 }
@@ -432,7 +431,7 @@ div {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    justify-content: flex-start; /* ändrat från center */
+    justify-content: flex-start; /* Ã¤ndrat frÃ¥n center */
     margin-top: 3rem;
     align-items: stretch;
 }
@@ -588,13 +587,6 @@ div {
     }
 }
 
-/*@media (max-width: 480px) {
-    .logo-img {
-        height: 80px;
-        width: auto;
-    }
-}*/
-
 .container {
     flex: 1;
 }
@@ -616,17 +608,18 @@ footer {
 
     footer.footer {
         position: sticky !important;
-        bottom: 0; /* gör sticky aktiv i botten */
+        bottom: 0; /* gÃ¶r sticky aktiv i botten */
         background-color: rgba(255, 255, 255, 0.55); /* halvtransparent */
         border-top: 1px solid #ddd;
         padding: 0rem;
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px); /* Safari */
-        z-index: 1000; /* över innehållet */
+        z-index: 9999; /* Ã¶ver innehÃ¥llet */
     }
+
 img, .content img, .admin-blog-img {
     position: relative; /* eller static */
-    z-index: 0 !important; /* se till att de inte går över footern */
+    z-index: 0 !important; /* se till att de inte gÃ¥r Ã¶ver footern */
 }
 
 
@@ -696,7 +689,7 @@ input, textarea, select, button {
             box-shadow: none;
         }
 
-/* Endast bilder du vill fadea in får klassen .progressive */
+/* Endast bilder du vill fadea in fÃ¥r klassen .progressive */
 img.progressive {
     opacity: 0;
     transition: opacity .3s ease;
@@ -706,7 +699,7 @@ img.progressive {
         opacity: 1;
     }
 
-/* Overlay-loggan påverkas inte */
+/* Overlay-loggan pÃ¥verkas inte */
 #loading-overlay .loading-logo,
 #loading-overlay img.no-fade {
     opacity: 1 !important;
@@ -767,7 +760,7 @@ footer.border-top {
     }
 
 .navbar-nav .nav-item form {
-    display: inline; /* Gör så formuläret inte bryter rad */
+    display: inline; /* GÃ¶r sÃ¥ formulÃ¤ret inte bryter rad */
     margin: 0;
     padding: 0;
 }
@@ -786,7 +779,7 @@ footer.border-top {
             font-weight: bold;
         }
 
-/* Hamburger-ikon mörk på transparent bakgrund */
+/* Hamburger-ikon mÃ¶rk pÃ¥ transparent bakgrund */
 .navbar.navbar-light.bg-transparent {
     --bs-navbar-toggler-icon-bg: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba(33,37,41,0.85)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E") !important;
 }
@@ -805,15 +798,15 @@ footer.border-top {
     }
 
 .navbar {
-    --bs-navbar-toggler-focus-width: .10rem; /* extra säkerhet */
+    --bs-navbar-toggler-focus-width: .10rem; /* extra sÃ¤kerhet */
 }
 
 
 #imageLightbox .modal-content {
-    background: inherit !important; /* ärver sidans bakgrund */
+    background: inherit !important; /* Ã¤rver sidans bakgrund */
 }
 
-    /* Om du vill mörklägga lite över bakgrunden */
+    /* Om du vill mÃ¶rklÃ¤gga lite Ã¶ver bakgrunden */
     #imageLightbox .modal-content::before {
         content: "";
         position: absolute;
@@ -824,17 +817,16 @@ footer.border-top {
 
 #imageLightbox .modal-body {
     position: relative;
-    z-index: 1; /* ovanpå mörkläggningen */
+    z-index: 1; /* ovanpÃ¥ mÃ¶rklÃ¤ggningen */
 }
 
 .logo-img {
-    height: clamp(300px, 55vw, 520px); /* större min och max */
+    height: clamp(300px, 55vw, 520px); /* stÃ¶rre min och max */
     width: auto;
     display: block;
-    max-width: 98vw; /* nästan hela bredden */
+    max-width: 98vw; /* nÃ¤stan hela bredden */
 }
 
 .header-container .left-side .logo-img {
     height: clamp(300px, 55vw, 520px);
 }
-
