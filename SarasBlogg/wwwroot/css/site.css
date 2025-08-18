@@ -113,6 +113,15 @@
 img.is-loaded {
     opacity: 1;
 }*/
+ .cookie-fixed {
+    position: fixed;
+    bottom: 100px; /* justera avstånd från nederkant */
+    z-index: 2000;
+    min-width: 320px;
+    max-width: 95vw;
+    width: 500px;
+}
+
 .page-wrapper {
     position: relative; /* gör att absoluta element fäster här */
 }
