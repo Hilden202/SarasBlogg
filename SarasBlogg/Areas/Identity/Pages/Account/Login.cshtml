@@ -41,9 +41,12 @@
                         @Html.DisplayNameFor(m => m.Input.RememberMe)
                     </label>
                 </div>
-
                 <div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Logga in</button>
+                    <button id="login-submit"
+                            type="submit"
+                            class="w-100 btn btn-lg btn-primary">
+                        Logga in
+                    </button>
                 </div>
 
                 @* Lägg ev. tillbaka länkar när vi har API-stöd för dem *@
@@ -56,4 +59,23 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const btn = document.getElementById("login-submit");
+            const form = document.getElementById("account");
+
+            if (btn && form) {
+                btn.addEventListener("click", function () {
+                    // disable direkt
+                    btn.disabled = true;
+                    btn.innerText = "Loggar in...";
+
+                    // se till att formuläret postas
+                    form.submit();
+                });
+            }
+        });
+    </script>
 }
+
