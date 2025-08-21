@@ -132,7 +132,7 @@ img.is-loaded {
     height: auto;
     opacity: 0.85; /* lite transparent */
     pointer-events: none; /* dekor – ej klickbar */
-    z-index: 50; /* under övrig dekor, över bakgrund */
+    z-index: 0; /* nu följer dekor-lagret */
     user-select: none;
 }
 
@@ -287,10 +287,13 @@ html {
 header,
 main,
 footer {
+    position: relative; /* skapar en egen stacking context */
+    z-index: 1; /* lägger allt ovanför .decor-layer (som har 0) */
     background: transparent !important;
     opacity: 1 !important;
     filter: none !important;
 }
+
 
 body {
     background-color: #fff4e4 !important;
