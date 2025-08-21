@@ -122,9 +122,9 @@ img.is-loaded {
     width: 500px;
 }
 
-.page-wrapper {
-    position: relative; /* gör att absoluta element fäster här */
-}
+/*.page-wrapper {
+    position: relative;*/ /* gör att absoluta element fäster här */
+/*}*/
 /* Bas för alla moln */
 .cloud {
     position: absolute;
@@ -172,19 +172,10 @@ img.is-loaded {
     width: auto;
 }
 
-.leftcorner-image,
-.bottomright-corner-flower,
-.bottom-line {
-    position: fixed;
-    height: auto; /* behåll proportioner */
-    z-index: 9999 !important;
-    pointer-events: none;
-}
-
 .top-line,
 .rightcorner-image,
 .topleft-corner-flower {
-    position: absolute;
+    position: fixed;
     height: auto; /* behåll proportioner */
     z-index: 9999;
     pointer-events: none;
@@ -213,16 +204,6 @@ img.is-loaded {
     height: auto;
     pointer-events: none;
     z-index: 1000;
-}
-
-.bottomright-corner-flower {
-    position: fixed;
-    bottom: -130px; /* fast avstånd */
-    right: -130px; /* fast avstånd */
-    width: clamp(300px, 28vw, 800px);
-    height: auto;
-    pointer-events: none;
-    z-index: 10;
 }
 
 /* --- Krympning först på tablets och neråt --- */
@@ -570,32 +551,6 @@ div {
     flex: 1;
 }
 
-.page-wrapper {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-footer {
-    position: sticky !important;
-    background-color: transparent;
-    border-top: 1px solid #ddd;
-    padding: 0rem;
-    backdrop-filter: blur(5px);
-}
-
-    footer.footer {
-        position: sticky !important;
-        bottom: 0; /* gör sticky aktiv i botten */
-        background-color: rgba(255, 255, 255, 0.55); /* halvtransparent */
-        border-top: 1px solid #ddd;
-        padding: 0rem;
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px); /* Safari */
-        z-index: 9999; /* över innehållet */
-    }
-
 img, .content img, .admin-blog-img {
     position: relative; /* eller static */
     z-index: 20 !important; /* se till att de inte går över footern */
@@ -887,3 +842,38 @@ footer.border-top {
     flex-direction: initial !important;
     justify-content: initial !important;
 }
+.page-wrapper {
+    position: relative;
+    display: block;
+    overflow-x: clip;
+    overflow-y: clip; /* klipper allt under sidans botten */
+}
+
+/* dekor-lagret täcker sidan men påverkar inte layouten */
+.decor-layer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden; /* klipp inom sidan */
+    pointer-events: none;
+    z-index: 0; /* under innehåll/footern */
+}
+
+/* själva blomman: följer sidan och kan döljas i botten */
+.bottomright-corner-flower {
+    position: absolute; /* INTE fixed */
+    right: -130px;
+    bottom: -130px;
+    width: clamp(300px, 28vw, 800px);
+    height: auto;
+}
+
+/* footern ligger i normalt flöde över dekor */
+footer,
+footer.footer {
+    position: static !important;
+    z-index: 2;
+}
+    footer .social-icons {
+        position: relative; /* skapar egen stacking context */
+        z-index: 5; /* säkert över blomman (0–2) */
+    }
