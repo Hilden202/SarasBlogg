@@ -561,31 +561,6 @@ div {
             width: 100%;
         }
 
-    .om-mig-box {
-        max-width: 500px;
-        flex-shrink: 0;
-        margin-top: 3rem;
-        /* nytt ↓ */
-        margin-right: clamp(48px, 8vw, 160px); /* flyttar boxen mot mitten */
-        position: relative; /* för z-index om du vill */
-        z-index: 20; /* ligger över botten-blomman (din blomma har z-index:10) */
-    }
-
-    /* Tablet: lite mindre intryckning */
-    @media (max-width: 1200px) {
-        .om-mig-box {
-            margin-right: clamp(24px, 5vw, 80px);
-        }
-    }
-
-    /* Mobil/stackad: centrera boxen och ta bort högermarginalen */
-    @media (max-width: 768px) {
-        .om-mig-box {
-            max-width: min(560px, 92%);
-            margin: 2rem auto 0; /* centrerad */
-        }
-    }
-
     html {
         font-size: 14px;
     }
@@ -623,7 +598,7 @@ footer {
 
 img, .content img, .admin-blog-img {
     position: relative; /* eller static */
-    z-index: 0 !important; /* se till att de inte går över footern */
+    z-index: 20 !important; /* se till att de inte går över footern */
 }
 
 
