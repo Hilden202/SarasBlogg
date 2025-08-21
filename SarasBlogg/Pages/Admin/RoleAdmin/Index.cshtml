@@ -143,13 +143,16 @@
 </div>
 @section Scripts {
     <script>
-        // När sidan laddas på små skärmar → ta bort fokus från ev. input
         if (window.innerWidth < 992) {
-          window.addEventListener('load', function () {
-            if (document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) {
-              document.activeElement.blur();
-            }
-          }, { once: true });
+          document.addEventListener('DOMContentLoaded', () => {
+            // Gör så username-fälten inte blir förvalda på mobil
+            document.querySelectorAll('input[name="NewUserName"]').forEach(el => {
+              el.tabIndex = -1;
+              el.removeAttribute('autofocus'); // säkerhet ifall något smugit in
+            });
+            // Om Safari redan hann sätta fokus → ta bort det direkt
+            setTimeout(() => document.activeElement?.blur(), 0);
+          });
         }
     </script>
 }
