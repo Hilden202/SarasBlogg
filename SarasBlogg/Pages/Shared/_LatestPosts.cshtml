@@ -23,22 +23,25 @@
 
         var resolvedUrl = isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png");
 
-        <a asp-page="/Blogg" asp-route-showId="@post.Id" class="text-decoration-none blogg-link" title="@post.Title">
-            <div class="card">
-                <div class="card-img-wrapper" style="--img: url('@resolvedUrl')">
-                    <img class="bloggimg"
-                         src="@resolvedUrl"
-                         onerror="this.onerror=null;this.src='/img/blogg/default.png';"
-                         alt="Bild för @post.Title"
-                         loading="lazy" />
-                </div>
-
-                <div class="flower">🌸</div>
-                <h4 class="card-title text-dark">@post.Title.LimitLength(20)</h4>
-                <p class="card-content">
-                    @((post.Content?.Length ?? 0) > 142 ? post.Content.Substring(0, 142) + "..." : post.Content)
-                </p>
+        <div class="card">
+            <div class="card-img-wrapper" style="--img: url('@resolvedUrl')">
+                <img class="bloggimg"
+                     src="@resolvedUrl"
+                     onerror="this.onerror=null;this.src='/img/blogg/default.png';"
+                     alt="Bild för @post.Title"
+                     loading="lazy" />
             </div>
-        </a>
+
+            @* <div class="flower">🌸</div> *@
+            <h4 class="card-title text-dark">@post.Title.LimitLength(20)</h4>
+            <p class="card-content">
+                @((post.Content?.Length ?? 0) > 142 ? post.Content.Substring(0, 142) + "..." : post.Content)
+            </p>
+
+            <div class="card-footer">
+                <a asp-page="/Blogg" asp-route-showId="@post.Id" class="btn btn-primary btn-sm">Läs mer…</a>
+            </div>
+        </div>
     }
 </div>
+
