@@ -141,3 +141,15 @@
         </table>
     }
 </div>
+@section Scripts {
+    <script>
+        // När sidan laddas på små skärmar → ta bort fokus från ev. input
+        if (window.innerWidth < 992) {
+          window.addEventListener('load', function () {
+            if (document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) {
+              document.activeElement.blur();
+            }
+          }, { once: true });
+        }
+    </script>
+}
