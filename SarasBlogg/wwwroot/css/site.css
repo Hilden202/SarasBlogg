@@ -200,7 +200,7 @@ img.is-loaded {
     position: absolute;
     top: 0px; /* fast avstånd */
     left: 0px; /* fast avstånd */
-    width: clamp(120px, 15vw, 250px);
+    width: clamp(90px, 12vw, 180px);
     height: auto;
     pointer-events: none;
     z-index: 1000;
@@ -867,7 +867,7 @@ footer.border-top {
     position: absolute; /* INTE fixed */
     right: 0px;
     bottom: 0px;
-    width: clamp(120px, 15vw, 250px);
+    width: clamp(90px, 12vw, 180px);
     height: auto;
 }
 
