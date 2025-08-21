@@ -198,9 +198,9 @@ img.is-loaded {
 
 .topleft-corner-flower {
     position: absolute;
-    top: -130px; /* fast avstånd */
-    left: -130px; /* fast avstånd */
-    width: clamp(300px, 28vw, 800px);
+    top: 0px; /* fast avstånd */
+    left: 0px; /* fast avstånd */
+    width: clamp(600px, 90vw, 1400px);
     height: auto;
     pointer-events: none;
     z-index: 1000;
@@ -210,7 +210,7 @@ img.is-loaded {
 @media (max-width: 1200px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        width: clamp(260px, 26vw, 600px);
+        /*width: clamp(260px, 26vw, 600px);*/
         opacity: 0.95;
     }
 }
@@ -219,7 +219,7 @@ img.is-loaded {
 @media (max-width: 800px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        width: clamp(240px, 35vw, 500px);
+        /*width: clamp(240px, 35vw, 500px);*/
         opacity: 0.85;
     }
 }
@@ -228,7 +228,7 @@ img.is-loaded {
 @media (max-width: 500px) {
     .topleft-corner-flower,
     .bottomright-corner-flower {
-        width: 240px; /* fast storlek, slutar krympa här */
+        /*width: 240px;*/ /* fast storlek, slutar krympa här */
         opacity: 0.8;
     }
 }
@@ -862,9 +862,9 @@ footer.border-top {
 /* själva blomman: följer sidan och kan döljas i botten */
 .bottomright-corner-flower {
     position: absolute; /* INTE fixed */
-    right: -130px;
-    bottom: -130px;
-    width: clamp(300px, 28vw, 800px);
+    right: 0px;
+    bottom: 0px;
+    width: clamp(600px, 90vw, 1400px);
     height: auto;
 }
 
