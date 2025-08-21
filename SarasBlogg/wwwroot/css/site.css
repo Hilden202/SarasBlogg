@@ -890,7 +890,7 @@ footer.footer {
     background-color: #fbefe2;
     min-height: 340px;
     height: 100%;
-    text-align: center;
+    text-align: left;
     /* Kortets egen skugga + glass-effekt */
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     backdrop-filter: blur(4px);
@@ -943,3 +943,136 @@ footer.footer {
     line-height: 1.4;
     color: #212529; /* mörk text */
 }
+/* 1) Sätt samma bruna färg som menyn */
+.cards-container .card-title,
+.cards-container .card-content {
+    color: #5a4632; /* ← samma som menyn */
+}
+
+    /* 2) Stäng av alla hover-effekter på texten i korten */
+    .cards-container .card-title:hover,
+    .cards-container .card-content:hover,
+    .cards-container .card:hover .card-title,
+    .cards-container .card:hover .card-content {
+        color: #5a4632 !important;
+        text-decoration: none !important;
+    }
+
+    /* 3) Om p:et skulle råka innehålla länkar – lås dem också */
+    .cards-container .card-content a,
+    .cards-container .card-content a:hover,
+    .cards-container .card-content a:focus {
+        color: #5a4632 !important;
+        text-decoration: underline; /* eller none om du vill utan underline */
+    }
+
+/* (valfritt) Understreck/”ram” under titeln */
+.cards-container .card-title {
+    font-family: 'Cormorant SC', serif;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 1.4rem;
+    margin: 0.5rem 0;
+    color: #5c4433;
+    border: none; /* ingen linje */
+}
+
+/* Content-typsnittet */
+.cards-container .card-content {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    line-height: 1.4;
+}
+/* Titlar i postlistan på startsidan */
+.card-title {
+    font-family: 'Cormorant SC', serif;
+    text-transform: uppercase;
+    font-weight: 700; /* gör fetstil */
+    font-size: 1.4rem;
+    margin: 0.5rem 0;
+    color: #7e6655; /* samma bruna som menyn */
+    -webkit-text-stroke: 0.2px #000;
+    text-stroke: 0.2px #000;
+}
+
+/* Content under titeln */
+.card-content {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #7e6655;
+    text-align: left;
+}
+/* ContactMe titel */
+.contact-title {
+    font-family: 'Cormorant SC', serif;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    color: #7e6655;
+    -webkit-text-stroke: 0.2px #000;
+}
+
+/* ContactMe innehåll (labels, inputs, textarea) */
+.contact-content,
+.contact-form label {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 1rem;
+    color: #7e6655;
+}
+
+/* Input och textarea */
+.contact-form .form-control {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-family: 'Cormorant Garamond', serif;
+    color: #7e6655;
+    background-color: #fbefe2; /* samma bakgrundston */
+}
+
+/* Knappen (återanvänder blog-btn) */
+.blog-btn {
+    background-color: #C48A7D !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 9999px;
+    padding: 0.35rem 1rem;
+    font-size: 0.9rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transition: background-color 0.2s ease-in-out;
+}
+
+    .blog-btn:hover {
+        background-color: #a86d62 !important;
+    }
+.menutext-sm {
+    color: #7e6655; /* samma bruna */
+    font-family: 'Cormorant SC', serif;
+    text-transform: uppercase;
+    font-size: 14px; /* mindre än menyns 19px */
+    text-decoration: none;
+    -webkit-text-stroke: 0.2px #000;
+}
+
+    .menutext-sm:hover {
+        font-weight: bold;
+    }
+
+/* Login-länkarna */
+.login-links a {
+    color: #7e6655; /* samma bruna som menyn */
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    text-decoration: none;
+}
+
+    .login-links a:hover {
+        font-weight: bold;
+        text-decoration: underline;
+    }

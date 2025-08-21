@@ -6,31 +6,35 @@
 
 <div class="card card-extra-padding container-site">
 	<img class="card-img-top mb-3 rounded-2 mt-3" src="~/img/logo/kontaktaoss.jpg" alt="kontaktaoss logotype" />
-<h2>Kontakta mig</h2>
 
-<form class="p-1 p-4 border rounded shadow-sm" method="post">
-	<div class="mb-3">
-		<label asp-for="ContactMe.Name" class="control-label"></label>
-		<input asp-for="ContactMe.Name" class="form-control" />
-		<span asp-validation-for="ContactMe.Name" class="text-danger"></span>
-	</div>
-	<div class="mb-3">
-		<label asp-for="ContactMe.Email" class="control-label"></label>
-		<input asp-for="ContactMe.Email" class="form-control" />
-		<span asp-validation-for="ContactMe.Email" class="text-danger"></span>
-	</div>
-	<div class="mb-3">
-		<label asp-for="ContactMe.Subject" class="control-label"></label>
-		<input asp-for="ContactMe.Subject" class="form-control" />
-		<span asp-validation-for="ContactMe.Subject" class="text-danger"></span>
-	</div>
-	<div class="mb-3">
-		<label asp-for="ContactMe.Message" class="control-label"></label>
-		<textarea asp-for="ContactMe.Message" class="form-control"></textarea>
-		<span asp-validation-for="ContactMe.Message" class="text-danger"></span>
-	</div><br />
+	<h2 class="contact-title">Kontakta mig</h2>
+
+	<form class="contact-form p-1 p-4 border rounded shadow-sm" method="post">
+		<div class="mb-3">
+			<label asp-for="ContactMe.Name" class="control-label contact-content"></label>
+			<input asp-for="ContactMe.Name" class="form-control" />
+			<span asp-validation-for="ContactMe.Name" class="text-danger"></span>
+		</div>
+		<div class="mb-3">
+			<label asp-for="ContactMe.Email" class="control-label contact-content"></label>
+			<input asp-for="ContactMe.Email" class="form-control" />
+			<span asp-validation-for="ContactMe.Email" class="text-danger"></span>
+		</div>
+		<div class="mb-3">
+			<label asp-for="ContactMe.Subject" class="control-label contact-content"></label>
+			<input asp-for="ContactMe.Subject" class="form-control" />
+			<span asp-validation-for="ContactMe.Subject" class="text-danger"></span>
+		</div>
+		<div class="mb-3">
+			<label asp-for="ContactMe.Message" class="control-label contact-content"></label>
+			<textarea asp-for="ContactMe.Message" class="form-control"></textarea>
+			<span asp-validation-for="ContactMe.Message" class="text-danger"></span>
+		</div>
+		<br />
 		<button type="submit" class="btn blog-btn">Skicka</button>
-</form>
+	</form>
+</div>
+
 	@if (TempData["addMessage"] != null)
 	{
 			<br />

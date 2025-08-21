@@ -50,8 +50,8 @@
                                  onerror="this.onerror=null; this.src='/img/blogg/default.png';"
                                  alt="Bild för @blogg.Title" />
                         </div>
-                        <h5 class="card-title mb-3">@blogg.Title</h5>
-                        <p class="card-text">@blogg.Content.LimitLength(120)</p>
+                        <h5 class="card-title blogg-title">@blogg.Title</h5>
+                        <p class="card-text blogg-content">@blogg.Content.LimitLength(120)</p>
                         <p class="text-faded">
                             <small class="text-faded">
                                 Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")
@@ -180,9 +180,8 @@
                     &larr; Tillbaka
                 </a>
 
-
-                <h3 class="card-title mb-3">@Model.Blogg.Title</h3>
-                <p class="card-text linebreak">@Model.Blogg.Content</p>
+                <h3 class="card-title blogg-title">@Model.Blogg.Title</h3>
+                <p class="card-text linebreak blogg-content">@Model.Blogg.Content</p>
                 <p class="text-faded">
                     <strong>Författare:</strong> @Model.Blogg.Author<br />
                     <strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToString("yyyy-MM-dd")
@@ -247,7 +246,7 @@
                                             @($"{(c.CreatedAt.Kind == DateTimeKind.Utc ? c.CreatedAt.ToLocalTime() : c.CreatedAt):yyyy-MM-dd HH:mm}")
                                         </small>
                                     </div>
-                                    <div class="comment-body">@c.Content</div>
+                                    <div class="comment-body">@c.Content</div> <!-- ✅ fått egen klass -->
                                 </div>
 
                                 @* Visa ta bort för admin/superadmin/superuser ELLER kommentarsägaren *@
@@ -289,21 +288,22 @@
                         else
                         {
                             <div class="mb-3">
-                                <label asp-for="Comment.Name" class="form-label">Namn</label>
-                                <input asp-for="Comment.Name" class="form-control" />
+                                <label asp-for="Comment.Name" class="form-label">Namn</label> <!-- ✅ form-label -->
+                                <input asp-for="Comment.Name" class="form-control" />         <!-- ✅ form-control -->
                                 <span asp-validation-for="Comment.Name" class="text-danger"></span>
                             </div>
                         }
 
                         <div class="mb-3">
-                            <label asp-for="Comment.Content" class="form-label">Kommentar</label>
-                            <textarea asp-for="Comment.Content" class="form-control" rows="4"></textarea>
+                            <label asp-for="Comment.Content" class="form-label">Kommentar</label> <!-- ✅ form-label -->
+                            <textarea asp-for="Comment.Content" class="form-control" rows="4"></textarea> <!-- ✅ form-control -->
                             <span asp-validation-for="Comment.Content" class="text-danger"></span>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Skicka kommentar</button>
+                        <button type="submit" class="btn">Skicka kommentar</button> <!-- ✅ bytt till samma .btn -->
                     </form>
                 </section>
+
             </div>
         </div>
     }

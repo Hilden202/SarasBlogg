@@ -31,13 +31,11 @@
                      alt="Bild för @post.Title"
                      loading="lazy" />
             </div>
-
             @* <div class="flower">🌸</div> *@
-            <h4 class="card-title text-dark">@post.Title.LimitLength(20)</h4>
+            <h4 class="card-title">@post.Title.LimitLength(20)</h4>
             <p class="card-content">
                 @((post.Content?.Length ?? 0) > 142 ? post.Content.Substring(0, 142) + "..." : post.Content)
             </p>
-
             <div class="card-footer">
                 <a asp-page="/Blogg" asp-route-showId="@post.Id" class="btn btn-primary btn-sm">Läs mer…</a>
             </div>

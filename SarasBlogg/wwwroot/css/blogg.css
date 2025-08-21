@@ -258,3 +258,99 @@
         color: #fff !important;
     }
 
+/* === Blogg-typsnitt & färger (separat från menyn) === */
+
+/* Titel i bloggkort och i detaljvy */
+.blogg-title,
+.blogg-link .card-title {
+    font-family: 'Cormorant SC', serif;
+    text-transform: uppercase;
+    font-weight: 700; /* alltid fet */
+    font-size: 1.4rem;
+    margin: 0.5rem 0;
+    color: #7e6655; /* samma bruna som menyn */
+    -webkit-text-stroke: 0.2px #000;
+    text-stroke: 0.2px #000; /* för vissa browsers */
+}
+
+/* Innehållstext i bloggkort och detaljvy */
+.blogg-content,
+.blogg-link .card-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400; /* tunnare brödtext */
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #7e6655; /* samma bruna som menyn */
+    text-align: left; /* alltid vänsterställd */
+}
+
+/* Neutralisera länkfärg och hover för hela bloggkortet */
+a.blogg-link,
+a.blogg-link:hover,
+a.blogg-link:focus,
+a.blogg-link:visited {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* Lås textfärg på titel & content även vid hover */
+.blogg-link:hover .blogg-title,
+.blogg-link:hover .blogg-content {
+    color: #7e6655; /* samma bruna */
+    text-decoration: none;
+    /* OBS: ingen font-weight här → titeln förblir fet */
+}
+/* Kommentar-sektion titel */
+#comments h5 {
+    font-family: 'Cormorant SC', serif;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: #7e6655;
+    -webkit-text-stroke: 0.2px #000;
+}
+
+/* Kommentar-brödtext */
+.comment-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #7e6655;
+}
+
+/* Kommentarer – inmatningsfält */
+#comments .form-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: #7e6655;
+}
+
+#comments .form-control {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-family: 'Cormorant Garamond', serif;
+    color: #7e6655;
+    background-color: #fbefe2;
+}
+
+/* Kommentar-knappar */
+#comments .btn {
+    background-color: #C48A7D !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 9999px;
+    padding: 0.35rem 1rem;
+    font-size: 0.9rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transition: background-color 0.2s ease-in-out;
+}
+
+    #comments .btn:hover {
+        background-color: #a86d62 !important;
+        color: #fff !important;
+    }

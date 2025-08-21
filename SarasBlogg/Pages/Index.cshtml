@@ -34,9 +34,9 @@
                          src="@(string.IsNullOrWhiteSpace(Model.AboutMe.Image) ? "/img/blogg/default.png" : Model.AboutMe.Image)"
                          onerror="this.onerror=null; this.src='/img/blogg/default.png';"
                          alt="Om Mig-bild" />
-                    <div class="aboutme-text">
-                        <h3>@Model.AboutMe.Title</h3>
-                        <p class="linebreak">@Model.AboutMe.Content</p>
+                    <div>
+                        <h3 class="blogg-title">@Model.AboutMe.Title</h3>
+                        <p class="blogg-content linebreak">@Model.AboutMe.Content</p>
                     </div>
                 </div>
             }

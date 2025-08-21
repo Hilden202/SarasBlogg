@@ -15,12 +15,13 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a class="nav-link theme-dependent" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+            <a class="menutext-sm nav-link theme-dependent"
+               asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
                 Hej @userName!
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link theme-dependent" href="#"
+            <a class="menutext-sm nav-link theme-dependent" href="#"
                onclick="document.getElementById('logoutForm').submit(); return false;">
                 Logga ut
             </a>
@@ -29,7 +30,8 @@
     else
     {
         <li class="nav-item">
-            <a class="nav-link theme-dependent" asp-area="Identity" asp-page="/Account/Login">Logga in</a>
+            <a class="menutext-sm nav-link theme-dependent"
+               asp-area="Identity" asp-page="/Account/Login">Logga in</a>
         </li>
     }
 </ul>
