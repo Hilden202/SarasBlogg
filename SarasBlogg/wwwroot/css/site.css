@@ -845,3 +845,81 @@ footer.border-top {
         margin-left: 8px; /* liten justering, känns inte trångt */
     }
 }
+
+/***** === FINAL STABILITY PATCH: no flicker near tablet === *****/
+
+/* 1) Se till att vi alltid kör GRID (inte ärvda flexregler) */
+.content-container {
+    display: grid !important;
+    grid-template-columns: minmax(0, 700px) minmax(300px, 380px) !important; /* desktop */
+    gap: 2rem !important;
+    width: auto !important;
+    max-width: min(100%, 700px + 380px + 2rem) !important;
+    margin-inline: auto !important;
+    align-items: start !important;
+}
+
+/* 2) Nollställ gamla “putta-höger”/padding-justeringar nära 991px */
+@media (max-width: 992px) {
+    .om-mig-box {
+        padding-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .aboutme-img {
+        margin-left: 0 !important;
+    }
+}
+
+/* 3) Tablet (769–992px): behåll 2 kolumner och centrera blocket */
+@media (min-width: 769px) and (max-width: 992px) {
+    .content-container {
+        grid-template-columns: 1fr 320px !important; /* blogg + smalare om-mig */
+        justify-content: center !important; /* centrera hela gridet */
+    }
+
+    .om-mig-box {
+        justify-self: center !important;
+        margin-inline: auto !important;
+    }
+}
+
+/* 4) Mobil (≤768px): stacka och centrera */
+@media (max-width: 768px) {
+    .content-container {
+        grid-template-columns: 1fr !important;
+    }
+
+    .om-mig-box {
+        max-width: min(560px, 96%) !important;
+        margin: 0 auto !important;
+        justify-self: center !important;
+    }
+
+    .aboutme-wrapper {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        text-align: center !important;
+    }
+
+    .aboutme-img {
+        margin: 0 auto !important;
+        width: 130px !important;
+        height: 130px !important;
+        border-radius: 9999px !important;
+        object-fit: cover !important;
+    }
+}
+
+/* 5) Säkra att om-mig inte får någon oväntad offset */
+.om-mig-box {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* 6) Ta bort “ryck”: blockera ev. tidigare flex-styrning */
+.content-container {
+    flex-direction: initial !important;
+    justify-content: initial !important;
+}

@@ -26,27 +26,26 @@
     </div>
 
     <div class="om-mig-box">
-        <a asp-page="/OmMig" class="text-decoration-none">
-            <div>
-                @if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
-                {
-                        <div class="d-flex align-items-start gap-4 aboutme-wrapper">
-                        <img class="aboutme-img"
-                             src="@(string.IsNullOrWhiteSpace(Model.AboutMe.Image) ? "/img/blogg/default.png" : Model.AboutMe.Image)"
-                             onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-                             alt="Om Mig-bild" />
-                        @* <img class="aboutme-img" src="~/img/aboutme/@Model.AboutMe.Image" alt="Om Mig-bild" /> *@
-                        <div>
-                            <h3>@Model.AboutMe.Title</h3>
-                            <p class="linebreak">@Model.AboutMe.Content</p>
-                        </div>
+        <a asp-page="/OmMig" class="text-decoration-none aboutme-link">
+            @if (Model.AboutMe != null && !string.IsNullOrEmpty(Model.AboutMe.Image))
+            {
+                <div class="aboutme-wrapper">
+                    <img class="aboutme-img"
+                         src="@(string.IsNullOrWhiteSpace(Model.AboutMe.Image) ? "/img/blogg/default.png" : Model.AboutMe.Image)"
+                         onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+                         alt="Om Mig-bild" />
+                    <div class="aboutme-text">
+                        <h3>@Model.AboutMe.Title</h3>
+                        <p class="linebreak">@Model.AboutMe.Content</p>
                     </div>
-                }
-                else
-                {
-                    <p>Om mig-sektionen är ännu inte skapad.</p>
-                }
+                </div>
+            }
+            else
+            {
+                <p>Om mig-sektionen är ännu inte skapad.</p>
+            }
         </a>
+
     </div>
 </div>
 
