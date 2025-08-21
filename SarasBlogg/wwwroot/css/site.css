@@ -835,17 +835,6 @@ footer.border-top {
     height: clamp(300px, 55vw, 520px);
 }
 
-/* Tablet & mobil – mindre buffert, snyggare centrering */
-@media (max-width: 991px) {
-    .om-mig-box {
-        padding-left: 12px;
-    }
-
-    .aboutme-img {
-        margin-left: 8px; /* liten justering, känns inte trångt */
-    }
-}
-
 /***** === FINAL STABILITY PATCH: no flicker near tablet === *****/
 
 /* 1) Se till att vi alltid kör GRID (inte ärvda flexregler) */
