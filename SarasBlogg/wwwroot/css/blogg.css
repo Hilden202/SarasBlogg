@@ -62,6 +62,7 @@
     }
 
 .card {
+    background-color: #fbefe2 !important;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -238,4 +239,22 @@
     }
 /* röd */
 
+.card .btn,
+#comments .btn {
+    background-color: #C48A7D !important; /* SarasBlogg-rosa */
+    color: #fff !important;
+    border: none !important;
+    border-radius: 9999px; /* pill-form */
+    padding: 0.35rem 1rem;
+    font-size: 0.9rem;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transition: background-color 0.2s ease-in-out;
+}
+
+    .card .btn:hover,
+    #comments .btn:hover {
+        background-color: #a86d62 !important; /* mörkare vid hover */
+        color: #fff !important;
+    }
 
