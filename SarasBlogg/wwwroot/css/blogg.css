@@ -165,11 +165,6 @@
     }
 }
 
-/* Modal för fullscreen-bild ska ärva sidans bakgrund */
-#imageLightbox .modal-content {
-    background: inherit !important;
-}
-
 .thumb-strip {
     display: flex;
     gap: .5rem;

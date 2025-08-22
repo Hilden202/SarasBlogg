@@ -310,7 +310,9 @@
 </div>
 
 <!-- Fullscreen Image Modal -->
-<div class="modal fade" id="imageLightbox" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="imageLightbox" tabindex="-1" aria-hidden="true"
+     data-bs-backdrop="false" data-bs-keyboard="true">
+
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content bg-black">
             <div class="modal-body p-0 d-flex align-items-center justify-content-center">
@@ -322,20 +324,42 @@
 </div>
 
 <script>
-    document.addEventListener('click', function (e) {
-        const img = e.target.closest('.js-lightbox');
-        if (!img) return;
+    (() => {
+      const modalEl = document.getElementById('imageLightbox');
+      const imgEl   = document.getElementById('lightboxImg');
 
-        document.getElementById('lightboxImg').src = img.src;
+      // Skapa/återanvänd en modalinstans med önskad konfig (ingen backdrop, Esc aktiv)
+      function ensureInstance() {
+        let inst = bootstrap.Modal.getInstance(modalEl);
+        if (!inst) inst = new bootstrap.Modal(modalEl, { backdrop: false, keyboard: true });
+        return inst;
+      }
 
-        const modalEl = document.getElementById('imageLightbox');
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.show();
-    });
+      // Öppna lightbox när man klickar en bild med .js-lightbox
+      document.addEventListener('click', (e) => {
+        const triggerImg = e.target.closest('.js-lightbox');
+        if (!triggerImg) return;
 
-    document.getElementById('lightboxImg').addEventListener('click', function () {
-        const modalEl = document.getElementById('imageLightbox');
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        if (modal) modal.hide();
-    });
+        imgEl.src = triggerImg.src;
+        ensureInstance().show();
+      });
+
+      // Stäng på klick var som helst i modalen (inkl. bredvid bilden)
+      modalEl.addEventListener('click', () => {
+        const inst = bootstrap.Modal.getInstance(modalEl);
+        if (inst) inst.hide();
+      });
+
+      // Extra säkerhet: stäng på Esc (även om Bootstrap skulle missa det)
+      modalEl.addEventListener('shown.bs.modal', () => {
+        const onKey = (ev) => { if (ev.key === 'Escape') ensureInstance().hide(); };
+        modalEl._onKey = onKey;
+        document.addEventListener('keydown', onKey);
+      });
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        if (modalEl._onKey) document.removeEventListener('keydown', modalEl._onKey);
+        modalEl._onKey = null;
+      });
+    })();
 </script>
+

@@ -1079,3 +1079,23 @@ footer.footer {
         font-weight: bold;
         text-decoration: underline;
     }
+/* Se till att karusellens kontroller alltid ligger ovanför bilden */
+.carousel .carousel-control-prev,
+.carousel .carousel-control-next,
+.carousel .carousel-indicators {
+    z-index: 10 !important;
+    pointer-events: auto !important;
+}
+
+/* Bilden ska ligga under kontrollerna */
+.card-img-wrapper .bloggimg {
+    position: relative; /* redan så, men säkerställ */
+    z-index: 1 !important;
+}
+
+/* Säkerställ att wrappern skapar stacking context korrekt */
+.carousel,
+.carousel .carousel-inner,
+.card-img-wrapper {
+    position: relative;
+}
