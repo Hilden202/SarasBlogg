@@ -890,12 +890,12 @@ footer.footer {
     position: relative;
     border-radius: 20px;
     padding: 1rem;
-    background-color: #fbefe2;
+    background-color: #fbefe2 !important;
     min-height: 340px;
     height: 100%;
     text-align: left;
-    /* Kortets egen skugga + glass-effekt */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    /* Kortets egen skugga i rosa/röd ton */
+    box-shadow: 0 2px 6px rgba(231, 84, 128, 0.2);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
 }
