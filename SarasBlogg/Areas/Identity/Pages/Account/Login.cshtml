@@ -63,30 +63,30 @@
             const btn  = document.getElementById("login-submit");
             if (!form || !btn) return;
 
-            // Kör ENDAST på submit (fångar både klick & Enter)
-            form.addEventListener("submit", () => {
-                // deferr'a så submit hinner skickas innan vi disable:ar knappen
-                setTimeout(startLoading, 0);
+            form.addEventListener("submit", (e) => {
+                // stoppa default precis nu
+                e.preventDefault();
+
+                // starta visuell feedback och disable
+                startLoading();
+
+                // låt browsern måla (2 frames), SEN skicka form
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        form.submit(); // startar navigation → inga fler frames på denna sida
+                    });
+                });
             });
 
             function startLoading() {
-                if (btn.disabled) return; // redan igång
+                if (btn.disabled) return;
                 btn.disabled = true;
-
-                let step = 0;
-                const dots = [".", "..", "...", "."]; // . -> .. -> ... -> .
-                btn.innerText = "Loggar in" + dots[step];
-
-                const interval = setInterval(() => {
-                    step = (step + 1) % dots.length;
-                    btn.innerText = "Loggar in" + dots[step];
-                }, 500);
-
-                window.addEventListener("beforeunload", () => clearInterval(interval));
+                btn.innerText = "Loggar in…"; // använd ellipsis direkt så det syns
             }
         });
     </script>
 }
+
 
 
 
