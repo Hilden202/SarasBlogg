@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using SarasBlogg.DAL;
 using SarasBlogg.Data;
 using SarasBlogg.Services;
@@ -10,6 +11,8 @@ using Polly;
 using Polly.Extensions.Http;
 using System.Net.Http;
 using HealthChecks.NpgSql;
+using System.IO;
+
 
 namespace SarasBlogg
 {
@@ -47,6 +50,29 @@ namespace SarasBlogg
                 Timeout = 15
             };
             var pgConn = csb.ConnectionString;
+
+            // ---- DataProtection: smart conn-str val + fallback ----
+            string? dpConnName = builder.Configuration["DataProtection:ConnectionStringName"];
+            string? dpConn =
+                (dpConnName is not null ? builder.Configuration.GetConnectionString(dpConnName) : null)
+                ?? builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? builder.Configuration.GetConnectionString("MyConnection");
+
+            if (!string.IsNullOrWhiteSpace(dpConn))
+            {
+                builder.Services.AddDbContext<DataProtectionKeysContext>(opt => opt.UseNpgsql(dpConn));
+                builder.Services.AddDataProtection()
+                    .PersistKeysToDbContext<DataProtectionKeysContext>()
+                    .SetApplicationName("SarasBloggSharedKeys");
+            }
+            else
+            {
+                Directory.CreateDirectory("/app/data-keys");
+                builder.Services.AddDataProtection()
+                    .PersistKeysToFileSystem(new DirectoryInfo("/app/data-keys"))
+                    .SetApplicationName("SarasBloggSharedKeys");
+            }
+            // ---- slut DataProtection ----
 
             // Health checks
             builder.Services.AddHealthChecks()
