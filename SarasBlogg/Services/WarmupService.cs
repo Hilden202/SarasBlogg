@@ -30,16 +30,14 @@ namespace SarasBlogg.Services
             // liten fördröjning så Kestrel hinner lyfta
             await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
 
+            // 1) Väcka DB (SELECT 1)
             try
             {
-                // 1) Väcka DB (SELECT 1)
-                using (var scope = _sp.CreateScope())
-                {
-                    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    await db.Database.OpenConnectionAsync(stoppingToken);
-                    await db.Database.ExecuteSqlRawAsync("SELECT 1;", cancellationToken: stoppingToken);
-                    await db.Database.CloseConnectionAsync();
-                }
+                using var scope = _sp.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                await db.Database.OpenConnectionAsync(stoppingToken);
+                await db.Database.ExecuteSqlRawAsync("SELECT 1;", cancellationToken: stoppingToken);
+                await db.Database.CloseConnectionAsync();
                 _logger.LogInformation("Warmup: DB connection ok.");
             }
             catch (Exception ex)
@@ -47,37 +45,52 @@ namespace SarasBlogg.Services
                 _logger.LogWarning(ex, "Warmup: DB connection failed (ignored).");
             }
 
+            // 2) Väcka API
             try
             {
                 var apiBase = _config["ApiSettings:BaseAddress"] ?? "https://sarasbloggapi.onrender.com/";
-                var client = _httpFactory.CreateClient("Warmup"); // eller nameof(WarmupService) om du inte namnsatte klienten
+                if (!apiBase.EndsWith("/")) apiBase += "/";
+                var client = _httpFactory.CreateClient("Warmup");
                 client.BaseAddress = new Uri(apiBase);
-                client.Timeout = TimeSpan.FromSeconds(10);
+                client.Timeout = TimeSpan.FromSeconds(45); // kallstart kan ta tid
 
-                var pathsToTry = new[] { "healthz" };
+                // API har "/" och "/health", testa båda
+                var pathsToTry = new[] { "/", "/health" };
 
                 foreach (var path in pathsToTry)
                 {
-                    try
-                    {
-                        // 1) Försök HEAD (snabbare om stöds)
-                        var head = new HttpRequestMessage(HttpMethod.Head, path);
-                        var headResp = await client.SendAsync(head, stoppingToken);
+                    var attempts = 0;
+                    var delay = TimeSpan.FromSeconds(2);
 
-                        if (headResp.IsSuccessStatusCode)
+                    while (attempts < 3 && !stoppingToken.IsCancellationRequested)
+                    {
+                        attempts++;
+                        try
                         {
-                            _logger.LogInformation("Warmup: API HEAD {Path} -> {Status}", path, (int)headResp.StatusCode);
-                            break;
+                            // HEAD först
+                            var head = new HttpRequestMessage(HttpMethod.Head, path);
+                            var headResp = await client.SendAsync(head, stoppingToken);
+                            if (headResp.IsSuccessStatusCode)
+                            {
+                                _logger.LogInformation("Warmup: API HEAD {Path} -> {Status}", path, (int)headResp.StatusCode);
+                                return;
+                            }
+
+                            // fallback GET
+                            var getResp = await client.GetAsync(path, stoppingToken);
+                            if (getResp.IsSuccessStatusCode)
+                            {
+                                _logger.LogInformation("Warmup: API GET {Path} -> {Status}", path, (int)getResp.StatusCode);
+                                return;
+                            }
+                        }
+                        catch (Exception exPath)
+                        {
+                            _logger.LogDebug(exPath, "Warmup: API request {Path} failed (attempt {Attempt}).", path, attempts);
                         }
 
-                        // 2) Fallback till GET om HEAD ej gav 2xx
-                        var getResp = await client.GetAsync(path, stoppingToken);
-                        _logger.LogInformation("Warmup: API GET {Path} -> {Status}", path, (int)getResp.StatusCode);
-                        if (getResp.IsSuccessStatusCode) break;
-                    }
-                    catch (Exception exPath)
-                    {
-                        _logger.LogDebug(exPath, "Warmup: API request {Path} failed (ignored).", path);
+                        await Task.Delay(delay, stoppingToken);
+                        delay = TimeSpan.FromSeconds(Math.Min(delay.TotalSeconds * 2, 10));
                     }
                 }
             }
