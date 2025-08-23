@@ -46,10 +46,9 @@
                 <button id="login-submit" type="submit" class="btn blog-btn w-100">
                     Logga in
                 </button>
-
                 <div class="auth-links mt-3">
-                    <a id="forgot-password" class="link-plain" asp-page="./ForgotPassword">Glömt lösenord?</a>
-                    <a class="link-plain" asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Registrera nytt konto</a>
+                    <a id="forgot-password" class="auth-link" asp-page="./ForgotPassword">Glömt lösenord?</a>
+                    <a class="auth-link" asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Registrera nytt konto</a>
                 </div>
             </form>
 
