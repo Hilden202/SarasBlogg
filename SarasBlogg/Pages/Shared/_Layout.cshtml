@@ -1,161 +1,195 @@
-﻿<!DOCTYPE html>
-<html lang="sv" data-bs-theme="light" data-api-base-url="@Configuration["ApiSettings:BaseAddress"]">
+﻿@using Microsoft.AspNetCore.Identity
+@using SarasBlogg.Data
+@inject IConfiguration Configuration
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-@inject IConfiguration Configuration
+
+@{
+    var apiBase = Configuration["ApiSettings:BaseAddress"];
+}
+
+<!DOCTYPE html>
+<html lang="sv" data-bs-theme="light" data-api-base-url="@apiBase">
 <head>
-	<meta charset="utf-8" />
-	<link rel="icon" type="image/x-icon" href="~/img/logo/hjartafavicon.ico" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<!-- Open Graph metadata for link previews -->
-	<meta property="og:title" content="SarasBlogg" />
-	<meta property="og:description" content="En personlig blogg av Sara Gustafsson" />
-	<meta property="og:url" content="https://sarasblogg.onrender.com/" />
-	<meta property="og:type" content="website" />
-	<meta property="og:image:type" content="image/png" />
-	<meta name="twitter:card" content="summary_large_image" />
-	<title>@ViewData["Title"] - SarasBlogg</title>
-	<script>
-		if (
-		  sessionStorage.getItem('sb_first_visit_done') ||
-		  sessionStorage.getItem('sb_first_visit_done_v2')
-		) {
-		  document.documentElement.classList.add('sb-seen');
-		}
-	</script>
-	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-	<link rel="stylesheet" href="~/css/blogg.css" asp-append-version="true" />
-	<link rel="stylesheet" href="~/css/bloggadmin.css" asp-append-version="true" />
-	<link rel="stylesheet" href="~/SarasBlogg.styles.css" asp-append-version="true" />
-	<link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
-	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/x-icon" href="~/img/logo/hjartafavicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Open Graph metadata for link previews -->
+    <meta property="og:title" content="SarasBlogg" />
+    <meta property="og:description" content="En personlig blogg av Sara Gustafsson" />
+    <meta property="og:url" content="https://sarasblogg.onrender.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image:type" content="image/png" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <title>@ViewData["Title"] - SarasBlogg</title>
+
+    <script>
+        if (sessionStorage.getItem('sb_first_visit_done') ||
+            sessionStorage.getItem('sb_first_visit_done_v2')) {
+          document.documentElement.classList.add('sb-seen');
+        }
+    </script>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/blogg.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/bloggadmin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SarasBlogg.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
 </head>
 <body>
-	@* Loading overlay temporärt inaktiverad för att felsöka kallstartsproblem *@
-@* 	<div id="loading-overlay" aria-live="polite" aria-busy="true">
-		<div class="loader-content">
-			<img src="/img/logo/sarasblogg_loading_text.png"
-				 alt="SarasBlogg logga"
-				 class="loading-logo no-fade"
-				 data-critical="1"/>
-			<p>Laddar SarasBlogg...</p>
-			<div class="dot-loader" aria-hidden="true">
-				<span>.</span><span>.</span><span>.</span>
-			</div>
-			<p id="loader-status-text" class="loader-status">Startar…</p>
-		</div>
-	</div> *@
-	<div class="page-wrapper">
-		@* <img src="/img/logo/top-line.png" data-critical="1" alt="Top line" class="top-line" /> *@
-		@* <img src="/img/logo/top-corner-right.png" data-critical="1" alt="Högerhörnbild" class="rightcorner-image" /> *@
-		@* <img src="/img/logo/bottom-corner-left.png" data-critical="1" alt="Vänsterhörnbild" class="leftcorner-image" /> *@
-		<img src="/img/logo/hJärtatvänsterhörnuppebeskuret.png" data-critical="1" alt="Flower top left corner" class="topleft-corner-flower" />
-		<!-- dekor-lager som klipper allt innanför sidan -->
-		<div class="decor-layer" aria-hidden="true">
-			<img src="/img/logo/hjärtahögerhörnnerebeskuret.png"
-				 data-critical="1"
-				 alt="Flower bottom right corner"
-				 class="bottomright-corner-flower" />
-		</div>
-		<div class="decor-layer">
-			<img src="/img/logo/moln.png" alt="" class="cloud cloud-1" />
-			<img src="/img/logo/moln.png" alt="" class="cloud cloud-2" />
-			<img src="/img/logo/moln.png" alt="" class="cloud cloud-3" />
-		</div>
-		<header>
-			<nav class="navbar navbar-expand-sm navbar-light">
-				<div class="container">
-@* 					<a class="navbar-brand" asp-area="" asp-page="/Index">
-						<img src="~/img/logo/medhjärtatsomkompass.png" alt="Saras Blogg" class="navbar-logo" />
-					</a> *@
-					<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-							aria-expanded="false" aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
-					<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-						<ul class="navbar-nav flex-grow-1 justify-content-center">
-						</ul>
-						<div class="d-flex align-items-center ms-3">
-							<partial name="_LoginPartial" />
-						</div>
-						@*<button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button> *@
-					</div>
-				</div>
-			</nav>
-			<div class="text-center">
-				<h1 class="header-title">
-					@*<a asp-area="" asp-page="/Index">
-					<img class="sg-logo img-fluid" src="~/img/logo/sglogga.png" alt="Sara Gustafsson logotype" />
-				</a> *@
-				</h1> <br />
-				@* <h2 class="header-text">När ingen ser mig då hittar jag mig</h2> *@
-			</div>
-			<nav class="navbar-expand-sm border-bottom">
-				<div class="container d-flex justify-content-center">
-					<ul class="mynav">
-						<li class="nav-item me-3">
-							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Index" ? "fw-bold" : "")" asp-area="" asp-page="/Index">Hem</a>
-						</li>
-						<li class="nav-item me-3">
-							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Blogg" ? "fw-bold" : "")" asp-area="" asp-page="/Blogg">Blogg</a>
-						</li>
-						<li class="nav-item me-3">
-							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/AboutMe" ? "fw-bold" : "")" asp-area="" asp-page="/AboutMe">Om mig</a>
-						</li>
-						<li class="nav-item me-3">
-							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Arkiv" ? "fw-bold" : "")" asp-area="" asp-page="/Arkiv">Arkiv</a>
-						</li>
-						<li class="nav-item me-3">
-							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Contact" ? "fw-bold" : "")" asp-area="" asp-page="/Contact">Kontakt</a>
-						</li>
-						@if (User.IsInRole("admin") || User.IsInRole("superadmin"))
-						{
-							<li class="nav-item me-3">
-								<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Admin") == true ? "fw-bold" : "")" asp-area="" asp-page="/Admin/Index">Admin</a>
-							</li>
-						}
-					</ul>
-				</div>
-			</nav>
-		</header>
-		<br />
-		<div class="container">
-			<partial name="_CookieConsentPartial" />
-			<main role="main" class="pb-3">
-				@RenderBody()
-			</main>
-		</div>
-		<footer class="border-top footer text-faded">
-			<div class="container d-flex justify-content-between align-items-center">
+    @* Loading overlay temporärt inaktiverad för felsökning – spara för senare *@
+    @*  <div id="loading-overlay" aria-live="polite" aria-busy="true">
+          <div class="loader-content">
+            <img src="/img/logo/sarasblogg_loading_text.png"
+                 alt="SarasBlogg logga"
+                 class="loading-logo no-fade"
+                 data-critical="1"/>
+            <p>Laddar SarasBlogg...</p>
+            <div class="dot-loader" aria-hidden="true">
+              <span>.</span><span>.</span><span>.</span>
+            </div>
+            <p id="loader-status-text" class="loader-status">Startar…</p>
+          </div>
+        </div> *@
+
+    <div class="page-wrapper">
+        @* <img src="/img/logo/top-line.png" data-critical="1" alt="Top line" class="top-line" /> *@
+        @* <img src="/img/logo/top-corner-right.png" data-critical="1" alt="Högerhörnbild" class="rightcorner-image" /> *@
+        @* <img src="/img/logo/bottom-corner-left.png" data-critical="1" alt="Vänsterhörnbild" class="leftcorner-image" /> *@
+
+        <img src="/img/logo/hJärtatvänsterhörnuppebeskuret.png"
+             data-critical="1"
+             alt="Flower top left corner"
+             class="topleft-corner-flower" />
+
+        <!-- dekor-lager -->
+        <div class="decor-layer" aria-hidden="true">
+            <img src="/img/logo/hjärtahögerhörnnerebeskuret.png"
+                 data-critical="1"
+                 alt="Flower bottom right corner"
+                 class="bottomright-corner-flower" />
+        </div>
+        <div class="decor-layer">
+            <img src="/img/logo/moln.png" alt="" class="cloud cloud-1" />
+            <img src="/img/logo/moln.png" alt="" class="cloud cloud-2" />
+            <img src="/img/logo/moln.png" alt="" class="cloud cloud-3" />
+        </div>
+
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-light">
+                <div class="container">
+                    @* <a class="navbar-brand" asp-area="" asp-page="/Index">
+                         <img src="~/img/logo/medhjärtatsomkompass.png" alt="Saras Blogg" class="navbar-logo" />
+                       </a> *@
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1 justify-content-center"></ul>
+                        <div class="d-flex align-items-center ms-3">
+                            <partial name="_LoginPartial" />
+                        </div>
+                        @* <button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button> *@
+                    </div>
+                </div>
+            </nav>
+
+            <div class="text-center">
+                <h1 class="header-title">
+                    @* <a asp-area="" asp-page="/Index">
+                           <img class="sg-logo img-fluid" src="~/img/logo/sglogga.png" alt="Sara Gustafsson logotype" />
+                       </a> *@
+                </h1>
+                <br />
+                @* <h2 class="header-text">När ingen ser mig då hittar jag mig</h2> *@
+            </div>
+
+            <nav class="navbar-expand-sm border-bottom">
+                <div class="container d-flex justify-content-center">
+                    <ul class="mynav">
+                        <li class="nav-item me-3">
+                            <a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Index" ? "fw-bold" : "")"
+                               asp-area="" asp-page="/Index">Hem</a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Blogg" ? "fw-bold" : "")"
+                               asp-area="" asp-page="/Blogg">Blogg</a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/AboutMe" ? "fw-bold" : "")"
+                               asp-area="" asp-page="/AboutMe">Om mig</a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Arkiv" ? "fw-bold" : "")"
+                               asp-area="" asp-page="/Arkiv">Arkiv</a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Contact" ? "fw-bold" : "")"
+                               asp-area="" asp-page="/Contact">Kontakt</a>
+                        </li>
+                        @if (User.IsInRole("admin") || User.IsInRole("superadmin"))
+                        {
+                            <li class="nav-item me-3">
+                                <a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Admin") == true ? "fw-bold" : "")"
+                                   asp-area="" asp-page="/Admin/Index">Admin</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <br />
+
+        <div class="container">
+            <partial name="_CookieConsentPartial" />
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer class="border-top footer text-faded">
+            <div class="container d-flex justify-content-between align-items-center">
                 <span>&copy; 2025 - <a href="~/Index" class="text-reset text-decoration-none">SarasBlogg</a> - <a href="~/Privacy" class="link-secondary">Policy</a></span>
-				<div class="social-icons d-flex gap-3">
-					<a href="https://www.instagram.com/saragurrasson/" target="_blank" aria-label="Instagram">
-						<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-							<path d="M7.75 2A5.75 5.75 0 0 0 2 7.75v8.5A5.75 5.75 0 0 0 7.75 22h8.5A5.75 5.75 0 0 0 22 16.25v-8.5A5.75 5.75 0 0 0 16.25 2h-8.5ZM4.5 7.75a3.25 3.25 0 0 1 3.25-3.25h8.5a3.25 3.25 0 0 1 3.25 3.25v8.5a3.25 3.25 0 0 1-3.25 3.25h-8.5a3.25 3.25 0 0 1-3.25-3.25v-8.5Zm7.5 1.25a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm0 1.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm4.38-2.63a.88.88 0 1 0 0 1.75.88.88 0 0 0 0-1.75Z" />
-						</svg>
-					</a>
-					<a href="https://www.facebook.com/saragussen" target="_blank" aria-label="Facebook">
-						<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-							<path d="M13.5 9H15l.5-3.5h-2a3 3 0 0 0-3 3v2H9v3h1.5v7h3v-7H15l.5-3H13.5V9Z" />
-						</svg>
-					</a>
-					<a href="https://www.youtube.com/@@saragustafsson8478" target="_blank" aria-label="YouTube">
-						<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-							<path d="M10 15.5v-7l6 3.5-6 3.5ZM2 12c0 5.52 4.48 10 10 10s10-4.48 10-10S17.52 2 12 2 2 6.48 2 12Z" />
-						</svg>
-					</a>
-				</div>
-			</div>
-		</footer>
-		<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-		<script src="~/js/site.js" asp-append-version="true"></script>
-		@await RenderSectionAsync("Scripts", required: false)
-		<partial name="_ValidationScriptsPartial" />
-		@if (ViewData["ApiFirstLoadDone"] is true)
-		{
-			<script>window.sbApiFirstLoadDone?.();</script>
-		}
-	</div>
+                <div class="social-icons d-flex gap-3">
+                    <a href="https://www.instagram.com/saragurrasson/" target="_blank" aria-label="Instagram">
+                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7.75 2A5.75 5.75 0 0 0 2 7.75v8.5A5.75 5.75 0 0 0 7.75 22h8.5A5.75 5.75 0 0 0 22 16.25v-8.5A5.75 5.75 0 0 0 16.25 2h-8.5ZM4.5 7.75a3.25 3.25 0 0 1 3.25-3.25h8.5a3.25 3.25 0 0 1 3.25 3.25v8.5a3.25 3.25 0 0 1-3.25 3.25h-8.5a3.25 3.25 0 0 1-3.25-3.25v-8.5Zm7.5 1.25a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm0 1.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm4.38-2.63a.88.88 0 1 0 0 1.75.88.88 0 0 0 0-1.75Z" />
+                        </svg>
+                    </a>
+                    <a href="https://www.facebook.com/saragussen" target="_blank" aria-label="Facebook">
+                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M13.5 9H15l.5-3.5h-2a3 3 0 0 0-3 3v2H9v3h1.5v7h3v-7H15l.5-3H13.5V9Z" />
+                        </svg>
+                    </a>
+                    <a href="https://www.youtube.com/@@saragustafsson8478" target="_blank" aria-label="YouTube">
+                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M10 15.5v-7l6 3.5-6 3.5ZM2 12c0 5.52 4.48 10 10 10s10-4.48 10-10S17.52 2 12 2 2 6.48 2 12Z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </footer>
+
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+
+        @await RenderSectionAsync("Scripts", required: false)
+        <partial name="_ValidationScriptsPartial" />
+
+        @* Signal till overlay (om du återaktiverar den) att första dataladdningen är klar *@
+        @if (ViewData["ApiFirstLoadDone"] is true)
+        {
+            <script>window.sbApiFirstLoadDone?.();</script>
+        }
+    </div>
 </body>
 </html>
