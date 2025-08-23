@@ -1,8 +1,9 @@
-﻿using SarasBlogg.Data;
-using SarasBlogg.ViewModels;
+﻿using SarasBlogg.ViewModels;
 using SarasBlogg.Models;
 using SarasBlogg.Extensions;
 using SarasBlogg.DAL;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace SarasBlogg.Services
 {
@@ -12,20 +13,25 @@ namespace SarasBlogg.Services
         private readonly CommentAPIManager _commentApi;
         private readonly ForbiddenWordAPIManager _forbiddenWordApi;
         private readonly BloggImageAPIManager _imageApi;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger<BloggService> _logger;
 
         public BloggService(
             BloggAPIManager bloggApi,
             CommentAPIManager commentApi,
+            IMemoryCache cache,
             ForbiddenWordAPIManager forbiddenWordApi,
-            BloggImageAPIManager imageApi)
+            BloggImageAPIManager imageApi,
+            ILogger<BloggService> logger)
         {
             _bloggApi = bloggApi;
             _commentApi = commentApi;
+            _cache = cache;
             _forbiddenWordApi = forbiddenWordApi;
             _imageApi = imageApi;
+            _logger = logger;
         }
 
-        // 🔹 Hjälpmetod för att hämta bilder till en blogg
         private async Task AttachImagesAsync(Blogg blogg)
         {
             blogg.Images = await _imageApi.GetImagesByBloggIdAsync(blogg.Id);
@@ -35,17 +41,17 @@ namespace SarasBlogg.Services
         {
             var viewModel = new BloggViewModel();
 
-            var allBloggs = await _bloggApi.GetAllBloggsAsync();
+            // Hämta ALLA (cacheat) och filtrera lokalt
+            var allBloggs = await GetAllBloggsAsync(includeArchived: true);
 
             viewModel.Bloggs = allBloggs
-                .Where(b => (isArchive ? b.IsArchived : !b.IsArchived) && !b.Hidden && b.LaunchDate <= DateTime.Today)
+                .Where(b => (isArchive ? b.IsArchived : !b.IsArchived)
+                            && !b.Hidden
+                            && b.LaunchDate <= DateTime.Today)
                 .ToList();
 
-            // 🔹 Hämta bilder för alla bloggar i listvyn
             foreach (var blogg in viewModel.Bloggs)
-            {
                 await AttachImagesAsync(blogg);
-            }
 
             viewModel.IsArchiveView = isArchive;
 
@@ -56,7 +62,6 @@ namespace SarasBlogg.Services
                 if (blogg == null)
                 {
                     blogg = await _bloggApi.GetBloggAsync(showId);
-
                     if (blogg != null)
                     {
                         await AttachImagesAsync(blogg);
@@ -68,7 +73,6 @@ namespace SarasBlogg.Services
             }
 
             viewModel.Comments = await _commentApi.GetAllCommentsAsync();
-
             return viewModel;
         }
 
@@ -79,26 +83,16 @@ namespace SarasBlogg.Services
             foreach (var pattern in forbiddenPatterns)
             {
                 if (comment.Content.ContainsForbiddenWord(pattern))
-                {
                     return "Kommentaren innehåller otillåtet språk.";
-                }
                 if (comment.Name.ContainsForbiddenWord(pattern))
-                {
                     return "Namnet innehåller otillåtet språk.";
-                }
             }
             return await _commentApi.SaveCommentAsync(comment);
         }
 
-        public async Task DeleteCommentAsync(int commentId)
-        {
-            await _commentApi.DeleteCommentAsync(commentId);
-        }
+        public Task DeleteCommentAsync(int commentId) => _commentApi.DeleteCommentAsync(commentId);
 
-        public async Task<Comment?> GetCommentAsync(int commentId)
-        {
-            return await _commentApi.GetCommentAsync(commentId);
-        }
+        public Task<Comment?> GetCommentAsync(int commentId) => _commentApi.GetCommentAsync(commentId);
 
         public async Task UpdateViewCountAsync(int bloggId)
         {
@@ -110,21 +104,41 @@ namespace SarasBlogg.Services
             }
         }
 
-        public async Task<List<Blogg>> GetAllBloggsAsync(bool includeArchived = false)
+        /// <summary>
+        /// Hämtar ALLA bloggar (cacheas i 3 min) och filtrerar på includeArchived.
+        /// </summary>
+        public async Task<List<Blogg>> GetAllBloggsAsync(bool includeArchived)
         {
-            var allBloggs = await _bloggApi.GetAllBloggsAsync();
-            var filtered = allBloggs
-                .Where(b => !b.Hidden
-                            && (includeArchived || !b.IsArchived)
-                            && b.LaunchDate <= DateTime.Today)
-                .ToList();
+            const string cacheKey = "blogg:list:all";
 
-            foreach (var blogg in filtered)
+            List<Blogg>? all;
+
+            if (!_cache.TryGetValue(cacheKey, out all))
             {
-                await AttachImagesAsync(blogg);
+                try
+                {
+                    // ❗ Anropa API:t UTAN bool-parameter (det var orsaken till "rött")
+                    all = await _bloggApi.GetAllBloggsAsync();
+
+                    _cache.Set(cacheKey, all, new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3)
+                    });
+                }
+                catch (HttpRequestException ex)
+                {
+                    _logger.LogWarning(ex, "API-fel – visar ev. cache.");
+                }
+                catch (TaskCanceledException ex)
+                {
+                    _logger.LogWarning(ex, "API-timeout – visar ev. cache.");
+                }
             }
 
-            return filtered;
+            all ??= new List<Blogg>();
+
+            // Returnera enligt parametern
+            return includeArchived ? all : all.Where(b => !b.IsArchived).ToList();
         }
     }
 }

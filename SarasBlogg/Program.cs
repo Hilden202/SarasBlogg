@@ -101,15 +101,14 @@ namespace SarasBlogg
                 options.Conventions.AuthorizePage("/Admin", "SkaVaraAdmin");
                 options.Conventions.AuthorizePage("/RoleAdmin", "SkaVaraSuperAdmin");
             });
-
-            // 🔹 Polly-retry-policy för API-anrop (tål kallstart på Render)
+            // 1) EN sammanhängande retry-policy (GET/HEAD) för 5xx/408/HttpRequestException + 429
             static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
             {
                 var jitter = new Random();
 
                 return HttpPolicyExtensions
-                    .HandleTransientHttpError()               // 5xx, 408, HttpRequestException
-                    .OrResult(msg => (int)msg.StatusCode == 429)
+                    .HandleTransientHttpError()                       // 5xx, 408, HttpRequestException
+                    .OrResult(msg => (int)msg.StatusCode == 429)      // Too Many Requests
                     .WaitAndRetryAsync(
                         retryCount: 8,
                         sleepDurationProvider: attempt =>
@@ -118,11 +117,11 @@ namespace SarasBlogg
                     );
             }
 
-            // 🔸 Selektor: endast idempotenta metoder får retry
-            static IAsyncPolicy<HttpResponseMessage> SelectRetryPolicy(HttpRequestMessage req)
-                => (req.Method == HttpMethod.Get || req.Method == HttpMethod.Head)
+            // 2) Endast idempotenta metoder får retry
+            static IAsyncPolicy<HttpResponseMessage> SelectPolicyFor(HttpRequestMessage req) =>
+                (req.Method == HttpMethod.Get || req.Method == HttpMethod.Head)
                     ? GetRetryPolicy()
-                    : Policy.NoOpAsync<HttpResponseMessage>();
+                    : Polly.Policy.NoOpAsync<HttpResponseMessage>();
 
             // TJÄNSTER
             builder.Services.AddScoped<BloggService>();
@@ -159,7 +158,7 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),   // byt ut anslutningar regelbundet
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1) // släng riktigt gamla idle-anslutningar
             })
-            .AddPolicyHandler(SelectRetryPolicy)
+            .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
             .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<BloggAPIManager>(c =>
@@ -172,7 +171,7 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy)
+            .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
             .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<BloggImageAPIManager>(c =>
@@ -185,7 +184,7 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy)
+            .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
             .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<CommentAPIManager>(c =>
@@ -198,7 +197,7 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy)
+            .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
             .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<ForbiddenWordAPIManager>(c =>
@@ -211,7 +210,7 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy)
+            .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
             .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<AboutMeAPIManager>(c =>
@@ -224,7 +223,7 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy)
+            .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
             .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<AboutMeImageAPIManager>(c =>
@@ -237,7 +236,7 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy)
+            .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
             .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<ContactMeAPIManager>(c =>
@@ -250,7 +249,7 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy)
+            .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
             .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<LikeAPIManager>(c =>
@@ -263,7 +262,7 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy)
+            .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
             .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             // COOKIEPOLICY
@@ -272,6 +271,8 @@ namespace SarasBlogg
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+            builder.Services.AddMemoryCache();
 
             builder.Services.AddHostedService<WarmupService>();
 

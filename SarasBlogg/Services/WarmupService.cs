@@ -54,7 +54,7 @@ namespace SarasBlogg.Services
                 client.BaseAddress = new Uri(apiBase);
                 client.Timeout = TimeSpan.FromSeconds(10);
 
-                var pathsToTry = new[] { "healthz", "", "api/Blogg" };
+                var pathsToTry = new[] { "healthz" };
 
                 foreach (var path in pathsToTry)
                 {
