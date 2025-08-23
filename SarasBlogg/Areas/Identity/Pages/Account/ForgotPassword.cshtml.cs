@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.DAL; // där du har din UserAPIManager
 using SarasBlogg.DTOs;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account
 {
+    [AllowAnonymous]
     public class ForgotPasswordModel : PageModel
     {
         private readonly UserAPIManager _userApi;
@@ -31,6 +33,10 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
                 return Page();
 
             var result = await _userApi.ForgotPasswordAsync(Input.Email);
+            if (!string.IsNullOrWhiteSpace(result?.ConfirmEmailUrl))
+            {
+                TempData["DevResetLink"] = result!.ConfirmEmailUrl;
+            }
 
             // alltid redirecta till en "CheckEmail" eller "ForgotPasswordConfirmation" 
             return RedirectToPage("./ForgotPasswordConfirmation");
