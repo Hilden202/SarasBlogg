@@ -4,6 +4,7 @@ using SarasBlogg.Services;
 using SarasBlogg.ViewModels;
 using SarasBlogg.DAL;
 using Humanizer;
+using SarasBlogg.Extensions; // för ev. ToSwedishTime i framtiden
 
 namespace SarasBlogg.Pages
 {
@@ -84,7 +85,7 @@ namespace SarasBlogg.Pages
             if (postId == 0 || ViewModel.Comments == null) return;
 
             // Hämta alla användare en gång
-            var allUsers = await _userApi.GetAllUsersAsync(); // ← den här finns redan hos dig
+            var allUsers = await _userApi.GetAllUsersAsync();
             if (allUsers == null) return;
 
             // Bygg uppslag per UserName (case-insensitive)
@@ -157,9 +158,9 @@ namespace SarasBlogg.Pages
                 ModelState.Remove("Comment.Name");
             }
 
-            // 3) CreatedAt i UTC för nya kommentarer
+            // 3) CreatedAt i UTC för nya kommentarer (exakt tidpunkt)
             if (ViewModel?.Comment != null && ViewModel.Comment.Id == null)
-                ViewModel.Comment.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
+                ViewModel.Comment.CreatedAt = DateTime.UtcNow; // Kind=Utc
 
             // 4) Validera + spara
             if (ModelState.IsValid && ViewModel?.Comment?.Id == null)

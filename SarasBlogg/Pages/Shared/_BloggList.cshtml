@@ -3,6 +3,11 @@
 @using SarasBlogg.DTOs
 @model SarasBlogg.ViewModels.BloggViewModel
 
+@{
+    var nowSE = DateTime.UtcNow.ToSwedishTime();
+    var todaySE = nowSE.Date;
+}
+
 <div class="container-site">
     <!-- Centrerad logga innan innehållet -->
     <div class="index-hero my-4">
@@ -10,7 +15,7 @@
              alt="SarasBlogg textlogga"
              class="index-hero-text" />
 
-@*         @if (!(Model?.IsArchiveView ?? false))
+        @*         @if (!(Model?.IsArchiveView ?? false))
         {  // visa inte i arkivvyn
             <img src="~/img/logo/jagmedbarnen.png"
                  alt="Jag med barnen"
@@ -23,8 +28,8 @@
         var filteredBloggs = (Model.Bloggs ?? new List<Blogg>())
         .Where(b => (Model.IsArchiveView ? b.IsArchived : !b.IsArchived)
         && !b.Hidden
-        && b.LaunchDate <= DateTime.UtcNow)
-        .OrderByDescending(b => b.LaunchDate)
+        && b.LaunchDate.ToSwedishTime() <= nowSE)
+        .OrderByDescending(b => b.LaunchDate.ToSwedishTime())
         .ThenByDescending(b => b.Id);
 
         foreach (var blogg in filteredBloggs)
@@ -54,7 +59,7 @@
                         <p class="card-text blogg-content">@blogg.Content.LimitLength(120)</p>
                         <p class="text-faded">
                             <small class="text-faded">
-                                Publicerad: @blogg.LaunchDate.ToString("yyyy-MM-dd")
+                                Publicerad: @blogg.LaunchDate.ToSwedishTime().ToString("yyyy-MM-dd")
                                 <br />
                                 <span class="js-like"
                                       data-blogg-id="@blogg.Id"
@@ -184,7 +189,7 @@
                 <p class="card-text linebreak blogg-content">@Model.Blogg.Content</p>
                 <p class="text-faded">
                     <strong>Författare:</strong> @Model.Blogg.Author<br />
-                    <strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToString("yyyy-MM-dd")
+                    <strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToSwedishTime().ToString("yyyy-MM-dd")
                     @if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
                     {
                         <br />
@@ -243,7 +248,7 @@
                                             }
                                         </span>
                                         <small class="text-muted ms-2">
-                                            @($"{(c.CreatedAt.Kind == DateTimeKind.Utc ? c.CreatedAt.ToLocalTime() : c.CreatedAt):yyyy-MM-dd HH:mm}")
+                                            @c.CreatedAt.ToSwedishTime().ToString("yyyy-MM-dd HH:mm")
                                         </small>
                                     </div>
                                     <div class="comment-body">@c.Content</div> <!-- ✅ fått egen klass -->
@@ -328,14 +333,12 @@
       const modalEl = document.getElementById('imageLightbox');
       const imgEl   = document.getElementById('lightboxImg');
 
-      // Skapa/återanvänd en modalinstans med önskad konfig (ingen backdrop, Esc aktiv)
       function ensureInstance() {
         let inst = bootstrap.Modal.getInstance(modalEl);
         if (!inst) inst = new bootstrap.Modal(modalEl, { backdrop: false, keyboard: true });
         return inst;
       }
 
-      // Öppna lightbox när man klickar en bild med .js-lightbox
       document.addEventListener('click', (e) => {
         const triggerImg = e.target.closest('.js-lightbox');
         if (!triggerImg) return;
@@ -344,13 +347,11 @@
         ensureInstance().show();
       });
 
-      // Stäng på klick var som helst i modalen (inkl. bredvid bilden)
       modalEl.addEventListener('click', () => {
         const inst = bootstrap.Modal.getInstance(modalEl);
         if (inst) inst.hide();
       });
 
-      // Extra säkerhet: stäng på Esc (även om Bootstrap skulle missa det)
       modalEl.addEventListener('shown.bs.modal', () => {
         const onKey = (ev) => { if (ev.key === 'Escape') ensureInstance().hide(); };
         modalEl._onKey = onKey;
@@ -362,4 +363,3 @@
       });
     })();
 </script>
-

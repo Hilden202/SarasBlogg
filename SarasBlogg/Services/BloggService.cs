@@ -39,14 +39,17 @@ namespace SarasBlogg.Services
         {
             var vm = new BloggViewModel();
 
+            // Svensk "nu"-tid för filtrering/sortering
+            var nowSe = DateTime.UtcNow.ToSwedishTime();
+
             // Hämta alla (cache) och filtrera lokalt
             var all = await GetAllBloggsAsync(includeArchived: true);
 
             vm.Bloggs = all
                 .Where(b => (isArchive ? b.IsArchived : !b.IsArchived)
                             && !b.Hidden
-                            && b.LaunchDate <= DateTime.Today)
-                .OrderByDescending(b => b.LaunchDate)
+                            && b.LaunchDate.ToSwedishTime() <= nowSe)
+                .OrderByDescending(b => b.LaunchDate.ToSwedishTime())
                 .ThenByDescending(b => b.Id)
                 .ToList();
 
@@ -101,11 +104,14 @@ namespace SarasBlogg.Services
 
             all ??= new List<Blogg>();
 
+            // Svensk "nu"-tid för filtrering/sortering
+            var nowSe = DateTime.UtcNow.ToSwedishTime();
+
             var filtered = all
                 .Where(b => !b.Hidden
                             && (includeArchived || !b.IsArchived)
-                            && b.LaunchDate <= DateTime.Today)
-                .OrderByDescending(b => b.LaunchDate)
+                            && b.LaunchDate.ToSwedishTime() <= nowSe)
+                .OrderByDescending(b => b.LaunchDate.ToSwedishTime())
                 .ThenByDescending(b => b.Id)
                 .ToList();
 

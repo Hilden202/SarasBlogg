@@ -2,6 +2,7 @@
 using SarasBlogg.Models;
 using SarasBlogg.Services;
 using SarasBlogg.DAL;
+using SarasBlogg.Extensions; // ToSwedishTime
 
 namespace SarasBlogg.Pages
 {
@@ -22,7 +23,13 @@ namespace SarasBlogg.Pages
         public async Task OnGetAsync()
         {
             var allBloggs = await _bloggService.GetAllBloggsAsync(false);
-            LatestPosts = allBloggs.OrderByDescending(p => p.LaunchDate).Take(2).ToList();
+
+            // Sortera på lanseringsdatum i svensk tid (konsekvent med vyerna)
+            LatestPosts = allBloggs
+                .OrderByDescending(p => p.LaunchDate.ToSwedishTime())
+                .Take(2)
+                .ToList();
+
             AboutMe = await _aboutMeApiManager.GetAboutMeAsync() ?? new AboutMe();
 
             ViewData["ApiFirstLoadDone"] = true;

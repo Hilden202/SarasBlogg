@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.Services;
 using SarasBlogg.ViewModels;
 using SarasBlogg.DAL;
+using SarasBlogg.Extensions; // för ev. framtida behov av ToSwedishTime
 
 namespace SarasBlogg.Pages
 {
@@ -146,9 +147,9 @@ namespace SarasBlogg.Pages
                 ModelState.Remove("Comment.Name");
             }
 
-            // CreatedAt i UTC
+            // CreatedAt i UTC (exakt tidpunkt)
             if (ViewModel?.Comment != null && ViewModel.Comment.Id == null)
-                ViewModel.Comment.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
+                ViewModel.Comment.CreatedAt = DateTime.UtcNow; // UtcNow har redan Kind=Utc
 
             // spara
             if (ModelState.IsValid && ViewModel?.Comment?.Id == null)

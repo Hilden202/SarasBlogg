@@ -7,6 +7,7 @@ using SarasBlogg.DAL;
 using SarasBlogg.Data;
 using SarasBlogg.DTOs;
 using SarasBlogg.Models;
+using SarasBlogg.Extensions; // <-- ToSwedishTime
 
 namespace SarasBlogg.Pages.Admin
 {
@@ -21,6 +22,9 @@ namespace SarasBlogg.Pages.Admin
         // Identitet och roller
         private readonly RoleManager<IdentityRole> _roleManager;
         public readonly UserManager<ApplicationUser> _userManager;
+
+        // Svensk tidszon för konvertering till UTC vid persistens
+        private static readonly TimeZoneInfo TzSe = TimeZoneInfo.FindSystemTimeZoneById("Europe/Stockholm");
 
         public IndexModel(
             BloggAPIManager bloggApi,
@@ -124,9 +128,16 @@ namespace SarasBlogg.Pages.Admin
         {
             var currentBlogg = await _bloggApi.GetBloggAsync(NewBlogg.Id);
 
-            // Sätt användar-id och normalisera datum (UTC)
+            // Sätt användar-id
             NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            NewBlogg.LaunchDate = DateTime.SpecifyKind(NewBlogg.LaunchDate.Date, DateTimeKind.Utc);
+
+            // Normalisera LaunchDate:
+            // - Ta datumet som användaren valt (tolka som svensk lokal tid via ToSwedishTime)
+            // - Sätt det till midnatt (Date)
+            // - Konvertera till UTC (T00:00:00Z) för lagring/transport
+            var seDate = NewBlogg.LaunchDate.ToSwedishTime().Date; // svensk lokal dag
+            var utcDate = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(seDate, DateTimeKind.Unspecified), TzSe);
+            NewBlogg.LaunchDate = DateTime.SpecifyKind(utcDate, DateTimeKind.Utc);
 
             if (NewBlogg.Id == 0)
             {

@@ -31,6 +31,6 @@ namespace SarasBlogg.Models
         public string Message { get; set; } = string.Empty;
 
         [JsonPropertyName("createdAt")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

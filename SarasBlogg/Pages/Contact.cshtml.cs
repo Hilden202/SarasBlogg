@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SarasBlogg.DAL;
+using SarasBlogg.Extensions; // för visning i vyer (ToSwedishTime)
 
 namespace SarasBlogg.Pages
 {
@@ -10,6 +11,8 @@ namespace SarasBlogg.Pages
         private readonly ContactMeAPIManager _contactManager;
         private readonly IHttpClientFactory _httpFactory;
         private readonly IConfiguration _config;
+
+        private static readonly TimeZoneInfo TzSe = TimeZoneInfo.FindSystemTimeZoneById("Europe/Stockholm");
 
         public ContactModel(
             ContactMeAPIManager contactManager,
@@ -21,12 +24,13 @@ namespace SarasBlogg.Pages
             _config = config;
         }
 
-
         [BindProperty]
         public Models.ContactMe ContactMe { get; set; }
         public IList<Models.ContactMe> ContactMes { get; set; }
+
         public async Task OnGetAsync()
         {
+            // Hämta alla meddelanden (vy ansvarar för ToSwedishTime vid render)
             ContactMes = await _contactManager.GetAllMessagesAsync();
         }
 
@@ -34,14 +38,33 @@ namespace SarasBlogg.Pages
         {
             if (ModelState.IsValid)
             {
-                if (contactMe.CreatedAt != default)
-                    contactMe.CreatedAt = DateTime.SpecifyKind(contactMe.CreatedAt, DateTimeKind.Utc);
+                // Normalisera CreatedAt till UTC (exakt tid).
+                // 1) Saknas tid -> sätt nu i UTC.
+                if (contactMe.CreatedAt == default)
+                {
+                    contactMe.CreatedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    // 2) Om tidszonsinfo saknas: tolka som svensk lokal tid och konvertera till UTC.
+                    if (contactMe.CreatedAt.Kind == DateTimeKind.Unspecified)
+                    {
+                        var seLocal = DateTime.SpecifyKind(contactMe.CreatedAt, DateTimeKind.Unspecified);
+                        contactMe.CreatedAt = TimeZoneInfo.ConvertTimeToUtc(seLocal, TzSe);
+                    }
+                    // 3) Om Local: konvertera till UTC.
+                    else if (contactMe.CreatedAt.Kind == DateTimeKind.Local)
+                    {
+                        contactMe.CreatedAt = contactMe.CreatedAt.ToUniversalTime();
+                    }
+                    // 4) Om redan Utc: använd som är.
+                }
 
-                // 1) Spara som vanligt via ditt API
+                // 1) Spara via API
                 await _contactManager.SaveMessageAsync(contactMe);
 
-                // 2) Skicka vidare till Formspree (så Sara får mail direkt)
-                _ = SendToFormspreeAsync(contactMe); // fire-and-forget
+                // 2) Fire-and-forget till Formspree (mailnotis)
+                _ = SendToFormspreeAsync(contactMe);
 
                 TempData["addMessage"] = "Tack för ditt meddelande!";
                 return RedirectToPage("./Contact", new { contactId = "1" });

@@ -4,9 +4,10 @@
 @model IEnumerable<SarasBlogg.Models.Blogg>
 
 @{
+    var nowSE = DateTime.UtcNow.ToSwedishTime();
     var posts = (Model ?? Enumerable.Empty<SarasBlogg.Models.Blogg>())
-        .Where(p => !p.Hidden && !p.IsArchived && p.LaunchDate <= DateTime.UtcNow)
-        .OrderByDescending(p => p.LaunchDate)
+        .Where(p => !p.Hidden && !p.IsArchived && p.LaunchDate.ToSwedishTime() <= nowSE)
+        .OrderByDescending(p => p.LaunchDate.ToSwedishTime())
         .ThenByDescending(p => p.Id)
         //.Take(6)
         .ToList();
@@ -42,4 +43,3 @@
         </div>
     }
 </div>
-

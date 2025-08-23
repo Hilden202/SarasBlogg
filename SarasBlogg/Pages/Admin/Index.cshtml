@@ -1,290 +1,295 @@
 ﻿@page
-@using Extensions
+@using SarasBlogg.Extensions
 @model SarasBlogg.Pages.Admin.IndexModel
 @inject SignInManager<ApplicationUser> SignInManager
 @{
+    var todaySE = DateTime.UtcNow.ToSwedishTime().Date;
 }
 
 <div class="container-site">
-	@if (Model.IsAdmin || Model.IsSuperAdmin)
-	{
-		<nav class="border-bottom">
-			<div class="container d-flex justify-content-center">
-				<ul class="mynav">
-					<li class="nav-item me-3">
-						<a class="menutext nav-link theme-dependent fw-bold" asp-area="" asp-page="/Admin/Index">Bloggar</a>
-					</li>
-					<li class="nav-item me-3">
-						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin/RoleAdmin/Index">Roller</a>
-					</li>
-					<li class="nav-item me-3">
-						<a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin/ForbiddenWords/Index">Ord</a>
-					</li>
-				</ul>
-			</div>
-		</nav>
+    @if (Model.IsAdmin || Model.IsSuperAdmin)
+    {
+        <nav class="border-bottom">
+            <div class="container d-flex justify-content-center">
+                <ul class="mynav">
+                    <li class="nav-item me-3">
+                        <a class="menutext nav-link theme-dependent fw-bold" asp-area="" asp-page="/Admin/Index">Bloggar</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin/RoleAdmin/Index">Roller</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="menutext nav-link theme-dependent" asp-area="" asp-page="/Admin/ForbiddenWords/Index">Ord</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
 
-		<!-- LISTA PUBLICERADE BLOGGAR -->
-		<h2>Lista Publicerade Bloggar</h2>
-		@if (Model.BloggsWithImage != null && Model.BloggsWithImage.Any(b => !b.Blogg.Hidden))
-		{
-			<table class="border table table-striped shadow-sm align-middle">
-				<thead>
-					<tr>
-						<th class="text-center align-middle border d-none d-md-table-cell" colspan="3">Knappar</th>
-						<th class="text-center align-middle border d-table-cell d-md-none" colspan="1">Knappar</th>
-						<th class="text-center align-middle border">Id</th>
-						<th class="text-center align-middle border">Titel</th>
-						<th class="text-center align-middle border">Innehåll</th>
-						<th class="text-center align-middle border">Författare</th>
-						<th class="text-center align-middle border">Lanserings Datum</th>
-						<th class="text-center align-middle border">Bild</th>
-					</tr>
-				</thead>
-				<tbody>
-					@foreach (var item in Model.BloggsWithImage.Where(b => !b.Blogg.Hidden))
-					{
-						<tr>
-							<td class="text-center align-middle d-none d-md-table-cell" colspan="3">
-								<div class="admin-btn-group">
-									<form method="get" class="me-1">
-										<input type="hidden" name="hiddenId" value="@item.Blogg.Id" />
-										<button type="submit" class="btn btn-outline-warning">Dölj</button>
-									</form>
-									@if (item.Blogg.IsArchived)
-									{
-										<a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-warning ms-1">Arkiverad</a>
-									}
-									else
-									{
-										<a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-success ms-1">Publicerad</a>
-									}
-									<a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary ms-1">Ändra</a>
-								</div>
-							</td>
-							<td class="text-center align-middle d-table-cell d-md-none">
-								<div class="d-flex flex-column gap-1">
-									<form method="get">
-										<input type="hidden" name="hiddenId" value="@item.Blogg.Id" />
-										<button type="submit" class="btn btn-outline-warning w-100">Dölj</button>
-									</form>
-									@if (item.Blogg.IsArchived)
-									{
-										<a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-warning w-100">Arkiverad</a>
-									}
-									else
-									{
-										<a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-success w-100">Publicerad</a>
-									}
-									<a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
-								</div>
-							</td>
-							<td class="text-center align-middle border">@item.Blogg.Id</td>
-							<td class="text-lg-start align-middle border">@item.Blogg.Title</td>
-							<td class="text-lg-start align-middle border">@item.Blogg.Content?.LimitLength(10)</td>
-							<td class="text-center align-middle border">@item.Blogg.Author</td>
-							<td class="text-center align-middle border">
-								<span style="color: @(item.Blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
-									@item.Blogg.LaunchDate.ToString("yyyy-MM-dd")
-								</span>
-							</td>
-							<td class="text-center align-middle border image-column">
-								@{
-									var imageUrl = item.FirstImage?.FilePath;
-									var isExternal = !string.IsNullOrEmpty(imageUrl) &&
-									(imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"));
-								}
+        <!-- LISTA PUBLICERADE BLOGGAR -->
+        <h2>Lista Publicerade Bloggar</h2>
+        @if (Model.BloggsWithImage != null && Model.BloggsWithImage.Any(b => !b.Blogg.Hidden))
+        {
+            <table class="border table table-striped shadow-sm align-middle">
+                <thead>
+                    <tr>
+                        <th class="text-center align-middle border d-none d-md-table-cell" colspan="3">Knappar</th>
+                        <th class="text-center align-middle border d-table-cell d-md-none" colspan="1">Knappar</th>
+                        <th class="text-center align-middle border">Id</th>
+                        <th class="text-center align-middle border">Titel</th>
+                        <th class="text-center align-middle border">Innehåll</th>
+                        <th class="text-center align-middle border">Författare</th>
+                        <th class="text-center align-middle border">Lanserings Datum</th>
+                        <th class="text-center align-middle border">Bild</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.BloggsWithImage.Where(b => !b.Blogg.Hidden))
+                    {
+                        <tr>
+                            <td class="text-center align-middle d-none d-md-table-cell" colspan="3">
+                                <div class="admin-btn-group">
+                                    <form method="get" class="me-1">
+                                        <input type="hidden" name="hiddenId" value="@item.Blogg.Id" />
+                                        <button type="submit" class="btn btn-outline-warning">Dölj</button>
+                                    </form>
+                                    @if (item.Blogg.IsArchived)
+                                    {
+                                        <a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-warning ms-1">Arkiverad</a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-success ms-1">Publicerad</a>
+                                    }
+                                    <a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary ms-1">Ändra</a>
+                                </div>
+                            </td>
+                            <td class="text-center align-middle d-table-cell d-md-none">
+                                <div class="d-flex flex-column gap-1">
+                                    <form method="get">
+                                        <input type="hidden" name="hiddenId" value="@item.Blogg.Id" />
+                                        <button type="submit" class="btn btn-outline-warning w-100">Dölj</button>
+                                    </form>
+                                    @if (item.Blogg.IsArchived)
+                                    {
+                                        <a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-warning w-100">Arkiverad</a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-success w-100">Publicerad</a>
+                                    }
+                                    <a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
+                                </div>
+                            </td>
+                            <td class="text-center align-middle border">@item.Blogg.Id</td>
+                            <td class="text-lg-start align-middle border">@item.Blogg.Title</td>
+                            <td class="text-lg-start align-middle border">@item.Blogg.Content?.LimitLength(10)</td>
+                            <td class="text-center align-middle border">@item.Blogg.Author</td>
+                            <td class="text-center align-middle border">
+                                <span style="color: @(item.Blogg.LaunchDate.ToSwedishTime().Date > todaySE ? "orange" : "green")">
+                                    @item.Blogg.LaunchDate.ToSwedishTime().ToString("yyyy-MM-dd")
+                                </span>
+                            </td>
+                            <td class="text-center align-middle border image-column">
+                                @{
+                                    var imageUrl = item.FirstImage?.FilePath;
+                                    var isExternal = !string.IsNullOrEmpty(imageUrl) &&
+                                    (imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"));
+                                }
 
-								<img class="admin-blog-img"
-									 src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
-									 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-									 alt="Förhandsbild" />
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
-		}
-		else
-		{
-			<p>Ingen blogg finns att visa.</p>
-		}
+                                <img class="admin-blog-img"
+                                     src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
+                                     onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+                                     alt="Förhandsbild" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Ingen blogg finns att visa.</p>
+        }
 
-		<br />
-		<hr class="m-1 border" />
-		<br />
+        <br />
+        <hr class="m-1 border" />
+        <br />
 
-		<!-- FORMULÄR FÖR NY BLOGG / ÄNDRING -->
-		<div id="editFormSection">
-			<form class="white-panel p-3 border rounded shadow-sm" method="post" enctype="multipart/form-data">
-				<input asp-for="NewBlogg.Id" type="hidden" />
-				<input asp-for="NewBlogg.UserId" type="hidden" />
-				<label asp-for="NewBlogg.Title"></label>
-				<input asp-for="NewBlogg.Title" class="form-control" placeholder="Ange bloggtitel här" maxlength="100" />
-				<span asp-validation-for="NewBlogg.Title" class="text-danger"></span>
-				<br />
-				<label asp-for="NewBlogg.Content"></label>
-				<textarea asp-for="NewBlogg.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
-				<span asp-validation-for="NewBlogg.Content" class="text-danger"></span>
-				<br />
-				<label asp-for="NewBlogg.Author"></label>
-				<input asp-for="NewBlogg.Author" class="form-control" placeholder="Ange författare här" maxlength="100" />
-				<span asp-validation-for="NewBlogg.Author" class="text-danger"></span>
-				<br />
-				<label asp-for="NewBlogg.LaunchDate"></label>
-				<input asp-for="NewBlogg.LaunchDate" class="form-control" value="@(Model.NewBlogg.LaunchDate == default ? DateTime.Today.ToString("yyyy-MM-dd") : Model.NewBlogg.LaunchDate.ToString("yyyy-MM-dd"))" />
-				<span asp-validation-for="NewBlogg.LaunchDate" class="text-danger"></span>
-				<br />
-				<!-- Bildhantering -->
-				<label for="BloggImages">Ladda upp en eller flera bilder:</label>
-				<input type="file" id="BloggImages" name="BloggImages" multiple class="form-control" />
-				<br />
+        <!-- FORMULÄR FÖR NY BLOGG / ÄNDRING -->
+        <div id="editFormSection">
+            <form class="white-panel p-3 border rounded shadow-sm" method="post" enctype="multipart/form-data">
+                <input asp-for="NewBlogg.Id" type="hidden" />
+                <input asp-for="NewBlogg.UserId" type="hidden" />
+                <label asp-for="NewBlogg.Title"></label>
+                <input asp-for="NewBlogg.Title" class="form-control" placeholder="Ange bloggtitel här" maxlength="100" />
+                <span asp-validation-for="NewBlogg.Title" class="text-danger"></span>
+                <br />
+                <label asp-for="NewBlogg.Content"></label>
+                <textarea asp-for="NewBlogg.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
+                <span asp-validation-for="NewBlogg.Content" class="text-danger"></span>
+                <br />
+                <label asp-for="NewBlogg.Author"></label>
+                <input asp-for="NewBlogg.Author" class="form-control" placeholder="Ange författare här" maxlength="100" />
+                <span asp-validation-for="NewBlogg.Author" class="text-danger"></span>
+                <br />
+                <label asp-for="NewBlogg.LaunchDate"></label>
+                <input asp-for="NewBlogg.LaunchDate"
+                       class="form-control"
+                       value="@(Model.NewBlogg.LaunchDate == default
+                                ? DateTime.UtcNow.ToSwedishTime().ToString("yyyy-MM-dd")
+                                : Model.NewBlogg.LaunchDate.ToSwedishTime().ToString("yyyy-MM-dd"))" />
+                <span asp-validation-for="NewBlogg.LaunchDate" class="text-danger"></span>
+                <br />
+                <!-- Bildhantering -->
+                <label for="BloggImages">Ladda upp en eller flera bilder:</label>
+                <input type="file" id="BloggImages" name="BloggImages" multiple class="form-control" />
+                <br />
 
-				@if (Model.EditedBloggWithImages?.Images?.Any() == true)
-				{
-					var firstImageId = Model.EditedBloggWithImages.FirstImage?.Id;
-					var firstImage = Model.EditedBloggWithImages.FirstImage;
+                @if (Model.EditedBloggWithImages?.Images?.Any() == true)
+                {
+                    var firstImageId = Model.EditedBloggWithImages.FirstImage?.Id;
+                    var firstImage = Model.EditedBloggWithImages.FirstImage;
 
-					<div class="mb-3">
-						<label>Nuvarande bilder:</label><br />
-						<div class="d-flex flex-wrap gap-2">
-							@if (firstImage != null)
-							{
-								<div class="d-flex flex-column align-items-center d-none">
-									<div class="img-wrapper position-relative">
-										<img src="@firstImage.FilePath"
-											 class="admin-blog-img border rounded"
-											 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-											 alt="Första bloggbild" />
-									</div>
-								</div>
-							}
-							@foreach (var img in Model.EditedBloggWithImages.Images)
-							{
-								var isFirst = img.Id == Model.EditedBloggWithImages.FirstImage?.Id;
+                    <div class="mb-3">
+                        <label>Nuvarande bilder:</label><br />
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (firstImage != null)
+                            {
+                                <div class="d-flex flex-column align-items-center d-none">
+                                    <div class="img-wrapper position-relative">
+                                        <img src="@firstImage.FilePath"
+                                             class="admin-blog-img border rounded"
+                                             onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+                                             alt="Första bloggbild" />
+                                    </div>
+                                </div>
+                            }
+                            @foreach (var img in Model.EditedBloggWithImages.Images)
+                            {
+                                var isFirst = img.Id == Model.EditedBloggWithImages.FirstImage?.Id;
 
-								<div class="d-flex flex-column align-items-center">
-									<div class="img-wrapper position-relative">
-										<img src="@img.FilePath"
-											 class="admin-blog-img border rounded"
-											 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-											 alt="Bloggbild" />
+                                <div class="d-flex flex-column align-items-center">
+                                    <div class="img-wrapper position-relative">
+                                        <img src="@img.FilePath"
+                                             class="admin-blog-img border rounded"
+                                             onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+                                             alt="Bloggbild" />
 
-										<form method="post"
-											  asp-page-handler="DeleteImage"
-											  class="delete-button">
-											<input type="hidden" name="imageId" value="@img.Id" />
-											<input type="hidden" name="bloggId" value="@Model.EditedBloggWithImages.Blogg.Id" />
-											<button type="submit"
-													class="btn btn-sm btn-danger p-1"
-													onclick="return confirm('Ta bort bilden?')">
-												&times;
-											</button>
-										</form>
-									</div>
+                                        <form method="post"
+                                              asp-page-handler="DeleteImage"
+                                              class="delete-button">
+                                            <input type="hidden" name="imageId" value="@img.Id" />
+                                            <input type="hidden" name="bloggId" value="@Model.EditedBloggWithImages.Blogg.Id" />
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-danger p-1"
+                                                    onclick="return confirm('Ta bort bilden?')">
+                                                &times;
+                                            </button>
+                                        </form>
+                                    </div>
 
-									@if (isFirst)
-									{
-										<small class="text-info mt-1">Första bild</small>
-									}
-									else
-									{
-										<form method="post" asp-page-handler="SetFirstImage" class="mt-1">
-											<input type="hidden" name="imageId" value="@img.Id" />
-											<input type="hidden" name="bloggId" value="@Model.EditedBloggWithImages.Blogg.Id" />
-											<button type="submit" class="btn btn-sm btn-outline-primary">
-												Gör till första bild
-											</button>
-										</form>
-									}
-								</div>
-							}
-						</div>
-					</div>
-				}
+                                    @if (isFirst)
+                                    {
+                                        <small class="text-info mt-1">Första bild</small>
+                                    }
+                                    else
+                                    {
+                                        <form method="post" asp-page-handler="SetFirstImage" class="mt-1">
+                                            <input type="hidden" name="imageId" value="@img.Id" />
+                                            <input type="hidden" name="bloggId" value="@Model.EditedBloggWithImages.Blogg.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                Gör till första bild
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
 
-				<input asp-for="NewBlogg" type="submit" class="btn btn-success" value="Skapa ny blogg/spara ändringar" />
-			</form>
-		</div>
-		<br />
+                <input asp-for="NewBlogg" type="submit" class="btn btn-success" value="Skapa ny blogg/spara ändringar" />
+            </form>
+        </div>
+        <br />
 
-		<hr class="m-1 border" />
-		<br />
+        <hr class="m-1 border" />
+        <br />
 
-		<!-- LISTA DOLDA BLOGGAR -->
-		<h2>Lista Dolda Bloggar</h2>
-		@if (Model.BloggsWithImage != null && Model.BloggsWithImage.Any(b => b.Blogg.Hidden))
-		{
-			<table class="border table table-striped shadow-sm align-middle">
-				<thead>
-					<tr>
-						<th class="text-center align-middle border d-none d-md-table-cell" colspan="3">Knappar</th>
-						<th class="text-center align-middle border d-table-cell d-md-none" colspan="1">Knappar</th>
-						<th class="text-center align-middle border">Id</th>
-						<th class="text-center align-middle border">Titel</th>
-						<th class="text-center align-middle border">Innehåll</th>
-						<th class="text-center align-middle border">Författare</th>
-						<th class="text-center align-middle border">Lanserings Datum</th>
-						<th class="text-center align-middle border">Bild</th>
-					</tr>
-				</thead>
-				<tbody>
-					@foreach (var item in Model.BloggsWithImage.Where(b => b.Blogg.Hidden))
-					{
-						<tr>
-							<td class="text-center align-middle d-none d-md-table-cell" colspan="3">
-								<div class="admin-btn-group">
-									<form method="get" class="me-1">
-										<input type="hidden" name="deleteId" value="@item.Blogg.Id" />
-										<button type="submit" class="btn btn-outline-danger">Ta bort</button>
-									</form>
-									<a asp-route-hiddenId="@item.Blogg.Id" class="btn btn-outline-success">Visa</a>
-									<a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary">Ändra</a>
-								</div>
-							</td>
-							<td class="text-center align-middle d-table-cell d-md-none">
-								<div class="d-flex flex-column gap-1">
-									<form method="get">
-										<input type="hidden" name="deleteId" value="@item.Blogg.Id" />
-										<button type="submit" class="btn btn-outline-danger w-100">Ta bort</button>
-									</form>
-									<a asp-route-hiddenId="@item.Blogg.Id" class="btn btn-outline-success w-100">Visa</a>
-									<a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
-								</div>
-							</td>
-							<td class="text-center align-middle border">@item.Blogg.Id</td>
-							<td class="text-lg-start align-middle border">@item.Blogg.Title</td>
-							<td class="text-lg-start align-middle border">@item.Blogg.Content?.LimitLength(10)</td>
-							<td class="text-center align-middle border">@item.Blogg.Author</td>
-							<td class="text-center align-middle border">
-								<span style="color: @(item.Blogg.LaunchDate.Date > DateTime.Today ? "orange" : "green")">
-									@item.Blogg.LaunchDate.ToString("yyyy-MM-dd")
-								</span>
-							</td>
-							<td class="text-center align-middle border image-column">
-								@{
-									var imageUrl = item.FirstImage?.FilePath;
-									var isExternal = !string.IsNullOrEmpty(imageUrl) &&
-									(imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"));
-								}
+        <!-- LISTA DOLDA BLOGGAR -->
+        <h2>Lista Dolda Bloggar</h2>
+        @if (Model.BloggsWithImage != null && Model.BloggsWithImage.Any(b => b.Blogg.Hidden))
+        {
+            <table class="border table table-striped shadow-sm align-middle">
+                <thead>
+                    <tr>
+                        <th class="text-center align-middle border d-none d-md-table-cell" colspan="3">Knappar</th>
+                        <th class="text-center align-middle border d-table-cell d-md-none" colspan="1">Knappar</th>
+                        <th class="text-center align-middle border">Id</th>
+                        <th class="text-center align-middle border">Titel</th>
+                        <th class="text-center align-middle border">Innehåll</th>
+                        <th class="text-center align-middle border">Författare</th>
+                        <th class="text-center align-middle border">Lanserings Datum</th>
+                        <th class="text-center align-middle border">Bild</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.BloggsWithImage.Where(b => b.Blogg.Hidden))
+                    {
+                        <tr>
+                            <td class="text-center align-middle d-none d-md-table-cell" colspan="3">
+                                <div class="admin-btn-group">
+                                    <form method="get" class="me-1">
+                                        <input type="hidden" name="deleteId" value="@item.Blogg.Id" />
+                                        <button type="submit" class="btn btn-outline-danger">Ta bort</button>
+                                    </form>
+                                    <a asp-route-hiddenId="@item.Blogg.Id" class="btn btn-outline-success">Visa</a>
+                                    <a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary">Ändra</a>
+                                </div>
+                            </td>
+                            <td class="text-center align-middle d-table-cell d-md-none">
+                                <div class="d-flex flex-column gap-1">
+                                    <form method="get">
+                                        <input type="hidden" name="deleteId" value="@item.Blogg.Id" />
+                                        <button type="submit" class="btn btn-outline-danger w-100">Ta bort</button>
+                                    </form>
+                                    <a asp-route-hiddenId="@item.Blogg.Id" class="btn btn-outline-success w-100">Visa</a>
+                                    <a asp-route-editId="@item.Blogg.Id" class="btn btn-outline-primary w-100">Ändra</a>
+                                </div>
+                            </td>
+                            <td class="text-center align-middle border">@item.Blogg.Id</td>
+                            <td class="text-lg-start align-middle border">@item.Blogg.Title</td>
+                            <td class="text-lg-start align-middle border">@item.Blogg.Content?.LimitLength(10)</td>
+                            <td class="text-center align-middle border">@item.Blogg.Author</td>
+                            <td class="text-center align-middle border">
+                                <span style="color: @(item.Blogg.LaunchDate.ToSwedishTime().Date > todaySE ? "orange" : "green")">
+                                    @item.Blogg.LaunchDate.ToSwedishTime().ToString("yyyy-MM-dd")
+                                </span>
+                            </td>
+                            <td class="text-center align-middle border image-column">
+                                @{
+                                    var imageUrl = item.FirstImage?.FilePath;
+                                    var isExternal = !string.IsNullOrEmpty(imageUrl) &&
+                                    (imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://"));
+                                }
 
-								<img class="admin-blog-img"
-									 src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
-									 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-									 alt="Förhandsbild" />
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
-		}
-		else
-		{
-			<p>Ingen dold blogg finns att visa.</p>
-		}
-	}
-	else
-	{
-		<p class="text-danger">Du måste vara inloggad för att komma åt denna sida.</p>
-	}
+                                <img class="admin-blog-img"
+                                     src="@(isExternal ? imageUrl : Url.Content(imageUrl ?? "/img/blogg/default.png"))"
+                                     onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+                                     alt="Förhandsbild" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Ingen dold blogg finns att visa.</p>
+        }
+    }
+    else
+    {
+        <p class="text-danger">Du måste vara inloggad för att komma åt denna sida.</p>
+    }
 </div>
