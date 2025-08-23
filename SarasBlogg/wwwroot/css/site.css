@@ -547,8 +547,13 @@ div {
         }
 
     html {
-        font-size: 14px;
+        font-size: 100% !important;
     }
+    body {
+        font-size: 1.0625rem !important;
+        line-height: 1.6 !important;
+    }
+
 }
 
 .container {
