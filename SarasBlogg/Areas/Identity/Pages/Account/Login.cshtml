@@ -6,40 +6,54 @@
 }
 
 
-<h1 class="blogg-title mb-4">@ViewData["Title"]</h1>
+<div class="container-site">
+    <div class="card auth-card mx-auto shadow-lg">
+        <div class="card-body">
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <form id="account" method="post" class="p-3 border rounded shadow-sm bg-light">
-            <h2 class="blogg-title mb-3">Använd ditt konto för att logga in</h2>
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <h1 class="blogg-title mb-2">@ViewData["Title"]</h1>
+            <p class="blogg-content mb-3">Använd ditt konto för att logga in.</p>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.UserNameOrEmail" class="form-control" autocomplete="username" aria-required="true" placeholder="E-post eller användarnamn" />
-                <label asp-for="Input.UserNameOrEmail" class="form-label">E-post eller användarnamn</label>
-                <span asp-validation-for="Input.UserNameOrEmail" class="text-danger"></span>
-            </div>
+            <form id="account" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" type="password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Lösenord" />
-                <label asp-for="Input.Password" class="form-label">Lösenord</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.UserNameOrEmail"
+                           class="form-control"
+                           autocomplete="username"
+                           aria-required="true"
+                           placeholder="name@example.com eller användarnamn" />
+                    <label asp-for="Input.UserNameOrEmail" class="form-label">E‑post eller användarnamn</label>
+                    <span asp-validation-for="Input.UserNameOrEmail" class="text-danger"></span>
+                </div>
 
-            <div class="form-check mb-3">
-                <input class="form-check-input" asp-for="Input.RememberMe" />
-                <label asp-for="Input.RememberMe" class="form-check-label">@Html.DisplayNameFor(m => m.Input.RememberMe)</label>
-            </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Password"
+                           class="form-control"
+                           autocomplete="current-password"
+                           aria-required="true"
+                           placeholder="Lösenord" />
+                    <label asp-for="Input.Password" class="form-label">Lösenord</label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
 
-            <button id="login-submit" type="submit" class="w-100 btn blog-btn">
-                Logga in
-            </button>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" asp-for="Input.RememberMe" id="Input_RememberMe" />
+                    <label class="form-check-label blogg-content" for="Input_RememberMe">
+                        Kom ihåg mig
+                    </label>
+                </div>
 
-            <div class="mt-3 login-links">
-                <a id="forgot-password" asp-page="./ForgotPassword">Glömt lösenord?</a><br />
-                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Registrera nytt konto</a>
-            </div>
-        </form>
+                <button id="login-submit" type="submit" class="btn blog-btn w-100">
+                    Logga in
+                </button>
+
+                <div class="auth-links mt-3">
+                    <a id="forgot-password" class="link-plain" asp-page="./ForgotPassword">Glömt lösenord?</a>
+                    <a class="link-plain" asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Registrera nytt konto</a>
+                </div>
+            </form>
+
+        </div>
     </div>
 </div>
 

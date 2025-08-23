@@ -140,11 +140,14 @@ namespace SarasBlogg
             // 🔹 API base URL från konfig (dev: appsettings.Development.json, prod: env ApiSettings__BaseAddress)
             var apiBase = builder.Configuration["ApiSettings:BaseAddress"]
                          ?? throw new InvalidOperationException("ApiSettings:BaseAddress is missing.");
+            
+            builder.Services.AddTransient<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient("formspree", client =>
             {
                 client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
-            });
+            })
+                .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<UserAPIManager>(c =>
             {
@@ -156,7 +159,8 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),   // byt ut anslutningar regelbundet
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1) // släng riktigt gamla idle-anslutningar
             })
-            .AddPolicyHandler(SelectRetryPolicy);
+            .AddPolicyHandler(SelectRetryPolicy)
+            .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<BloggAPIManager>(c =>
             {
@@ -168,7 +172,8 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy);
+            .AddPolicyHandler(SelectRetryPolicy)
+            .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<BloggImageAPIManager>(c =>
             {
@@ -180,7 +185,8 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy);
+            .AddPolicyHandler(SelectRetryPolicy)
+            .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<CommentAPIManager>(c =>
             {
@@ -192,7 +198,8 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy);
+            .AddPolicyHandler(SelectRetryPolicy)
+            .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<ForbiddenWordAPIManager>(c =>
             {
@@ -204,7 +211,8 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy);
+            .AddPolicyHandler(SelectRetryPolicy)
+            .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<AboutMeAPIManager>(c =>
             {
@@ -216,7 +224,8 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy);
+            .AddPolicyHandler(SelectRetryPolicy)
+            .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<AboutMeImageAPIManager>(c =>
             {
@@ -228,7 +237,8 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy);
+            .AddPolicyHandler(SelectRetryPolicy)
+            .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<ContactMeAPIManager>(c =>
             {
@@ -240,7 +250,8 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy);
+            .AddPolicyHandler(SelectRetryPolicy)
+            .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient<LikeAPIManager>(c =>
             {
@@ -252,7 +263,8 @@ namespace SarasBlogg
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
-            .AddPolicyHandler(SelectRetryPolicy);
+            .AddPolicyHandler(SelectRetryPolicy)
+            .AddHttpMessageHandler<HttpClientLoggingHandler>();
 
             // COOKIEPOLICY
             builder.Services.Configure<CookiePolicyOptions>(options =>
