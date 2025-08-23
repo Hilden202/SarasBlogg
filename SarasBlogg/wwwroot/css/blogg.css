@@ -349,3 +349,19 @@ a.blogg-link:visited {
         background-color: #a86d62 !important;
         color: #fff !important;
     }
+
+/* --- Huvudmeny: kompaktare på mobil --- */
+@media (max-width: 768px) {
+    .menutext {
+        font-size: 16px !important; /* ned från 19px → får plats */
+        font-weight: 700 !important; /* full bold */
+        -webkit-text-stroke: 0 !important; /* ta bort stroke, spar bredd */
+        text-stroke: 0 !important;
+        letter-spacing: 0.4px; /* lite mer luft mellan bokstäver */
+    }
+
+    .mynav {
+        gap: .5rem;
+        padding: .5rem 0;
+    }
+}
