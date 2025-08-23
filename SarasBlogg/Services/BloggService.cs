@@ -33,93 +33,57 @@ namespace SarasBlogg.Services
         }
 
         private async Task AttachImagesAsync(Blogg blogg)
-        {
-            blogg.Images = await _imageApi.GetImagesByBloggIdAsync(blogg.Id);
-        }
+            => blogg.Images = await _imageApi.GetImagesByBloggIdAsync(blogg.Id);
 
         public async Task<BloggViewModel> GetBloggViewModelAsync(bool isArchive, int showId = 0)
         {
-            var viewModel = new BloggViewModel();
+            var vm = new BloggViewModel();
 
-            // Hämta ALLA (cacheat) och filtrera lokalt
-            var allBloggs = await GetAllBloggsAsync(includeArchived: true);
+            // Hämta alla (cache) och filtrera lokalt
+            var all = await GetAllBloggsAsync(includeArchived: true);
 
-            viewModel.Bloggs = allBloggs
+            vm.Bloggs = all
                 .Where(b => (isArchive ? b.IsArchived : !b.IsArchived)
                             && !b.Hidden
                             && b.LaunchDate <= DateTime.Today)
+                .OrderByDescending(b => b.LaunchDate)
+                .ThenByDescending(b => b.Id)
                 .ToList();
 
-            foreach (var blogg in viewModel.Bloggs)
-                await AttachImagesAsync(blogg);
+            // Säkerställ att bilder finns på de som ska visas
+            foreach (var b in vm.Bloggs)
+                if (b.Images == null) await AttachImagesAsync(b);
 
-            viewModel.IsArchiveView = isArchive;
+            vm.IsArchiveView = isArchive;
 
             if (showId != 0)
             {
-                var blogg = viewModel.Bloggs.FirstOrDefault(b => b.Id == showId);
-
+                var blogg = vm.Bloggs.FirstOrDefault(b => b.Id == showId);
                 if (blogg == null)
                 {
                     blogg = await _bloggApi.GetBloggAsync(showId);
                     if (blogg != null)
                     {
-                        await AttachImagesAsync(blogg);
-                        viewModel.Bloggs.Add(blogg);
+                        if (blogg.Images == null) await AttachImagesAsync(blogg);
+                        vm.Bloggs.Add(blogg);
                     }
                 }
-
-                viewModel.Blogg = blogg;
+                vm.Blogg = blogg;
             }
 
-            viewModel.Comments = await _commentApi.GetAllCommentsAsync();
-            return viewModel;
+            vm.Comments = await _commentApi.GetAllCommentsAsync();
+            return vm;
         }
 
-        public async Task<string> SaveCommentAsync(Comment comment)
-        {
-            var forbiddenPatterns = await _forbiddenWordApi.GetForbiddenPatternsAsync();
-
-            foreach (var pattern in forbiddenPatterns)
-            {
-                if (comment.Content.ContainsForbiddenWord(pattern))
-                    return "Kommentaren innehåller otillåtet språk.";
-                if (comment.Name.ContainsForbiddenWord(pattern))
-                    return "Namnet innehåller otillåtet språk.";
-            }
-            return await _commentApi.SaveCommentAsync(comment);
-        }
-
-        public Task DeleteCommentAsync(int commentId) => _commentApi.DeleteCommentAsync(commentId);
-
-        public Task<Comment?> GetCommentAsync(int commentId) => _commentApi.GetCommentAsync(commentId);
-
-        public async Task UpdateViewCountAsync(int bloggId)
-        {
-            var blogg = await _bloggApi.GetBloggAsync(bloggId);
-            if (blogg != null)
-            {
-                blogg.ViewCount++;
-                await _bloggApi.UpdateBloggAsync(blogg);
-            }
-        }
-
-        /// <summary>
-        /// Hämtar ALLA bloggar (cacheas i 3 min) och filtrerar på includeArchived.
-        /// </summary>
-        public async Task<List<Blogg>> GetAllBloggsAsync(bool includeArchived)
+        /// <summary>Hämtar alla bloggar (cache 3 min), filtrerar & laddar bilder för det som returneras.</summary>
+        public async Task<List<Blogg>> GetAllBloggsAsync(bool includeArchived = false)
         {
             const string cacheKey = "blogg:list:all";
-
-            List<Blogg>? all;
-
-            if (!_cache.TryGetValue(cacheKey, out all))
+            if (!_cache.TryGetValue(cacheKey, out List<Blogg>? all))
             {
                 try
                 {
-                    // ❗ Anropa API:t UTAN bool-parameter (det var orsaken till "rött")
-                    all = await _bloggApi.GetAllBloggsAsync();
-
+                    all = await _bloggApi.GetAllBloggsAsync(); // hämta rå-listan utan filter
                     _cache.Set(cacheKey, all, new MemoryCacheEntryOptions
                     {
                         AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3)
@@ -137,8 +101,43 @@ namespace SarasBlogg.Services
 
             all ??= new List<Blogg>();
 
-            // Returnera enligt parametern
-            return includeArchived ? all : all.Where(b => !b.IsArchived).ToList();
+            var filtered = all
+                .Where(b => !b.Hidden
+                            && (includeArchived || !b.IsArchived)
+                            && b.LaunchDate <= DateTime.Today)
+                .OrderByDescending(b => b.LaunchDate)
+                .ThenByDescending(b => b.Id)
+                .ToList();
+
+            // Viktigt: attach:a bilder för de som faktiskt ska visas (t.ex. startsidan)
+            foreach (var b in filtered)
+                if (b.Images == null) await AttachImagesAsync(b);
+
+            return filtered;
+        }
+
+        public async Task<string> SaveCommentAsync(Comment comment)
+        {
+            var forbidden = await _forbiddenWordApi.GetForbiddenPatternsAsync();
+            foreach (var p in forbidden)
+            {
+                if (comment.Content.ContainsForbiddenWord(p)) return "Kommentaren innehåller otillåtet språk.";
+                if (comment.Name.ContainsForbiddenWord(p)) return "Namnet innehåller otillåtet språk.";
+            }
+            return await _commentApi.SaveCommentAsync(comment);
+        }
+
+        public Task DeleteCommentAsync(int id) => _commentApi.DeleteCommentAsync(id);
+        public Task<Comment?> GetCommentAsync(int id) => _commentApi.GetCommentAsync(id);
+
+        public async Task UpdateViewCountAsync(int bloggId)
+        {
+            var blogg = await _bloggApi.GetBloggAsync(bloggId);
+            if (blogg != null)
+            {
+                blogg.ViewCount++;
+                await _bloggApi.UpdateBloggAsync(blogg);
+            }
         }
     }
 }
