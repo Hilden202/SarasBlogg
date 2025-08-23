@@ -57,24 +57,36 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const btn = document.getElementById("login-submit");
+        document.addEventListener("DOMContentLoaded", () => {
             const form = document.getElementById("account");
+            const btn  = document.getElementById("login-submit");
+            if (!form || !btn) return;
 
-            if (btn && form) {
-                btn.addEventListener("click", function () {
-                    // disable direkt
-                    btn.disabled = true;
-                    btn.innerText = "Loggar in...";
+            // Kör ENDAST på submit (fångar både klick & Enter)
+            form.addEventListener("submit", () => {
+                // deferr'a så submit hinner skickas innan vi disable:ar knappen
+                setTimeout(startLoading, 0);
+            });
 
-                    // se till att formuläret postas
-                    form.submit();
-                });
+            function startLoading() {
+                if (btn.disabled) return; // redan igång
+                btn.disabled = true;
+
+                let step = 0;
+                const dots = [".", "..", "...", "."]; // . -> .. -> ... -> .
+                btn.innerText = "Loggar in" + dots[step];
+
+                const interval = setInterval(() => {
+                    step = (step + 1) % dots.length;
+                    btn.innerText = "Loggar in" + dots[step];
+                }, 500);
+
+                window.addEventListener("beforeunload", () => clearInterval(interval));
             }
         });
     </script>
 }
+
+
 
