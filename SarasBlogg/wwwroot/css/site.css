@@ -1,4 +1,16 @@
-﻿/* --- Laddningsoverlay och progressiv bildinladdning pausad tillfälligt ---
+﻿/* === Global typografi-bas === */
+html {
+    font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+}
+
+/* Säkerställ att kontroller och specialblock ärver fonten */
+body, input, textarea, select, button,
+label, small, figcaption, blockquote,
+table, th, td, ul, ol, li,
+#cookieConsentdiv, .modal, .alert, .badge {
+    font-family: inherit !important;
+}
+/* --- Laddningsoverlay och progressiv bildinladdning pausad tillfälligt ---
    Kan aktiveras igen genom att avkommentera hela detta block.
 */
 /*#loading-overlay {
