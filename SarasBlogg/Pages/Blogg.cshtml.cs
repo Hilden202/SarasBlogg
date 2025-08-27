@@ -5,6 +5,7 @@ using SarasBlogg.ViewModels;
 using SarasBlogg.DAL;
 using Humanizer;
 using SarasBlogg.Extensions; // för ev. ToSwedishTime i framtiden
+using System.Security.Claims;
 
 namespace SarasBlogg.Pages
 {
@@ -28,6 +29,12 @@ namespace SarasBlogg.Pages
 
         private bool IsAuth => User?.Identity?.IsAuthenticated == true;
         private string CurrentUserName => IsAuth ? (User?.Identity?.Name ?? "") : "";
+        private string CurrentUserEmail =>
+            IsAuth
+                ? (User.FindFirst(ClaimTypes.Email)?.Value
+                   ?? User.FindFirst("email")?.Value
+                   ?? "")
+                : "";
 
         // Ikoner (unicode)
         //private string GetRoleSymbol()
@@ -127,7 +134,7 @@ namespace SarasBlogg.Pages
                 await _bloggService.UpdateViewCountAsync(showId);
 
             ViewModel = await _bloggService.GetBloggViewModelAsync(false, showId);
-
+            await HydrateRoleLookupsForCurrentPostAsync();
             // för formuläret (inloggad skribent)
             //ViewModel.RoleSymbol = GetRoleSymbol();
             ViewModel.RoleCss = GetRoleCss();
@@ -136,24 +143,46 @@ namespace SarasBlogg.Pages
 
         public async Task<IActionResult> OnPostAsync(int deleteCommentId)
         {
-            // 1) Delete
+            // 1) Delete (admin eller ägare via namn ELLER e-post)
             if (deleteCommentId != 0)
             {
                 var existing = await _bloggService.GetCommentAsync(deleteCommentId);
                 if (existing != null)
                 {
+                    var isAdmin = User.IsInRole("superadmin") || User.IsInRole("admin") || User.IsInRole("superuser");
+
+                    var isOwner =
+                        (!string.IsNullOrWhiteSpace(existing.Name) && !string.IsNullOrWhiteSpace(CurrentUserName) &&
+                         string.Equals(existing.Name, CurrentUserName, StringComparison.OrdinalIgnoreCase))
+                        ||
+                        (!string.IsNullOrWhiteSpace(existing.Email) && !string.IsNullOrWhiteSpace(CurrentUserEmail) &&
+                         string.Equals(existing.Email, CurrentUserEmail, StringComparison.OrdinalIgnoreCase));
+
+                    if (!isAdmin && !isOwner)
+                    {
+                        TempData["Error"] = "Du får inte ta bort denna kommentar.";
+                        return RedirectToPage(pageName: null, pageHandler: null,
+                            routeValues: new { showId = existing.BloggId }, fragment: "comments");
+                    }
+
                     await _bloggService.DeleteCommentAsync(deleteCommentId);
+                    TempData["Info"] = "Kommentar borttagen.";
                     return RedirectToPage(pageName: null, pageHandler: null,
                         routeValues: new { showId = existing.BloggId }, fragment: "comments");
                 }
             }
 
-            // 2) Tvinga namn = inloggat UserName
+            // 2) Tvinga namn + e-post = inloggat konto
             if (IsAuth && ViewModel?.Comment != null)
             {
                 ViewModel.Comment.Name = CurrentUserName;
+                ViewModel.Comment.Email = CurrentUserEmail;
+
+                // rensa ModelState så overrides går igenom
                 ModelState.Remove("ViewModel.Comment.Name");
                 ModelState.Remove("Comment.Name");
+                ModelState.Remove("ViewModel.Comment.Email");
+                ModelState.Remove("Comment.Email");
             }
 
             // 3) CreatedAt i UTC för nya kommentarer (exakt tidpunkt)
@@ -169,7 +198,7 @@ namespace SarasBlogg.Pages
                     ModelState.AddModelError("Comment.Content", errorMessage);
 
                     ViewModel = await _bloggService.GetBloggViewModelAsync(false, ViewModel.Comment?.BloggId ?? 0);
-
+                    await HydrateRoleLookupsForCurrentPostAsync();
                     // för formuläret
                     //ViewModel.RoleSymbol = GetRoleSymbol();
                     ViewModel.RoleCss = GetRoleCss();
