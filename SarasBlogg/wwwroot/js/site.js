@@ -56,6 +56,7 @@ window.addEventListener('DOMContentLoaded', function () {
     scrollToSectionIfParamExists('reloadId', { prefix: 'reloadPageFormSection' });
     scrollToSectionIfParamExists('commentId', { id: 'commentForm' });
     scrollToSectionIfParamExists('contactId', { id: 'contactForm' });
+    scrollToSectionIfParamExists('highlightId', { prefix: 'reloadPageFormSection' });
 });
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -269,19 +270,6 @@ document.querySelectorAll('.carousel').forEach(el => {
 
     // Kör nu och vid back/forward
     refreshListLikes();
-
-    window.addEventListener('pageshow', (e) => {
-        if (sessionStorage.getItem('sbNeedsRefresh') === '1') {
-            sessionStorage.removeItem('sbNeedsRefresh');
-             location.reload(); // <-- bara om du vill hard-reloada istället för refetch
-        }
-        refreshListLikes();
-    });
-
-
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') refreshListLikes();
-    });
 })();
 
 // DETALJVY: hjärtknapp (TOGGLE) + flagga för snabb uppdatering i listan

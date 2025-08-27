@@ -4,326 +4,332 @@
 @model SarasBlogg.ViewModels.BloggViewModel
 
 @{
-    var nowSE = DateTime.UtcNow.ToSwedishTime();
-    var todaySE = nowSE.Date;
+	var nowSE = DateTime.UtcNow.ToSwedishTime();
+	var todaySE = nowSE.Date;
 }
 
 <div class="container-site">
-    <!-- Centrerad logga innan innehållet -->
-    <div class="index-hero my-4">
-        <img src="~/img/logo/sarablogglogga.png"
-             alt="SarasBlogg textlogga"
-             class="index-hero-text" />
+	<!-- Centrerad logga innan innehållet -->
+	<div class="index-hero my-4">
+		<img src="~/img/logo/sarablogglogga.png"
+			 alt="SarasBlogg textlogga"
+			 class="index-hero-text" />
 
-        @*         @if (!(Model?.IsArchiveView ?? false))
+		@*         @if (!(Model?.IsArchiveView ?? false))
         {  // visa inte i arkivvyn
             <img src="~/img/logo/jagmedbarnen.png"
                  alt="Jag med barnen"
                  class="index-hero-family" />
         } *@
-    </div>
+	</div>
 
-    @if (Model.Blogg == null || Model.Blogg.Hidden)
-    {
-        var filteredBloggs = (Model.Bloggs ?? new List<Blogg>())
-        .Where(b => (Model.IsArchiveView ? b.IsArchived : !b.IsArchived)
-        && !b.Hidden
-        && b.LaunchDate.ToSwedishTime() <= nowSE)
-        .OrderByDescending(b => b.LaunchDate.ToSwedishTime())
-        .ThenByDescending(b => b.Id);
+	@if (Model.Blogg == null || Model.Blogg.Hidden)
+	{
+		var filteredBloggs = (Model.Bloggs ?? new List<Blogg>())
+		.Where(b => (Model.IsArchiveView ? b.IsArchived : !b.IsArchived)
+		&& !b.Hidden
+		&& b.LaunchDate.ToSwedishTime() <= nowSE)
+		.OrderByDescending(b => b.LaunchDate.ToSwedishTime())
+		.ThenByDescending(b => b.Id);
 
-        foreach (var blogg in filteredBloggs)
-        {
-            var imageUrl = blogg.Images?
-            .OrderBy(i => i.Order)
-            .FirstOrDefault()?.FilePath;
+		foreach (var blogg in filteredBloggs)
+		{
+			var imageUrl = blogg.Images?
+			.OrderBy(i => i.Order)
+			.FirstOrDefault()?.FilePath;
 
-            var resolvedUrl = (!string.IsNullOrEmpty(imageUrl) &&
-            (imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://")))
-            ? imageUrl
-            : Url.Content(imageUrl ?? "/img/blogg/default.png");
+			var resolvedUrl = (!string.IsNullOrEmpty(imageUrl) &&
+			(imageUrl.StartsWith("http://") || imageUrl.StartsWith("https://")))
+			? imageUrl
+			: Url.Content(imageUrl ?? "/img/blogg/default.png");
 
-            <a asp-route-showId="@blogg.Id"
-               class="text-decoration-none blogg-link"
-               id="reloadPageFormSection-@blogg.Id"
-               data-blogg-id="@blogg.Id">
-                <div class="card m-2 shadow-lg mx-auto">
-                    <div class="card-body">
-                        <div class="card-img-wrapper mb-2" style="--img: url('@resolvedUrl')">
-                            <img class="bloggimg mb-4 shadow-lg"
-                                 src="@resolvedUrl"
-                                 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-                                 alt="Bild för @blogg.Title" />
-                        </div>
-                        <h5 class="card-title blogg-title">@blogg.Title</h5>
-                        <p class="card-text blogg-content">@blogg.Content.LimitLength(120)</p>
-                        <p class="text-faded">
-                            <small class="text-faded">
-                                Publicerad: @blogg.LaunchDate.ToSwedishTime().ToString("yyyy-MM-dd")
-                                <br />
-                                <span class="js-like"
-                                      data-blogg-id="@blogg.Id"
-                                      data-user-id="@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "")">
-                                    ♡ 0
-                                </span>
-                                <br />
-                                @Model.Comments?.Count(c => c.BloggId == blogg.Id)
-                                @(Model.Comments?.Count(c => c.BloggId == blogg.Id) == 1 ? "Kommentar" : "Kommentarer")
-                                @if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
-                                {
-                                    <br />
-                                    <span class="badge bg-info mt-2 d-inline-block">
-                                        Visningar: @blogg.ViewCount
-                                    </span>
-                                }
-                            </small>
+			<a asp-route-showId="@blogg.Id"
+			   class="text-decoration-none blogg-link"
+			   id="reloadPageFormSection-@blogg.Id"
+			   data-blogg-id="@blogg.Id">
+				<div class="card m-2 shadow-lg mx-auto">
+					<div class="card-body">
+						<div class="card-img-wrapper mb-2" style="--img: url('@resolvedUrl')">
+							<img class="bloggimg mb-4 shadow-lg"
+								 src="@resolvedUrl"
+								 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+								 alt="Bild för @blogg.Title" />
+						</div>
+						<h5 class="card-title blogg-title">@blogg.Title</h5>
+						<p class="card-text blogg-content">@blogg.Content.LimitLength(120)</p>
+						<p class="text-faded">
+							<small class="text-faded">
+								Publicerad: @blogg.LaunchDate.ToSwedishTime().ToString("yyyy-MM-dd")
+								<br />
+								<span class="js-like"
+									  data-blogg-id="@blogg.Id"
+									  data-user-id="@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "")">
+									♡ 0
+								</span>
+								<br />
+								@Model.Comments?.Count(c => c.BloggId == blogg.Id)
+								@(Model.Comments?.Count(c => c.BloggId == blogg.Id) == 1 ? "Kommentar" : "Kommentarer")
+								@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
+								{
+									<br />
+									<span class="badge bg-info mt-2 d-inline-block">
+										Visningar: @blogg.ViewCount
+									</span>
+								}
+							</small>
 
-                        </p>
-                    </div>
-                </div>
-            </a>
-        }
-    }
-    else
-    {
-        @* --- DETALJVY MED KARUSELL + KOMMENTARER --- *@
-        var images = (Model.Blogg.Images ?? new List<BloggImageDto>())
-        .OrderBy(i => i.Order).ToList();
-        var carouselId = $"blogCarousel-{Model.Blogg.Id}";
+						</p>
+					</div>
+				</div>
+			</a>
+		}
+	}
+	else
+	{
+		@* --- DETALJVY MED KARUSELL + KOMMENTARER --- *@
+		var images = (Model.Blogg.Images ?? new List<BloggImageDto>())
+		.OrderBy(i => i.Order).ToList();
+		var carouselId = $"blogCarousel-{Model.Blogg.Id}";
 
-        <div class="card m-2 shadow-lg mx-auto" id="bloggTopSection">
-            <div class="card-body">
+		<div class="card m-2 shadow-lg mx-auto" id="bloggTopSection">
+			<div class="card-body">
 
-                @* Bilder *@
-                @if (images.Count <= 1)
-                {
-                    var firstUrl = images.FirstOrDefault()?.FilePath;
-                    var resolved = !string.IsNullOrWhiteSpace(firstUrl) &&
-                    (firstUrl.StartsWith("http://") || firstUrl.StartsWith("https://"))
-                    ? firstUrl
-                    : Url.Content(firstUrl ?? "/img/blogg/default.png");
+				@* Bilder *@
+				@if (images.Count <= 1)
+				{
+					var firstUrl = images.FirstOrDefault()?.FilePath;
+					var resolved = !string.IsNullOrWhiteSpace(firstUrl) &&
+					(firstUrl.StartsWith("http://") || firstUrl.StartsWith("https://"))
+					? firstUrl
+					: Url.Content(firstUrl ?? "/img/blogg/default.png");
 
-                    <div class="card-img-wrapper mb-2" style="--img: url('@resolved')">
-                        <img class="bloggimg mb-4 rounded shadow-lg js-lightbox"
-                             src="@resolved"
-                             onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-                             alt="Bloggbild"
-                             style="cursor:zoom-in" />
-                    </div>
-                }
-                else
-                {
-                    <div id="@carouselId" class="carousel slide mb-2" data-bs-interval="false">
-                        <div class="carousel-inner">
-                            @for (var i = 0; i < images.Count; i++)
-                            {
-                                var url = images[i].FilePath;
-                                var resolved = !string.IsNullOrWhiteSpace(url) &&
-                                (url.StartsWith("http://") || url.StartsWith("https://"))
-                                ? url
-                                : Url.Content(url ?? "/img/blogg/default.png");
+					<div class="card-img-wrapper mb-2" style="--img: url('@resolved')">
+						<img class="bloggimg mb-4 rounded shadow-lg js-lightbox"
+							 src="@resolved"
+							 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+							 alt="Bloggbild"
+							 style="cursor:zoom-in" />
+					</div>
+				}
+				else
+				{
+					<div id="@carouselId" class="carousel slide mb-2" data-bs-interval="false">
+						<div class="carousel-inner">
+							@for (var i = 0; i < images.Count; i++)
+							{
+								var url = images[i].FilePath;
+								var resolved = !string.IsNullOrWhiteSpace(url) &&
+								(url.StartsWith("http://") || url.StartsWith("https://"))
+								? url
+								: Url.Content(url ?? "/img/blogg/default.png");
 
-                                <div class="carousel-item @(i == 0 ? "active" : "")">
-                                    <div class="card-img-wrapper" style="--img: url('@resolved')">
-                                        <img class="bloggimg mb-4 rounded shadow-lg js-lightbox"
-                                             src="@resolved"
-                                             onerror="this.onerror=null; this.src='/img/blogg/default.png';"
-                                             alt="Bloggbild @(i + 1)"
-                                             style="cursor:zoom-in" />
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#@carouselId" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Föregående</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#@carouselId" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Nästa</span>
-                        </button>
+								<div class="carousel-item @(i == 0 ? "active" : "")">
+									<div class="card-img-wrapper" style="--img: url('@resolved')">
+										<img class="bloggimg mb-4 rounded shadow-lg js-lightbox"
+											 src="@resolved"
+											 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
+											 alt="Bloggbild @(i + 1)"
+											 style="cursor:zoom-in" />
+									</div>
+								</div>
+							}
+						</div>
+						<button class="carousel-control-prev" type="button" data-bs-target="#@carouselId" data-bs-slide="prev">
+							<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">Föregående</span>
+						</button>
+						<button class="carousel-control-next" type="button" data-bs-target="#@carouselId" data-bs-slide="next">
+							<span class="carousel-control-next-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">Nästa</span>
+						</button>
 
-                        <div class="carousel-indicators">
-                            @for (var i = 0; i < images.Count; i++)
-                            {
-                                <button type="button"
-                                        data-bs-target="#@carouselId"
-                                        data-bs-slide-to="@i"
-                                        class="@(i==0 ? "active" : "")"
-                                        aria-current="@(i==0 ? "true" : "false")"
-                                        aria-label="Bild @(i+1)"></button>
-                            }
-                        </div>
-                    </div>
+						<div class="carousel-indicators">
+							@for (var i = 0; i < images.Count; i++)
+							{
+								<button type="button"
+										data-bs-target="#@carouselId"
+										data-bs-slide-to="@i"
+										class="@(i==0 ? "active" : "")"
+										aria-current="@(i==0 ? "true" : "false")"
+										aria-label="Bild @(i+1)"></button>
+							}
+						</div>
+					</div>
 
-                    <div class="thumb-strip mt-2" aria-label="Bildminiatyrer">
-                        @for (var i = 0; i < images.Count; i++)
-                        {
-                            var url = images[i].FilePath;
-                            var resolvedThumb = !string.IsNullOrWhiteSpace(url) &&
-                            (url.StartsWith("http://") || url.StartsWith("https://"))
-                            ? url
-                            : Url.Content(url ?? "/img/blogg/default.png");
+					<div class="thumb-strip mt-2" aria-label="Bildminiatyrer">
+						@for (var i = 0; i < images.Count; i++)
+						{
+							var url = images[i].FilePath;
+							var resolvedThumb = !string.IsNullOrWhiteSpace(url) &&
+							(url.StartsWith("http://") || url.StartsWith("https://"))
+							? url
+							: Url.Content(url ?? "/img/blogg/default.png");
 
-                            <button type="button"
-                                    class="thumb @(i == 0 ? "active" : "")"
-                                    data-carousel-id="@carouselId"
-                                    data-index="@i"
-                                    aria-label="Visa bild @(i + 1)"
-                                    aria-current="@(i == 0 ? "true" : "false")">
-                                <img src="@resolvedThumb"
-                                     alt="Miniatyr för bild @(i + 1)"
-                                     loading="lazy" />
-                            </button>
-                        }
-                    </div>
-                }
+							<button type="button"
+									class="thumb @(i == 0 ? "active" : "")"
+									data-carousel-id="@carouselId"
+									data-index="@i"
+									aria-label="Visa bild @(i + 1)"
+									aria-current="@(i == 0 ? "true" : "false")">
+								<img src="@resolvedThumb"
+									 alt="Miniatyr för bild @(i + 1)"
+									 loading="lazy" />
+							</button>
+						}
+					</div>
+				}
 
-                <a href="javascript:void(0)"
-                   class="btn btn-outline-secondary mb-3"
-                   onclick="sessionStorage.setItem('sbNeedsRefresh','1'); history.back();">
-                    &larr; Tillbaka
-                </a>
+				@{
+					// Bas-URL till samma Razor Page utan querystring = listvyn
+					// Om din arkivvy triggas via en query, byt 'archive = 1' till din faktiska nyckel.
+					var listUrl = Model.IsArchiveView
+					? Url.Page(null, new { archive = 1 })  // <-- justera om din query heter något annat
+					: Url.Page(null);                      // t.ex. /Index
+				}
+				<a href="@Url.Page(null, new { highlightId = Model.Blogg.Id })"
+				   class="btn btn-outline-secondary mb-3">
+					&larr; Till listan
+				</a>
 
-                <h3 class="card-title blogg-title">@Model.Blogg.Title</h3>
-                <p class="card-text linebreak blogg-content">@Model.Blogg.Content</p>
-                <p class="text-faded">
-                    <strong>Författare:</strong> @Model.Blogg.Author<br />
-                    <strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToSwedishTime().ToString("yyyy-MM-dd")
-                    @if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
-                    {
-                        <br />
-                        <span class="badge bg-info mt-2 d-inline-block">
-                            Visningar: @Model.Blogg.ViewCount
-                        </span>
-                    }
-                </p>
-                <div class="d-flex align-items-center gap-2 mb-3">
-                    <button type="button"
-                            class="btn btn-like"
-                            data-like-btn
-                            data-blogg-id="@Model.Blogg.Id"
-                            data-user-id="@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "")"
-                            title="Gilla">
-                        <span class="like-heart" aria-hidden="true">♡</span>
-                        <span class="like-count">0</span>
-                    </button>
-                    @if (User.Identity?.IsAuthenticated != true)
-                    {
-                        <small class="text-muted">Logga in för att gilla</small>
-                    }
-                </div>
+				<h3 class="card-title blogg-title">@Model.Blogg.Title</h3>
+				<p class="card-text linebreak blogg-content">@Model.Blogg.Content</p>
+				<p class="text-faded">
+					<strong>Författare:</strong> @Model.Blogg.Author<br />
+					<strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToSwedishTime().ToString("yyyy-MM-dd")
+					@if (User.IsInRole("admin") || User.IsInRole("superadmin") || User.IsInRole("superuser"))
+					{
+						<br />
+						<span class="badge bg-info mt-2 d-inline-block">
+							Visningar: @Model.Blogg.ViewCount
+						</span>
+					}
+				</p>
+				<div class="d-flex align-items-center gap-2 mb-3">
+					<button type="button"
+							class="btn btn-like"
+							data-like-btn
+							data-blogg-id="@Model.Blogg.Id"
+							data-user-id="@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "")"
+							title="Gilla">
+						<span class="like-heart" aria-hidden="true">♡</span>
+						<span class="like-count">0</span>
+					</button>
+					@if (User.Identity?.IsAuthenticated != true)
+					{
+						<small class="text-muted">Logga in för att gilla</small>
+					}
+				</div>
 
-                <hr class="mb-3" />
+				<hr class="mb-3" />
 
-                <!-- 🗨️ Kommentarer -->
-                <section id="comments">
-                    <h5 class="mb-3">
-                        Kommentarer
-                        <small class="text-muted ms-2">
-                            @((Model.Comments?.Count(c => c.BloggId == Model.Blogg.Id) ?? 0))
-                        </small>
-                    </h5>
+				<!-- 🗨️ Kommentarer -->
+				<section id="comments">
+					<h5 class="mb-3">
+						Kommentarer
+						<small class="text-muted ms-2">
+							@((Model.Comments?.Count(c => c.BloggId == Model.Blogg.Id) ?? 0))
+						</small>
+					</h5>
 
-                    <!-- Lista kommentarer -->
-                    @foreach (var c in (Model.Comments ?? new List<Comment>())
-                   .Where(c => c.BloggId == Model.Blogg.Id)
-                   .OrderBy(c => c.CreatedAt))
-                    {
-                        <div class="comment mb-3 p-2 border rounded">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <div class="comment-header mb-1">
-                                        <span class="fw-bold">
-                                            @if (!string.IsNullOrWhiteSpace(c.Name)
-                                           && Model.RoleCssByName != null
-                                           && Model.RoleCssByName.TryGetValue(c.Name, out var roleCss)
-                                           && !string.IsNullOrEmpty(roleCss))
-                                            {
-                                                <span class="@roleCss">@c.Name</span>
-                                            }
-                                            else
-                                            {
-                                                @c.Name
-                                            }
-                                        </span>
-                                        <small class="text-muted ms-2">
-                                            @c.CreatedAt.ToSwedishTime().ToString("yyyy-MM-dd HH:mm")
-                                        </small>
-                                    </div>
-                                    <div class="comment-body">@c.Content</div> <!-- ✅ fått egen klass -->
-                                </div>
+					<!-- Lista kommentarer -->
+					@foreach (var c in (Model.Comments ?? new List<Comment>())
+										.Where(c => c.BloggId == Model.Blogg.Id)
+										.OrderBy(c => c.CreatedAt))
+					{
+						<div class="comment mb-3 p-2 border rounded">
+							<div class="d-flex justify-content-between align-items-start">
+								<div>
+									<div class="comment-header mb-1">
+										<span class="fw-bold">
+											@if (!string.IsNullOrWhiteSpace(c.Name)
+																			&& Model.RoleCssByName != null
+																			&& Model.RoleCssByName.TryGetValue(c.Name, out var roleCss)
+																			&& !string.IsNullOrEmpty(roleCss))
+											{
+												<span class="@roleCss">@c.Name</span>
+											}
+											else
+											{
+												@c.Name
+											}
+										</span>
+										<small class="text-muted ms-2">
+											@c.CreatedAt.ToSwedishTime().ToString("yyyy-MM-dd HH:mm")
+										</small>
+									</div>
+									<div class="comment-body">@c.Content</div> <!-- ✅ fått egen klass -->
+								</div>
 
-                                @* Visa ta bort för admin/superadmin/superuser ELLER kommentarsägaren *@
-                                @if (User.IsInRole("superadmin") || User.IsInRole("admin") || User.IsInRole("superuser")
-                               || (User.Identity?.IsAuthenticated == true
-                               && string.Equals(c.Name, User.Identity.Name, StringComparison.OrdinalIgnoreCase)))
-                                {
-                                    if (c.Id != null)
-                                    {
-                                        <form method="post" class="ms-2" onsubmit="return confirm('Ta bort kommentaren?')">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="deleteCommentId" value="@c.Id" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Ta bort">🗑</button>
-                                        </form>
-                                    }
-                                }
-                            </div>
-                        </div>
-                    }
+								@* Visa ta bort för admin/superadmin/superuser ELLER kommentarsägaren *@
+								@if (User.IsInRole("superadmin") || User.IsInRole("admin") || User.IsInRole("superuser")
+													|| (User.Identity?.IsAuthenticated == true
+													&& string.Equals(c.Name, User.Identity.Name, StringComparison.OrdinalIgnoreCase)))
+								{
+									if (c.Id != null)
+									{
+										<form method="post" class="ms-2" onsubmit="return confirm('Ta bort kommentaren?')">
+											@Html.AntiForgeryToken()
+											<input type="hidden" name="deleteCommentId" value="@c.Id" />
+											<button type="submit" class="btn btn-sm btn-outline-danger" title="Ta bort">🗑</button>
+										</form>
+									}
+								}
+							</div>
+						</div>
+					}
 
-                    <hr />
+					<hr />
 
-                    <!-- Formulär: inloggade slipper namnfält -->
-                    <form method="post" id="comment-form">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
+					<!-- Formulär: inloggade slipper namnfält -->
+					<form method="post" id="comment-form">
+						@Html.AntiForgeryToken()
+						<input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
 
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <div class="mb-2">
-                                <span class="text-muted">Skriver som</span>
-                                <strong class="ms-1">
-                                    <span class="@Model.RoleCss">@User.Identity.Name</span>
-                                </strong>
-                                <span class="badge bg-success ms-2 align-middle">inloggad</span>
-                            </div>
-                            <input type="hidden" asp-for="Comment.Name" value="@User.Identity.Name" />
-                        }
-                        else
-                        {
-                            <div class="mb-3">
-                                <label asp-for="Comment.Name" class="form-label">Namn</label> <!-- ✅ form-label -->
-                                <input asp-for="Comment.Name" class="form-control" />         <!-- ✅ form-control -->
-                                <span asp-validation-for="Comment.Name" class="text-danger"></span>
-                            </div>
-                        }
+						@if (User.Identity?.IsAuthenticated == true)
+						{
+							<div class="mb-2">
+								<span class="text-muted">Skriver som</span>
+								<strong class="ms-1">
+									<span class="@Model.RoleCss">@User.Identity.Name</span>
+								</strong>
+								<span class="badge bg-success ms-2 align-middle">inloggad</span>
+							</div>
+							<input type="hidden" asp-for="Comment.Name" value="@User.Identity.Name" />
+						}
+						else
+						{
+							<div class="mb-3">
+								<label asp-for="Comment.Name" class="form-label">Namn</label> <!-- ✅ form-label -->
+								<input asp-for="Comment.Name" class="form-control" />         <!-- ✅ form-control -->
+								<span asp-validation-for="Comment.Name" class="text-danger"></span>
+							</div>
+						}
 
-                        <div class="mb-3">
-                            <label asp-for="Comment.Content" class="form-label">Kommentar</label> <!-- ✅ form-label -->
-                            <textarea asp-for="Comment.Content" class="form-control" rows="4"></textarea> <!-- ✅ form-control -->
-                            <span asp-validation-for="Comment.Content" class="text-danger"></span>
-                        </div>
+						<div class="mb-3">
+							<label asp-for="Comment.Content" class="form-label">Kommentar</label> <!-- ✅ form-label -->
+							<textarea asp-for="Comment.Content" class="form-control" rows="4"></textarea> <!-- ✅ form-control -->
+							<span asp-validation-for="Comment.Content" class="text-danger"></span>
+						</div>
 
-                        <button type="submit" class="btn" id="comment-submit">Skicka kommentar</button>
-                    </form>
-                </section>
+						<button type="submit" class="btn" id="comment-submit">Skicka kommentar</button>
+					</form>
+				</section>
 
-            </div>
-        </div>
-    }
+			</div>
+		</div>
+	}
 </div>
 
 <!-- Fullscreen Image Modal -->
 <div class="modal fade" id="imageLightbox" tabindex="-1" aria-hidden="true"
-     data-bs-backdrop="false" data-bs-keyboard="true">
+	 data-bs-backdrop="false" data-bs-keyboard="true">
 
-    <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content bg-black">
-            <div class="modal-body p-0 d-flex align-items-center justify-content-center">
-                <img id="lightboxImg" alt="Bloggbild"
-                     style="max-width:100vw; max-height:100vh; object-fit:contain; cursor:zoom-out;" />
-            </div>
-        </div>
-    </div>
+	<div class="modal-dialog modal-fullscreen">
+		<div class="modal-content bg-black">
+			<div class="modal-body p-0 d-flex align-items-center justify-content-center">
+				<img id="lightboxImg" alt="Bloggbild"
+					 style="max-width:100vw; max-height:100vh; object-fit:contain; cursor:zoom-out;" />
+			</div>
+		</div>
+	</div>
 </div>
