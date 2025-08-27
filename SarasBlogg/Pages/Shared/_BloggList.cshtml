@@ -248,6 +248,12 @@
 											{
 												<span class="@roleCss">@c.Name</span>
 											}
+											else if (User.Identity?.IsAuthenticated == true
+											&& string.Equals(c.Name, User.Identity.Name, StringComparison.OrdinalIgnoreCase)
+											&& !string.IsNullOrEmpty(Model.RoleCss))
+											{
+												<span class="@Model.RoleCss">@c.Name</span>
+											}
 											else
 											{
 												@c.Name
