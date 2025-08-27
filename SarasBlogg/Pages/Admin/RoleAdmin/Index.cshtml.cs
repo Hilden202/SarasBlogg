@@ -1,7 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using SarasBlogg.DTOs;
-using SarasBlogg.DAL;
 using Microsoft.AspNetCore.Mvc;
+using SarasBlogg.DAL;
+using SarasBlogg.DTOs;
 
 namespace SarasBlogg.Pages.Admin.RoleAdmin
 {
@@ -9,6 +13,13 @@ namespace SarasBlogg.Pages.Admin.RoleAdmin
     {
         public List<UserDto> Users { get; set; } = new();
         public List<string> Roles { get; set; } = new();
+
+        // Roller från API för den inloggade
+        public List<string> ApiRoles { get; private set; } = new();
+        public bool IsApiAdminOrSuper { get; private set; }
+        public bool IsApiSuperadmin { get; private set; }
+        public bool IsSystemAdmin(string? email)
+           => string.Equals(email ?? "", "admin@sarasblogg.se", StringComparison.OrdinalIgnoreCase);
 
         [BindProperty(SupportsGet = true)] public string RoleName { get; set; }
         [BindProperty(SupportsGet = true)] public string AddUserId { get; set; }
@@ -21,15 +32,31 @@ namespace SarasBlogg.Pages.Admin.RoleAdmin
         private readonly UserAPIManager _userApiManager;
         public IndexModel(UserAPIManager userApiManager) => _userApiManager = userApiManager;
 
+        private async Task<bool> IsApiSuperadminAsync()
+        {
+            var me = await _userApiManager.GetMeAsync();
+            return me?.Roles?.Contains("superadmin", StringComparer.OrdinalIgnoreCase) == true;
+        }
         public async Task OnGetAsync()
         {
-            if (!string.IsNullOrEmpty(AddUserId))
-                await _userApiManager.AddUserToRoleAsync(AddUserId, RoleName);
+            // 1) Hämta färska roller för den inloggade från API:t
+            var me = await _userApiManager.GetMeAsync();
+            ApiRoles = me?.Roles?.ToList() ?? new List<string>();
+            IsApiSuperadmin = ApiRoles.Contains("superadmin", StringComparer.OrdinalIgnoreCase);
+            IsApiAdminOrSuper = IsApiSuperadmin ||
+                                ApiRoles.Contains("admin", StringComparer.OrdinalIgnoreCase);
 
-            if (!string.IsNullOrEmpty(RemoveUserId))
-                await _userApiManager.RemoveUserFromRoleAsync(RemoveUserId, RoleName);
+            // 2) Hantera ev. add/remove länkar (endast superadmin får trigga)
+            if (IsApiSuperadmin)
+            {
+                if (!string.IsNullOrEmpty(AddUserId) && !string.IsNullOrEmpty(RoleName))
+                    await _userApiManager.AddUserToRoleAsync(AddUserId, RoleName);
 
-            // Kolumnordning (sidleds)
+                if (!string.IsNullOrEmpty(RemoveUserId) && !string.IsNullOrEmpty(RoleName))
+                    await _userApiManager.RemoveUserFromRoleAsync(RemoveUserId, RoleName);
+            }
+
+            // 3) Ladda roller (kolumnordning)
             var rankColumns = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
             {
                 ["user"] = 0,
@@ -43,9 +70,9 @@ namespace SarasBlogg.Pages.Admin.RoleAdmin
                 .ThenBy(r => r)
                 .ToList();
 
+            // 4) Ladda användare (radordning)
             var users = await _userApiManager.GetAllUsersAsync();
 
-            // Radordning (lodrätt) – topproll: superadmin (0) bäst
             var rankUsers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
             {
                 ["superadmin"] = 0,
@@ -62,19 +89,20 @@ namespace SarasBlogg.Pages.Admin.RoleAdmin
             int RoleCountDistinct(IList<string>? roles) =>
                 roles?.Distinct(StringComparer.OrdinalIgnoreCase).Count() ?? 0;
 
-            bool IsSystemAdmin(string? email) =>
+            bool IsSystemAdminEmail(string? email) =>
                 string.Equals(email ?? "", "admin@sarasblogg.se", StringComparison.OrdinalIgnoreCase);
 
             Users = users
-                .OrderBy(u => IsSystemAdmin(u.Email) ? 0 : 1)                 // systemkontot först
-                .ThenBy(u => UserTopRank(u.Roles))                              // sedan på topproll (superadmin vinner)
-                .ThenByDescending(u => RoleCountDistinct(u.Roles))              // inom samma topproll: fler roller vinner
+                .OrderBy(u => IsSystemAdminEmail(u.Email) ? 0 : 1)             // systemkontot först
+                .ThenBy(u => UserTopRank(u.Roles))                              // sedan på topproll
+                .ThenByDescending(u => RoleCountDistinct(u.Roles))              // fler roller vinner
                 .ThenBy(u => u.UserName ?? u.Email ?? string.Empty)             // stabilitet
                 .ToList();
         }
+
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!string.IsNullOrWhiteSpace(RoleName))
+            if (await IsApiSuperadminAsync() && !string.IsNullOrWhiteSpace(RoleName))
                 await _userApiManager.CreateRoleAsync(RoleName);
 
             return RedirectToPage();
@@ -82,33 +110,46 @@ namespace SarasBlogg.Pages.Admin.RoleAdmin
 
         public async Task<IActionResult> OnPostDeleteUserAsync()
         {
-            var user = await _userApiManager.GetUserByIdAsync(DeleteUserId);
-            if (user != null && (user.Email ?? "").ToLower() != "admin@sarasblogg.se")
-                await _userApiManager.DeleteUserAsync(DeleteUserId);
+            if (await IsApiSuperadminAsync() && !string.IsNullOrWhiteSpace(DeleteUserId))
+            {
+                var user = await _userApiManager.GetUserByIdAsync(DeleteUserId);
+                if (user != null && !IsSystemAdminEmail(user.Email))
+                    await _userApiManager.DeleteUserAsync(DeleteUserId);
+            }
 
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostDeleteRoleAsync()
         {
-            if (!string.IsNullOrWhiteSpace(DeleteRoleName) && DeleteRoleName.ToLower() != "superadmin")
+            if (await IsApiSuperadminAsync() &&
+                !string.IsNullOrWhiteSpace(DeleteRoleName) &&
+                !string.Equals(DeleteRoleName, "superadmin", StringComparison.OrdinalIgnoreCase))
+            {
                 await _userApiManager.DeleteRoleAsync(DeleteRoleName);
+            }
 
             return RedirectToPage();
         }
 
-        // NYTT: byt användarnamn
+        // Byt användarnamn (endast superadmin)
         public async Task<IActionResult> OnPostChangeUserNameAsync()
         {
             if (string.IsNullOrWhiteSpace(TargetUserId) || string.IsNullOrWhiteSpace(NewUserName))
                 return RedirectToPage();
 
-            // UI-skydd (API:n bör ändå kräva Superadmin)
-            if (!User.IsInRole("superadmin"))
+            if (!await IsApiSuperadminAsync())
                 return Forbid();
 
-            var result = await _userApiManager.ChangeUserNameAsync(TargetUserId, NewUserName);
+            var user = await _userApiManager.GetUserByIdAsync(TargetUserId);
+            if (user != null && IsSystemAdminEmail(user.Email))
+                return Forbid();
+
+            await _userApiManager.ChangeUserNameAsync(TargetUserId, NewUserName);
             return RedirectToPage();
         }
+
+        private static bool IsSystemAdminEmail(string? email) =>
+            string.Equals(email ?? "", "admin@sarasblogg.se", StringComparison.OrdinalIgnoreCase);
     }
 }

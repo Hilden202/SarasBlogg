@@ -2,7 +2,7 @@
 @model SarasBlogg.Pages.Admin.RoleAdmin.IndexModel
 
 <div class="container-site">
-    @if (User.IsInRole("admin") || User.IsInRole("superadmin"))
+    @if (Model.IsApiAdminOrSuper)
     {
         <nav class="border-bottom">
             <div class="container d-flex justify-content-center">
@@ -40,29 +40,51 @@
             <tbody>
                 @foreach (var user in Model.Users)
                 {
-                    var isSystemAdmin = (user.Email ?? "").ToLower() == "admin@sarasblogg.se";
+                    var isSysAdmin = Model.IsSystemAdmin(user.Email);
+
                     <tr>
-                        <!-- Ta bort -->
                         <td>
-                            @if (!isSystemAdmin)
+                            @if (!isSysAdmin)
                             {
-                                <form method="post" asp-page-handler="DeleteUser"
-                                      onsubmit="return confirm('Ta bort användare @user.Email?')">
-                                    <input type="hidden" name="DeleteUserId" value="@user.Id" />
-                                    <button class="btn btn-sm btn-outline-danger">🗑</button>
-                                </form>
+                                @if (Model.IsApiSuperadmin)
+                                {
+                                    <form method="post" asp-page-handler="DeleteUser"
+                                          onsubmit="return confirm('Ta bort användare @user.Email?')">
+                                        <input type="hidden" name="DeleteUserId" value="@user.Id" />
+                                        <button class="btn btn-sm btn-outline-danger">🗑</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="btn btn-sm btn-outline-secondary disabled"
+                                          title="Endast superadmin kan ta bort">🗑</span>
+                                }
                             }
                         </td>
 
                         <!-- Användare (visning) -->
                         <td>
-                            <div><strong>@user.UserName</strong> (@user.Email)</div>
-                            <div><small>Roller: @string.Join(", ", user.Roles)</small></div>
+                            <div>
+                                <strong>
+                                    @if (isSysAdmin)
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                    else
+                                    {
+                                        @user.UserName
+                                    }
+                                </strong>
+                                (@user.Email)
+                            </div>
+                            <div>
+                                <small>Roller: @string.Join(", ", user.Roles)</small>
+                            </div>
                         </td>
 
                         <!-- Byt användarnamn -->
                         <td>
-                            @if (User.IsInRole("superadmin") && !isSystemAdmin)
+                            @if (Model.IsApiSuperadmin && !isSysAdmin)
                             {
                                 <form method="post" asp-page-handler="ChangeUserName" class="d-flex gap-2">
                                     <input type="hidden" name="TargetUserId" value="@user.Id" />
@@ -77,27 +99,48 @@
                             }
                             else
                             {
-                                <span class="text-muted">—</span>
+                                <!-- Visa låst fält; för systemadmin döljs namnet -->
+                                <input type="text"
+                                       value="@(isSysAdmin ? "—" : user.UserName)"
+                                       class="form-control form-control-sm"
+                                       style="max-width: 220px"
+                                       disabled
+                                       title="Endast superadmin kan ändra" />
                             }
                         </td>
 
-                        <!-- Roll-matris som förr -->
+
+                        <!-- Roll-matris -->
                         @foreach (var role in Model.Roles)
                         {
                             <td>
-                                @if (isSystemAdmin)
+                                @if (isSysAdmin)
                                 {
                                     <span class="btn btn-sm btn-outline-secondary disabled">Ja</span>
                                 }
                                 else if (user.Roles.Contains(role))
                                 {
-                                    <a class="btn btn-sm btn-outline-danger"
-                                       href="?RemoveUserId=@user.Id&amp;RoleName=@role">Ja</a>
+                                    @if (Model.IsApiSuperadmin)
+                                    {
+                                        <a class="btn btn-sm btn-outline-danger"
+                                           href="?RemoveUserId=@user.Id&amp;RoleName=@role">Ja</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="btn btn-sm btn-outline-secondary disabled">Ja</span>
+                                    }
                                 }
                                 else
                                 {
-                                    <a class="btn btn-sm btn-outline-success"
-                                       href="?AddUserId=@user.Id&amp;RoleName=@role">Nej</a>
+                                    @if (Model.IsApiSuperadmin)
+                                    {
+                                        <a class="btn btn-sm btn-outline-success"
+                                           href="?AddUserId=@user.Id&amp;RoleName=@role">Nej</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="btn btn-sm btn-outline-secondary disabled">Nej</span>
+                                    }
                                 }
                             </td>
                         }
@@ -106,51 +149,61 @@
             </tbody>
         </table>
 
-        <form method="post" class="mt-4">
-            <label for="RoleName">Ny Roll</label>
-            <input type="text" name="RoleName" id="RoleName" class="form-control" />
-            <input type="submit" value="Skapa ny roll" class="btn btn-primary mt-2" />
-        </form>
+        <!-- Ny roll -->
+        @if (Model.IsApiSuperadmin)
+        {
+            <form method="post" class="mt-4">
+                <label for="RoleName">Ny Roll</label>
+                <input type="text" name="RoleName" id="RoleName" class="form-control" />
+                <input type="submit" value="Skapa ny roll" class="btn btn-primary mt-2" />
+            </form>
 
-        <hr />
-        <h4>Hantera roller</h4>
-        <table class="table table-bordered w-auto">
-            <thead>
-                <tr>
-                    <th>Roll</th>
-                    <th>Ta bort</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var role in Model.Roles)
-                {
+            <hr />
+            <h4>Hantera roller</h4>
+            <table class="table table-bordered w-auto">
+                <thead>
                     <tr>
-                        <td>@role</td>
-                        <td>
-                            @if (role.ToLower() != "superadmin")
-                            {
-                                <form method="post" asp-page-handler="DeleteRole">
-                                    <input type="hidden" name="DeleteRoleName" value="@role" />
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Ta bort rollen @role?')">🗑</button>
-                                </form>
-                            }
-                        </td>
+                        <th>Roll</th>
+                        <th>Ta bort</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var role in Model.Roles)
+                    {
+                        <tr>
+                            <td>@role</td>
+                            <td>
+                                @if (role.ToLower() != "superadmin")
+                                {
+                                    <form method="post" asp-page-handler="DeleteRole">
+                                        <input type="hidden" name="DeleteRoleName" value="@role" />
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Ta bort rollen @role?')">
+                                            🗑
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted mt-4">Endast superadmin kan skapa eller ta bort roller.</p>
+        }
     }
 </div>
+
 @section Scripts {
     <script>
         if (window.innerWidth < 992) {
           document.addEventListener('DOMContentLoaded', () => {
-            // Gör så username-fälten inte blir förvalda på mobil
             document.querySelectorAll('input[name="NewUserName"]').forEach(el => {
               el.tabIndex = -1;
-              el.removeAttribute('autofocus'); // säkerhet ifall något smugit in
+              el.removeAttribute('autofocus');
             });
-            // Om Safari redan hann sätta fokus → ta bort det direkt
             setTimeout(() => document.activeElement?.blur(), 0);
           });
         }

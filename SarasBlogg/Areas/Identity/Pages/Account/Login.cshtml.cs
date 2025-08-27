@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.DAL;
+using SarasBlogg.Services;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account
 {
@@ -17,11 +18,13 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
     {
         private readonly UserAPIManager _userApi;
         private readonly ILogger<LoginModel> _logger;
+        private readonly IAccessTokenStore _tokenStore;
 
-        public LoginModel(UserAPIManager userApi, ILogger<LoginModel> logger)
+        public LoginModel(UserAPIManager userApi, ILogger<LoginModel> logger, IAccessTokenStore tokenStore)
         {
             _userApi = userApi;
             _logger = logger;
+            _tokenStore = tokenStore;
         }
 
         [BindProperty]
@@ -83,6 +86,7 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
                 ExpiresUtc = login.AccessTokenExpiresUtc
             };
             await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principal, props);
+            _tokenStore.Set(login.AccessToken);
 
             // 4) (valfritt) spara access-token i HttpOnly-cookie
             Response.Cookies.Append("api_access_token", login.AccessToken, new CookieOptions

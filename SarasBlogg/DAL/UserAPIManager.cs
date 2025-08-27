@@ -159,6 +159,21 @@ namespace SarasBlogg.DAL
             return body ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
         }
 
+        public async Task<BasicResultDto?> ChangeMyUserNameAsync(string newUserName, CancellationToken ct = default)
+        {
+            var payload = new ChangeUserNameRequestDto { NewUserName = newUserName };
+            using var res = await _http.PutAsJsonAsync("api/User/me/username", payload, _json, ct);
+            return await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct)
+                ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
+        }
+
+        public async Task<UserDto?> GetMeAsync(CancellationToken ct = default)
+        {
+            using var res = await _http.GetAsync("api/auth/me", ct);
+            if (!res.IsSuccessStatusCode) return null;
+            return await res.Content.ReadFromJsonAsync<UserDto>(_json, ct);
+        }
+
 
     }
 }

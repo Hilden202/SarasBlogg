@@ -117,16 +117,20 @@ namespace SarasBlogg
             // AUTORISERINGSPOLICIES
             builder.Services.AddAuthorization(options =>
             {
-                options.AddPolicy("SkaVaraSuperAdmin", policy => policy.RequireRole("superadmin"));
-                options.AddPolicy("SkaVaraAdmin", policy => policy.RequireRole("superadmin", "admin"));
+                options.AddPolicy("SkaVaraSuperAdmin", p => p.RequireRole("superadmin"));          // endast superadmin
+                options.AddPolicy("SkaVaraAdmin", p => p.RequireRole("superadmin", "admin")); // admin + superadmin
             });
+
+            builder.Services.AddHttpContextAccessor();
 
             // BEHÖRIGHETER FÖR RAZOR PAGES
             builder.Services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizePage("/Admin", "SkaVaraAdmin");
-                options.Conventions.AuthorizePage("/RoleAdmin", "SkaVaraSuperAdmin");
+                options.Conventions.AuthorizeFolder("/Admin/RoleAdmin", "SkaVaraAdmin"); // båda får se
             });
+
+
             // 1) EN sammanhängande retry-policy (GET/HEAD) för 5xx/408/HttpRequestException + 429
             static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
             {
@@ -152,6 +156,9 @@ namespace SarasBlogg
             // TJÄNSTER
             builder.Services.AddScoped<BloggService>();
 
+            builder.Services.AddSingleton<IAccessTokenStore, InMemoryAccessTokenStore>();
+            builder.Services.AddTransient<JwtAuthHandler>();
+
             // 🟨 Originalregistreringar — behållna men utkommenterade nedan:
             // builder.Services.AddScoped<BloggAPIManager>();
             // builder.Services.AddHttpClient<BloggImageAPIManager>();
@@ -172,7 +179,8 @@ namespace SarasBlogg
             {
                 client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
             })
-                .AddHttpMessageHandler<HttpClientLoggingHandler>();
+                .AddHttpMessageHandler<HttpClientLoggingHandler>()
+                .AddHttpMessageHandler<JwtAuthHandler>();
 
             builder.Services.AddHttpClient<UserAPIManager>(c =>
             {
@@ -185,7 +193,8 @@ namespace SarasBlogg
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1) // släng riktigt gamla idle-anslutningar
             })
             .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
-            .AddHttpMessageHandler<HttpClientLoggingHandler>();
+            .AddHttpMessageHandler<HttpClientLoggingHandler>()
+            .AddHttpMessageHandler<JwtAuthHandler>();
 
             builder.Services.AddHttpClient<BloggAPIManager>(c =>
             {
@@ -198,7 +207,8 @@ namespace SarasBlogg
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
             .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
-            .AddHttpMessageHandler<HttpClientLoggingHandler>();
+            .AddHttpMessageHandler<HttpClientLoggingHandler>()
+            .AddHttpMessageHandler<JwtAuthHandler>();
 
             builder.Services.AddHttpClient<BloggImageAPIManager>(c =>
             {
@@ -211,7 +221,8 @@ namespace SarasBlogg
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
             .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
-            .AddHttpMessageHandler<HttpClientLoggingHandler>();
+            .AddHttpMessageHandler<HttpClientLoggingHandler>()
+            .AddHttpMessageHandler<JwtAuthHandler>();
 
             builder.Services.AddHttpClient<CommentAPIManager>(c =>
             {
@@ -224,7 +235,8 @@ namespace SarasBlogg
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
             .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
-            .AddHttpMessageHandler<HttpClientLoggingHandler>();
+            .AddHttpMessageHandler<HttpClientLoggingHandler>()
+            .AddHttpMessageHandler<JwtAuthHandler>();
 
             builder.Services.AddHttpClient<ForbiddenWordAPIManager>(c =>
             {
@@ -237,7 +249,8 @@ namespace SarasBlogg
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
             .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
-            .AddHttpMessageHandler<HttpClientLoggingHandler>();
+            .AddHttpMessageHandler<HttpClientLoggingHandler>()
+            .AddHttpMessageHandler<JwtAuthHandler>();
 
             builder.Services.AddHttpClient<AboutMeAPIManager>(c =>
             {
@@ -250,7 +263,8 @@ namespace SarasBlogg
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
             .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
-            .AddHttpMessageHandler<HttpClientLoggingHandler>();
+            .AddHttpMessageHandler<HttpClientLoggingHandler>()
+            .AddHttpMessageHandler<JwtAuthHandler>();
 
             builder.Services.AddHttpClient<AboutMeImageAPIManager>(c =>
             {
@@ -263,7 +277,8 @@ namespace SarasBlogg
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
             .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
-            .AddHttpMessageHandler<HttpClientLoggingHandler>();
+            .AddHttpMessageHandler<HttpClientLoggingHandler>()
+            .AddHttpMessageHandler<JwtAuthHandler>();
 
             builder.Services.AddHttpClient<ContactMeAPIManager>(c =>
             {
@@ -276,7 +291,8 @@ namespace SarasBlogg
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
             .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
-            .AddHttpMessageHandler<HttpClientLoggingHandler>();
+            .AddHttpMessageHandler<HttpClientLoggingHandler>()
+            .AddHttpMessageHandler<JwtAuthHandler>();
 
             builder.Services.AddHttpClient<LikeAPIManager>(c =>
             {
@@ -289,7 +305,8 @@ namespace SarasBlogg
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1)
             })
             .AddPolicyHandler((sp, req) => SelectPolicyFor(req))
-            .AddHttpMessageHandler<HttpClientLoggingHandler>();
+            .AddHttpMessageHandler<HttpClientLoggingHandler>()
+            .AddHttpMessageHandler<JwtAuthHandler>();
 
             // COOKIEPOLICY
             builder.Services.Configure<CookiePolicyOptions>(options =>

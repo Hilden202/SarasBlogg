@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using SarasBlogg.DAL;
 using SarasBlogg.Data;
+using SarasBlogg.Services;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account
 {
@@ -28,11 +29,17 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
-            // Logga ut i API:t
+            // 1) Logga ut i API:t
             await _userApi.LogoutAsync();
 
-            // Ta även bort den lokala Identity-cookie som sattes vid login
+            // 2) Ta bort den lokala Identity-cookie som sattes vid login
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+
+            // 3) Rensa bearer-token från HttpClient-handlern (IAccessTokenStore)
+            HttpContext.RequestServices.GetRequiredService<IAccessTokenStore>().Clear();
+
+            // 4) Rensa ev. HttpOnly-cookie-kopia av token (om du satte den vid login)
+            Response.Cookies.Delete("api_access_token");
 
             _logger.LogInformation("Användare loggade ut via API.");
 
