@@ -6,6 +6,7 @@ using SarasBlogg.DAL;
 using Humanizer;
 using SarasBlogg.Extensions; // för ev. ToSwedishTime i framtiden
 using System.Security.Claims;
+using System.Linq;
 
 namespace SarasBlogg.Pages
 {
@@ -35,6 +36,23 @@ namespace SarasBlogg.Pages
                    ?? User.FindFirst("email")?.Value
                    ?? "")
                 : "";
+        private async Task<(string? Email, List<string> Roles)> GetApiUserByNameAsync(string userName)
+        {
+            try
+            {
+                var all = await _userApi.GetAllUsersAsync();
+                var u = all?.FirstOrDefault(x =>
+                    !string.IsNullOrWhiteSpace(x.UserName) &&
+                    string.Equals(x.UserName, userName, StringComparison.OrdinalIgnoreCase));
+                return (u?.Email, (u?.Roles ?? Enumerable.Empty<string>()).ToList());
+            }
+            catch { return (null, new List<string>()); }
+        }
+
+        private static bool HasAdminLikeRole(IEnumerable<string> roles) =>
+            roles.Any(r => string.Equals(r, "superadmin", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(r, "admin", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(r, "superuser", StringComparison.OrdinalIgnoreCase));
 
         // Ikoner (unicode)
         //private string GetRoleSymbol()
@@ -150,6 +168,12 @@ namespace SarasBlogg.Pages
                 if (existing != null)
                 {
                     var isAdmin = User.IsInRole("superadmin") || User.IsInRole("admin") || User.IsInRole("superuser");
+                    if (!isAdmin && IsAuth && !string.IsNullOrWhiteSpace(CurrentUserName))
+                    {
+                        var (_, roles) = await GetApiUserByNameAsync(CurrentUserName); // <-- API-fallback i prod
+                        if (HasAdminLikeRole(roles)) isAdmin = true;
+                    }
+
 
                     var isOwner =
                         (!string.IsNullOrWhiteSpace(existing.Name) && !string.IsNullOrWhiteSpace(CurrentUserName) &&
@@ -176,14 +200,21 @@ namespace SarasBlogg.Pages
             if (IsAuth && ViewModel?.Comment != null)
             {
                 ViewModel.Comment.Name = CurrentUserName;
-                ViewModel.Comment.Email = CurrentUserEmail;
 
-                // rensa ModelState så overrides går igenom
+                var email = CurrentUserEmail;
+                if (string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(CurrentUserName))
+                {
+                    var (apiEmail, _) = await GetApiUserByNameAsync(CurrentUserName); // <-- prod-fallback
+                    email = apiEmail ?? "";
+                }
+                ViewModel.Comment.Email = email;
+
                 ModelState.Remove("ViewModel.Comment.Name");
                 ModelState.Remove("Comment.Name");
                 ModelState.Remove("ViewModel.Comment.Email");
                 ModelState.Remove("Comment.Email");
             }
+
 
             // 3) CreatedAt i UTC för nya kommentarer (exakt tidpunkt)
             if (ViewModel?.Comment != null && ViewModel.Comment.Id == null)

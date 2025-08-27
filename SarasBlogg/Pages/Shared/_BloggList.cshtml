@@ -301,6 +301,8 @@
 								<span class="badge bg-success ms-2 align-middle">inloggad</span>
 							</div>
 							<input type="hidden" asp-for="Comment.Name" value="@User.Identity.Name" />
+							<input type="hidden" asp-for="Comment.Email"
+								   value="@(User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? User.FindFirst("email")?.Value)" />
 						}
 						else
 						{
