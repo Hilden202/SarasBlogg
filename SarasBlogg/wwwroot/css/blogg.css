@@ -18,6 +18,7 @@
 .index-hero-text {
     display: inline-block;
     max-height: 200px; /* justera efter smak */
+    max-width: 100%;
     width: auto;
 }
 
@@ -39,6 +40,7 @@
 
     .index-hero-text {
         max-height: 120px;
+        max-width: 100%;
     }
 }
 
