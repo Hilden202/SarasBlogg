@@ -36,23 +36,6 @@ namespace SarasBlogg.Pages
                    ?? User.FindFirst("email")?.Value
                    ?? "")
                 : "";
-        private async Task<(string? Email, List<string> Roles)> GetApiUserByNameAsync(string userName)
-        {
-            try
-            {
-                var all = await _userApi.GetAllUsersAsync();
-                var u = all?.FirstOrDefault(x =>
-                    !string.IsNullOrWhiteSpace(x.UserName) &&
-                    string.Equals(x.UserName, userName, StringComparison.OrdinalIgnoreCase));
-                return (u?.Email, (u?.Roles ?? Enumerable.Empty<string>()).ToList());
-            }
-            catch { return (null, new List<string>()); }
-        }
-
-        private static bool HasAdminLikeRole(IEnumerable<string> roles) =>
-            roles.Any(r => string.Equals(r, "superadmin", StringComparison.OrdinalIgnoreCase)
-                        || string.Equals(r, "admin", StringComparison.OrdinalIgnoreCase)
-                        || string.Equals(r, "superuser", StringComparison.OrdinalIgnoreCase));
 
         // Ikoner (unicode)
         //private string GetRoleSymbol()
@@ -85,15 +68,6 @@ namespace SarasBlogg.Pages
         private static string GetTopRole(IEnumerable<string> roles) =>
             roles.OrderBy(r => Rank.TryGetValue(r, out var i) ? i : 999).FirstOrDefault() ?? "";
 
-        //private static (string css, string sym) MapTopRole(string? top) =>
-        //    top?.ToLower() switch
-        //    {
-        //        "superadmin" => ("role-superadmin", "\U0001F451"), // 👑
-        //        "admin" => ("role-admin", "\u2B50"),               // ⭐
-        //        "superuser" => ("role-superuser", "\u26A1"),       // ⚡
-        //        "user" => ("role-user", "\U0001F338"),             // 🌸
-        //        _ => ("", "")
-        //    };
         private static string MapTopRoleToCss(string? top) => top?.ToLower() switch
         {
             "superadmin" => "role-superadmin",
@@ -103,6 +77,32 @@ namespace SarasBlogg.Pages
             _ => ""
         };
 
+        // === PROD-fallback: hämta email/roller via API om cookies saknar claims ===
+        private async Task<(string? Email, List<string> Roles)> GetApiUserByNameAsync(string userNameOrEmail)
+        {
+            try
+            {
+                var all = await _userApi.GetAllUsersAsync();
+                var u = all?.FirstOrDefault(x =>
+                    (!string.IsNullOrWhiteSpace(x.UserName) && !string.IsNullOrWhiteSpace(userNameOrEmail) &&
+                     string.Equals(x.UserName, userNameOrEmail, StringComparison.OrdinalIgnoreCase))
+                    ||
+                    (!string.IsNullOrWhiteSpace(x.Email) && !string.IsNullOrWhiteSpace(userNameOrEmail) &&
+                     string.Equals(x.Email, userNameOrEmail, StringComparison.OrdinalIgnoreCase))
+                );
+
+                return (u?.Email, (u?.Roles ?? Enumerable.Empty<string>()).ToList());
+            }
+            catch
+            {
+                return (null, new List<string>());
+            }
+        }
+
+        private static bool HasAdminLikeRole(IEnumerable<string> roles) =>
+            roles.Any(r => string.Equals(r, "superadmin", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(r, "admin", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(r, "superuser", StringComparison.OrdinalIgnoreCase));
 
         private async Task HydrateRoleLookupsForCurrentPostAsync()
         {
@@ -132,17 +132,9 @@ namespace SarasBlogg.Pages
                     continue;
 
                 var top = GetTopRole(user.Roles);
-                //var (css, sym) = MapTopRole(top);
-
-                //if (!string.IsNullOrEmpty(css))
-                //    ViewModel.RoleCssByName[name] = css;
-
-                //if (!string.IsNullOrEmpty(sym))
-                //    ViewModel.RoleSymbolByName[name] = sym;
                 var css = MapTopRoleToCss(top);
                 if (!string.IsNullOrEmpty(css))
                     ViewModel.RoleCssByName[name] = css;
-
             }
         }
 
@@ -153,10 +145,10 @@ namespace SarasBlogg.Pages
 
             ViewModel = await _bloggService.GetBloggViewModelAsync(false, showId);
             await HydrateRoleLookupsForCurrentPostAsync();
+
             // för formuläret (inloggad skribent)
             //ViewModel.RoleSymbol = GetRoleSymbol();
             ViewModel.RoleCss = GetRoleCss();
-
         }
 
         public async Task<IActionResult> OnPostAsync(int deleteCommentId)
@@ -170,10 +162,10 @@ namespace SarasBlogg.Pages
                     var isAdmin = User.IsInRole("superadmin") || User.IsInRole("admin") || User.IsInRole("superuser");
                     if (!isAdmin && IsAuth && !string.IsNullOrWhiteSpace(CurrentUserName))
                     {
-                        var (_, roles) = await GetApiUserByNameAsync(CurrentUserName); // <-- API-fallback i prod
+                        // Prod-fallback: kolla roller via API (om cookien saknar claims)
+                        var (_, roles) = await GetApiUserByNameAsync(CurrentUserName);
                         if (HasAdminLikeRole(roles)) isAdmin = true;
                     }
-
 
                     var isOwner =
                         (!string.IsNullOrWhiteSpace(existing.Name) && !string.IsNullOrWhiteSpace(CurrentUserName) &&
@@ -204,17 +196,18 @@ namespace SarasBlogg.Pages
                 var email = CurrentUserEmail;
                 if (string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(CurrentUserName))
                 {
-                    var (apiEmail, _) = await GetApiUserByNameAsync(CurrentUserName); // <-- prod-fallback
+                    // Prod-fallback: hämta email via API om claim saknas
+                    var (apiEmail, _) = await GetApiUserByNameAsync(CurrentUserName);
                     email = apiEmail ?? "";
                 }
                 ViewModel.Comment.Email = email;
 
+                // rensa ModelState så overrides går igenom
                 ModelState.Remove("ViewModel.Comment.Name");
                 ModelState.Remove("Comment.Name");
                 ModelState.Remove("ViewModel.Comment.Email");
                 ModelState.Remove("Comment.Email");
             }
-
 
             // 3) CreatedAt i UTC för nya kommentarer (exakt tidpunkt)
             if (ViewModel?.Comment != null && ViewModel.Comment.Id == null)
@@ -230,6 +223,7 @@ namespace SarasBlogg.Pages
 
                     ViewModel = await _bloggService.GetBloggViewModelAsync(false, ViewModel.Comment?.BloggId ?? 0);
                     await HydrateRoleLookupsForCurrentPostAsync();
+
                     // för formuläret
                     //ViewModel.RoleSymbol = GetRoleSymbol();
                     ViewModel.RoleCss = GetRoleCss();
