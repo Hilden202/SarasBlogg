@@ -16,23 +16,13 @@ namespace SarasBlogg.Services
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
         {
-            // 1) Om Authorization redan satt (t.ex. manuellt) – låt den vara
-            if (request.Headers.Authorization is null)
+            // Sätt ALDRIG Authorization om användaren inte är inloggad i webb-appen
+            var isAuth = _http.HttpContext?.User?.Identity?.IsAuthenticated == true;
+
+            if (isAuth && request.Headers.Authorization is null)
             {
-                // 2) Försök först med token i minnet
-                var token = _store.AccessToken;
-
-                // 3) Om minnet saknar token – hämta från HttpOnly-cookie (om finns)
-                if (string.IsNullOrWhiteSpace(token))
-                {
-                    token = _http.HttpContext?.Request?.Cookies["api_access_token"];
-                    if (!string.IsNullOrWhiteSpace(token))
-                    {
-                        // synca tillbaka till minnet för kommande requests
-                        _store.Set(token);
-                    }
-                }
-
+                // Läs token per-request (store först, annars HttpOnly-cookie)
+                var token = _store.AccessToken ?? _http.HttpContext?.Request?.Cookies["api_access_token"];
                 if (!string.IsNullOrWhiteSpace(token))
                 {
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -41,5 +31,6 @@ namespace SarasBlogg.Services
 
             return base.SendAsync(request, ct);
         }
+
     }
 }

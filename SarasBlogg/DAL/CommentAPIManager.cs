@@ -6,9 +6,11 @@ namespace SarasBlogg.DAL
     public class CommentAPIManager
     {
         private readonly HttpClient _httpClient;
+
         private static readonly JsonSerializerOptions _jsonOpts = new()
         {
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
         public CommentAPIManager(HttpClient httpClient)
@@ -16,23 +18,70 @@ namespace SarasBlogg.DAL
             _httpClient = httpClient;
         }
 
-        public async Task<List<Models.Comment>> GetAllCommentsAsync()
+        // --- Nya DTO-baserade anrop (med TopRole) ---
+
+        public async Task<List<DTOs.CommentWithRoleDto>> GetByBloggWithRolesAsync(int bloggId)
         {
-            var resp = await _httpClient.GetAsync("api/Comment");
-            if (!resp.IsSuccessStatusCode) return new List<Models.Comment>();
+            var resp = await _httpClient.GetAsync($"api/Comment/by-blogg/{bloggId}");
+            if (!resp.IsSuccessStatusCode) return new List<DTOs.CommentWithRoleDto>();
 
             var json = await resp.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<List<Models.Comment>>(json, _jsonOpts) ?? new List<Models.Comment>();
+            return JsonSerializer.Deserialize<List<DTOs.CommentWithRoleDto>>(json, _jsonOpts)
+                   ?? new List<DTOs.CommentWithRoleDto>();
         }
 
-        public async Task<Models.Comment?> GetCommentAsync(int id)
+        public async Task<List<DTOs.CommentWithRoleDto>> GetAllCommentsWithRolesAsync()
+        {
+            var resp = await _httpClient.GetAsync("api/Comment");
+            if (!resp.IsSuccessStatusCode) return new List<DTOs.CommentWithRoleDto>();
+
+            var json = await resp.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<List<DTOs.CommentWithRoleDto>>(json, _jsonOpts)
+                   ?? new List<DTOs.CommentWithRoleDto>();
+        }
+
+        public async Task<DTOs.CommentWithRoleDto?> GetCommentWithRoleAsync(int id)
         {
             var resp = await _httpClient.GetAsync($"api/Comment/ById/{id}");
             if (!resp.IsSuccessStatusCode) return null;
 
             var json = await resp.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<Models.Comment>(json, _jsonOpts);
+            return JsonSerializer.Deserialize<DTOs.CommentWithRoleDto>(json, _jsonOpts);
         }
+
+        // --- Bakåtkompatibla metoder (mappar DTO -> gamla modellen) ---
+
+        public async Task<List<Models.Comment>> GetAllCommentsAsync()
+        {
+            var dtos = await GetAllCommentsWithRolesAsync();
+            return dtos.Select(d => new Models.Comment
+            {
+                Id = d.Id,
+                BloggId = d.BloggId,
+                Name = d.Name,
+                Email = null,              // Exponeras ej publikt
+                Content = d.Content ?? "",
+                CreatedAt = d.CreatedAt
+            }).ToList();
+        }
+
+        public async Task<Models.Comment?> GetCommentAsync(int id)
+        {
+            var d = await GetCommentWithRoleAsync(id);
+            if (d == null) return null;
+
+            return new Models.Comment
+            {
+                Id = d.Id,
+                BloggId = d.BloggId,
+                Name = d.Name,
+                Email = null,
+                Content = d.Content ?? "",
+                CreatedAt = d.CreatedAt
+            };
+        }
+
+        // --- Skapa / radera ---
 
         public async Task<string?> SaveCommentAsync(Models.Comment comment)
         {

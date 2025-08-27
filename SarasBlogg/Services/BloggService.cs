@@ -32,6 +32,15 @@ namespace SarasBlogg.Services
             _logger = logger;
         }
 
+        private static string MapTopRoleToCss(string? top) => top?.ToLower() switch
+        {
+            "superadmin" => "role-superadmin",
+            "admin" => "role-admin",
+            "superuser" => "role-superuser",
+            "user" => "role-user",
+            _ => ""
+        };
+
         private async Task AttachImagesAsync(Blogg blogg)
             => blogg.Images = await _imageApi.GetImagesByBloggIdAsync(blogg.Id);
 
@@ -74,8 +83,55 @@ namespace SarasBlogg.Services
                 vm.Blogg = blogg;
             }
 
-            vm.Comments = await _commentApi.GetAllCommentsAsync();
+            vm.RoleCssByName = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            // Vi behöver kommentarer + top-roll för att räkna och sätta färger.
+            // När vi visar en specifik blogg → hämta bara de kommentarerna.
+            // När vi visar listning/startsida → hämta alla (för räkningen per blogg).
+            if (vm.Blogg is not null && vm.Blogg.Id != 0)
+            {
+                var dtos = await _commentApi.GetByBloggWithRolesAsync(vm.Blogg.Id);
+
+                vm.Comments = dtos.Select(d => new Comment
+                {
+                    Id = d.Id,
+                    BloggId = d.BloggId,
+                    Name = d.Name,
+                    Content = d.Content ?? "",
+                    CreatedAt = d.CreatedAt
+                }).ToList();
+
+                foreach (var d in dtos.Where(d => !string.IsNullOrWhiteSpace(d.Name)))
+                {
+                    var css = MapTopRoleToCss(d.TopRole);
+                    if (!string.IsNullOrEmpty(css))
+                        vm.RoleCssByName[d.Name] = css;
+                }
+            }
+            else
+            {
+                var dtos = await _commentApi.GetAllCommentsWithRolesAsync();
+
+                vm.Comments = dtos.Select(d => new Comment
+                {
+                    Id = d.Id,
+                    BloggId = d.BloggId,
+                    Name = d.Name,
+                    Content = d.Content ?? "",
+                    CreatedAt = d.CreatedAt
+                }).ToList();
+
+                // Färg för de namn som förekommer i listningen (ofarligt att fylla upp = liten dict)
+                foreach (var d in dtos.Where(d => !string.IsNullOrWhiteSpace(d.Name)))
+                {
+                    var css = MapTopRoleToCss(d.TopRole);
+                    if (!string.IsNullOrEmpty(css))
+                        vm.RoleCssByName[d.Name] = css;
+                }
+            }
+
             return vm;
+
         }
 
         /// <summary>Hämtar alla bloggar (cache 3 min), filtrerar & laddar bilder för det som returneras.</summary>

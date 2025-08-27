@@ -132,8 +132,6 @@ namespace SarasBlogg.Pages
             //ViewModel.RoleSymbol = GetRoleSymbol();
             ViewModel.RoleCss = GetRoleCss();
 
-            // för list-rendering (alla ser färg/ikon på alla kommentarer)
-            await HydrateRoleLookupsForCurrentPostAsync();
         }
 
         public async Task<IActionResult> OnPostAsync(int deleteCommentId)
@@ -175,9 +173,6 @@ namespace SarasBlogg.Pages
                     // för formuläret
                     //ViewModel.RoleSymbol = GetRoleSymbol();
                     ViewModel.RoleCss = GetRoleCss();
-
-                    // för list-rendering
-                    await HydrateRoleLookupsForCurrentPostAsync();
 
                     return Page();
                 }
