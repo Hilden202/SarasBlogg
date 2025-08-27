@@ -275,7 +275,7 @@
                     <hr />
 
                     <!-- Formulär: inloggade slipper namnfält -->
-                    <form method="post">
+                    <form method="post" id="comment-form">
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
 
@@ -305,7 +305,7 @@
                             <span asp-validation-for="Comment.Content" class="text-danger"></span>
                         </div>
 
-                        <button type="submit" class="btn">Skicka kommentar</button> <!-- ✅ bytt till samma .btn -->
+                        <button type="submit" class="btn" id="comment-submit">Skicka kommentar</button>
                     </form>
                 </section>
 
@@ -327,39 +327,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    (() => {
-      const modalEl = document.getElementById('imageLightbox');
-      const imgEl   = document.getElementById('lightboxImg');
-
-      function ensureInstance() {
-        let inst = bootstrap.Modal.getInstance(modalEl);
-        if (!inst) inst = new bootstrap.Modal(modalEl, { backdrop: false, keyboard: true });
-        return inst;
-      }
-
-      document.addEventListener('click', (e) => {
-        const triggerImg = e.target.closest('.js-lightbox');
-        if (!triggerImg) return;
-
-        imgEl.src = triggerImg.src;
-        ensureInstance().show();
-      });
-
-      modalEl.addEventListener('click', () => {
-        const inst = bootstrap.Modal.getInstance(modalEl);
-        if (inst) inst.hide();
-      });
-
-      modalEl.addEventListener('shown.bs.modal', () => {
-        const onKey = (ev) => { if (ev.key === 'Escape') ensureInstance().hide(); };
-        modalEl._onKey = onKey;
-        document.addEventListener('keydown', onKey);
-      });
-      modalEl.addEventListener('hidden.bs.modal', () => {
-        if (modalEl._onKey) document.removeEventListener('keydown', modalEl._onKey);
-        modalEl._onKey = null;
-      });
-    })();
-</script>

@@ -360,3 +360,28 @@ document.querySelectorAll('.carousel').forEach(el => {
         btn.disabled = true;
     }
 })();
+
+//skickar kommentar
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("comment-form");
+    const btn = document.getElementById("comment-submit");
+    if (!form || !btn) return;
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        if (!btn.disabled) {
+            btn.disabled = true;
+            btn.setAttribute("aria-busy", "true");
+            btn.textContent = "Skickar kommentar…"; // ← ny text
+        }
+
+        // Låt browsern måla UI innan submit
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                form.submit();
+            });
+        });
+    });
+});
+
