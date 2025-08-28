@@ -88,14 +88,16 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
             await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principal, props);
             _tokenStore.Set(login.AccessToken);
 
-            // 4) (valfritt) spara access-token i HttpOnly-cookie
+            // 4) 
             Response.Cookies.Append("api_access_token", login.AccessToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Lax,
+                SameSite = SameSiteMode.None, // viktigt vid eventuella cross-site flöden
+                Path = "/",               // KRITISKT: gör cookien giltig för hela sajten
                 Expires = login.AccessTokenExpiresUtc
             });
+
 
             _logger.LogInformation("User logged in via API.");
             return LocalRedirect(returnUrl ?? Url.Content("~/"));
