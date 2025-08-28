@@ -194,5 +194,15 @@ namespace SarasBlogg.DAL
             if (!res.IsSuccessStatusCode) return body ?? new BasicResultDto { Succeeded = false, Message = $"HTTP {(int)res.StatusCode}" };
             return body;
         }
+
+        public Task<BasicResultDto?> ChangeEmailStartAsync(string newEmail, CancellationToken ct = default)
+             => _http.PostAsJsonAsync("api/auth/change-email/start", new ChangeEmailStartDto { NewEmail = newEmail }, ct)
+            .ContinueWith(async t => (await t.Result.Content.ReadFromJsonAsync<BasicResultDto>(cancellationToken: ct))!, ct).Unwrap();
+
+        public Task<BasicResultDto?> ChangeEmailConfirmAsync(string userId, string code, string newEmail, CancellationToken ct = default)
+            => _http.PostAsJsonAsync($"api/auth/change-email/confirm?newEmail={Uri.EscapeDataString(newEmail)}",
+            new ChangeEmailConfirmDto { UserId = userId, Code = code }, ct)
+            .ContinueWith(async t => (await t.Result.Content.ReadFromJsonAsync<BasicResultDto>(cancellationToken: ct))!, ct).Unwrap();
+
     }
 }

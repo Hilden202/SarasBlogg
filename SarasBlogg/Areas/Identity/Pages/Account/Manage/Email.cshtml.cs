@@ -5,31 +5,27 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using SarasBlogg.Data;
+using SarasBlogg.DAL;
+using SarasBlogg.DTOs;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 {
     public class EmailModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IEmailSender _emailSender;
+        private readonly UserAPIManager _userApi;
 
-        public EmailModel(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            IEmailSender emailSender)
+        public EmailModel(UserManager<ApplicationUser> userManager, UserAPIManager userApi)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _emailSender = emailSender;
+            _userManager = userManager;   // behålls för att läsa nuvarande email/status
+            _userApi = userApi;           // används för att starta/resa e-postflöden
         }
 
         public string Email { get; set; }
@@ -37,6 +33,14 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 
         [TempData]
         public string StatusMessage { get; set; }
+
+        // Håller den nya e-posten över redirect efter ChangeEmailStart
+        [TempData]
+        public string PendingNewEmail { get; set; }
+
+        // Dev: klickbar bekräftelselänk från API (visas bara i Development)
+        [TempData]
+        public string DevConfirmUrl { get; set; }
 
         [BindProperty]
         public InputModel Input { get; set; }
@@ -71,6 +75,13 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
             }
 
             await LoadAsync(user);
+
+            // Om vi precis initierat ett byte: visa den nya adressen i fältet igen
+            if (!string.IsNullOrEmpty(PendingNewEmail) &&
+            !string.Equals(PendingNewEmail, Email, StringComparison.OrdinalIgnoreCase))
+            {
+                Input.NewEmail = PendingNewEmail;
+            }
             return Page();
         }
 
@@ -88,28 +99,27 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            var email = await _userManager.GetEmailAsync(user);
-            if (Input.NewEmail != email)
+            var current = await _userManager.GetEmailAsync(user);
+            if (string.Equals(Input.NewEmail, current, StringComparison.OrdinalIgnoreCase))
             {
-                var userId = await _userManager.GetUserIdAsync(user);
-                var code = await _userManager.GenerateChangeEmailTokenAsync(user, Input.NewEmail);
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                var callbackUrl = Url.Page(
-                    "/Account/ConfirmEmailChange",
-                    pageHandler: null,
-                    values: new { area = "Identity", userId = userId, email = Input.NewEmail, code = code },
-                    protocol: Request.Scheme);
-                await _emailSender.SendEmailAsync(
-                    Input.NewEmail,
-                    "Bekräfta din e-postadress",
-                    $"Vänligen bekräfta ditt konto genom att <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>klicka här</a>.");
-
-                StatusMessage = "En bekräftelselänk för att ändra din e-postadress har skickats. Kontrollera din inkorg.";
+                StatusMessage = "Din e-postadress är oförändrad.";
                 return RedirectToPage();
             }
 
-            StatusMessage = "Din e-postadress är oförändrad.";
-            return RedirectToPage();
+            // 👉 API-anrop: starta byte av e-post (skickar mejl, och i dev exponerar ConfirmEmailUrl)
+            var result = await _userApi.ChangeEmailStartAsync(Input.NewEmail);
+            if (result?.Succeeded == true)
+            {
+                StatusMessage = "En bekräftelselänk för att ändra din e-postadress har skickats. Kontrollera din inkorg.";
+                // Spara dev-länken separat så vi kan visa den snyggt i vyn
+                DevConfirmUrl = string.IsNullOrWhiteSpace(result.ConfirmEmailUrl) ? "" : result.ConfirmEmailUrl;
+                PendingNewEmail = Input.NewEmail; // <- behåll ny e-post över redirect
+                return RedirectToPage();
+            }
+
+            ModelState.AddModelError(string.Empty, result?.Message ?? "Kunde inte initiera e-postbyte.");
+            await LoadAsync(user);
+            return Page();
         }
 
         public async Task<IActionResult> OnPostSendVerificationEmailAsync()
@@ -120,27 +130,16 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Kunde inte ladda användare med ID '{_userManager.GetUserId(User)}'.");
             }
 
-            if (!ModelState.IsValid)
-            {
-                await LoadAsync(user);
-                return Page();
-            }
-
-            var userId = await _userManager.GetUserIdAsync(user);
-            var email = await _userManager.GetEmailAsync(user);
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var callbackUrl = Url.Page(
-                "/Account/ConfirmEmail",
-                pageHandler: null,
-                values: new { area = "Identity", userId = userId, code = code },
-                protocol: Request.Scheme);
-            await _emailSender.SendEmailAsync(
-                email,
-                "Bekräfta din e-postadress",
-                $"Vänligen bekräfta ditt konto genom att <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>klicka här</a>.");
-
-            StatusMessage = "En verifieringslänk har skickats. Kontrollera din e-post.";
+            // 👉 API-anrop: skicka om bekräftelse (neutral response avsiktligt)
+            var current = await _userManager.GetEmailAsync(user);
+            var candidate = string.IsNullOrWhiteSpace(PendingNewEmail) ? Input?.NewEmail : PendingNewEmail;
+            var email = !string.IsNullOrWhiteSpace(candidate) &&
+            !string.Equals(candidate, current, StringComparison.OrdinalIgnoreCase)
+                        ? candidate
+                        : current;
+            await _userApi.ResendConfirmationAsync(email);
+            StatusMessage = "Om adressen finns skickades en bekräftelselänk.";
+            PendingNewEmail = Input?.NewEmail ?? PendingNewEmail; // behåll värdet i fältet
             return RedirectToPage();
         }
     }
