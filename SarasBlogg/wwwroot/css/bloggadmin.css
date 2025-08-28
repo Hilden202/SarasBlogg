@@ -59,3 +59,25 @@ td.image-column {
             white-space: normal;
         }
 }
+/* Admin: mobilanpassning */
+.admin-table .title-cell {
+    word-break: break-word;
+}
+
+.admin-table .image-column img.admin-blog-img {
+    max-width: 80px;
+    height: auto;
+}
+
+@media (max-width: 767.98px) { /* < md */
+    .admin-table .image-inline {
+        max-width: 56px;
+        height: auto;
+        border-radius: .25rem;
+    }
+
+    .admin-btn-group {
+        flex-wrap: wrap;
+        gap: .25rem;
+    }
+}
