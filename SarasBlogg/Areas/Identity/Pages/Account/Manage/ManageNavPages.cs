@@ -32,9 +32,11 @@ namespace  SarasBlogg.Areas.Identity.Pages.Account.Manage
         public static string ChangePassword => "ChangePassword";
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Sätt lösenord (för användare som ännu inte har något lokalt lösenord)
         /// </summary>
+        public static string SetPassword => "SetPassword";
+
+        public static string SetPasswordNavClass(ViewContext viewContext) => PageNavClass(viewContext, SetPassword);
         public static string DownloadPersonalData => "DownloadPersonalData";
 
         /// <summary>
