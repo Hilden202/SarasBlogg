@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.Data;
+using SarasBlogg.DAL;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 {
@@ -17,13 +18,15 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserAPIManager _userApi;
 
-        public IndexModel(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+        public IndexModel(UserManager<ApplicationUser> userManager,
+                          SignInManager<ApplicationUser> signInManager,
+                          UserAPIManager userApi)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _userApi = userApi;
         }
 
         /// <summary>
@@ -97,43 +100,13 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
-
             if (!ModelState.IsValid)
             {
-                await LoadAsync(user);
                 return Page();
             }
-
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
-            {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
-                {
-                    StatusMessage = "Ett oväntat fel inträffade när telefonnumret skulle uppdateras.";
-                    return RedirectToPage();
-                }
-
-            }
-            if (user.Name != Input.Name)
-            {
-                user.Name = Input.Name;
-            }
-
-            if (user.BirthYear != Input.BirthYear)
-            {
-                user.BirthYear = Input.BirthYear;
-            }
-
-            await _userManager.UpdateAsync(user);
-
-            await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Din profil har uppdaterats.";
+            // 👉 Gå via API
+            var res = await _userApi.UpdateMyProfileAsync(Input.PhoneNumber, Input.Name, Input.BirthYear);
+            StatusMessage = res?.Message ?? (res?.Succeeded == true ? "Din profil har uppdaterats." : "Kunde inte uppdatera profilen.");
             return RedirectToPage();
         }
     }

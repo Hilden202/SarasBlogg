@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Net.Http.Json;
 using SarasBlogg.DTOs;
+using static System.Net.WebRequestMethods;
 
 namespace SarasBlogg.DAL
 {
@@ -203,6 +204,16 @@ namespace SarasBlogg.DAL
             => _http.PostAsJsonAsync($"api/auth/change-email/confirm?newEmail={Uri.EscapeDataString(newEmail)}",
             new ChangeEmailConfirmDto { UserId = userId, Code = code }, ct)
             .ContinueWith(async t => (await t.Result.Content.ReadFromJsonAsync<BasicResultDto>(cancellationToken: ct))!, ct).Unwrap();
+
+        // ==== PROFILE ====
+        public async Task<BasicResultDto?> UpdateMyProfileAsync(string? phoneNumber, string? name, int? birthYear, CancellationToken ct = default)
+        {
+            var payload = new UpdateProfileDto { PhoneNumber = phoneNumber, Name = name, BirthYear = birthYear };
+            using var res = await _http.PutAsJsonAsync("api/User/me/profile", payload, _json, ct);
+            var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
+            if (!res.IsSuccessStatusCode) return body ?? new BasicResultDto { Succeeded = false, Message = $"HTTP {(int)res.StatusCode}" };
+            return body;
+        }
 
     }
 }
