@@ -174,6 +174,17 @@ namespace SarasBlogg.DAL
             return await res.Content.ReadFromJsonAsync<UserDto>(_json, ct);
         }
 
-
+        public async Task<BasicResultDto?> ChangePasswordAsync(string currentPassword, string newPassword, CancellationToken ct = default)
+        {
+            var dto = new ChangePasswordDto { CurrentPassword = currentPassword, NewPassword = newPassword };
+            using var res = await _http.PostAsJsonAsync("api/auth/change-password", dto, ct);
+            if (!res.IsSuccessStatusCode)
+            {
+                // Försök ändå läsa ev. BasicResultDto med felmeddelande
+                var err = await res.Content.ReadFromJsonAsync<BasicResultDto>(cancellationToken: ct);
+                return err ?? new BasicResultDto { Succeeded = false, Message = $"HTTP {(int)res.StatusCode}" };
+            }
+            return await res.Content.ReadFromJsonAsync<BasicResultDto>(cancellationToken: ct);
+        }
     }
 }

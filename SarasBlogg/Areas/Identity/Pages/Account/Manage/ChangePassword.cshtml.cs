@@ -10,22 +10,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using SarasBlogg.Data;
+using SarasBlogg.DAL;
+using SarasBlogg.DTOs;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 {
     public class ChangePasswordModel : PageModel
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<ChangePasswordModel> _logger;
+        private readonly UserAPIManager _userApi;
 
         public ChangePasswordModel(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            ILogger<ChangePasswordModel> logger)
+             UserAPIManager userApi,
+             ILogger<ChangePasswordModel> logger)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
+            _userApi = userApi;
             _logger = logger;
         }
 
@@ -40,7 +39,7 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
             [Required]
             [DataType(DataType.Password)]
             [Display(Name = "Nuvarande lösenord")]
-            public string OldPassword { get; set; }
+            public string CurrentPassword { get; set; }
 
             [Required]
             [StringLength(100, ErrorMessage = "{0} måste vara minst {2} och max {1} tecken långt.", MinimumLength = 6)]
@@ -56,18 +55,7 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Kunde inte ladda användaren med ID '{_userManager.GetUserId(User)}'.");
-            }
-
-            var hasPassword = await _userManager.HasPasswordAsync(user);
-            if (!hasPassword)
-            {
-                return RedirectToPage("./SetPassword");
-            }
-
+            // (Ev. redirect till SetPassword hanteras i separat steg när SetPassword är API:at.)
             return Page();
         }
 
@@ -78,27 +66,22 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            if (Input.NewPassword != Input.ConfirmPassword)
             {
-                return NotFound($"Kunde inte ladda användaren med ID '{_userManager.GetUserId(User)}'.");
-            }
-
-            var changePasswordResult = await _userManager.ChangePasswordAsync(user, Input.OldPassword, Input.NewPassword);
-            if (!changePasswordResult.Succeeded)
-            {
-                foreach (var error in changePasswordResult.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+                ModelState.AddModelError(string.Empty, "Det nya lösenordet och bekräftelsen matchar inte.");
                 return Page();
             }
 
-            await _signInManager.RefreshSignInAsync(user);
-            _logger.LogInformation("Användaren har bytt lösenord.");
-            StatusMessage = "Ditt lösenord har ändrats.";
+            var result = await _userApi.ChangePasswordAsync(Input.CurrentPassword, Input.NewPassword);
+            if (result?.Succeeded == true)
+            {
+                _logger.LogInformation("Användaren har bytt lösenord via API.");
+                StatusMessage = "Ditt lösenord har ändrats.";
+                return RedirectToPage();
+            }
 
-            return RedirectToPage();
+            ModelState.AddModelError(string.Empty, result?.Message ?? "Något gick fel.");
+            return Page();
         }
     }
 }
