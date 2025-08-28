@@ -373,3 +373,54 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// --- Fullscreen image lightbox (delegated) ---
+(() => {
+    const modalEl = document.getElementById('imageLightbox');
+    const imgEl = document.getElementById('lightboxImg');
+    if (!modalEl || !imgEl || !window.bootstrap) return;
+
+    function ensureInstance() {
+        let inst = bootstrap.Modal.getInstance(modalEl);
+        if (!inst) inst = new bootstrap.Modal(modalEl, { backdrop: false, keyboard: true });
+        return inst;
+    }
+
+    // Öppna vid klick på valfri bild med .js-lightbox (även i karusell)
+    document.addEventListener('click', (e) => {
+        const trigger = e.target.closest('.js-lightbox');
+        if (!trigger) return;
+
+        // om du vill kunna ange en separat högupplöst version:
+        const full = trigger.getAttribute('data-fullsrc');
+        imgEl.src = full || trigger.getAttribute('src') || '';
+
+        ensureInstance().show();
+    });
+
+    // Stäng vid klick i själva modalfönstret (hela overlayn)
+    modalEl.addEventListener('click', () => {
+        const inst = bootstrap.Modal.getInstance(modalEl);
+        if (inst) inst.hide();
+    });
+
+    // Lägg på Escape-lyssnare när modalen öppnas
+    modalEl.addEventListener('shown.bs.modal', () => {
+        const onKey = (ev) => {
+            if (ev.key === 'Escape') {
+                const inst = bootstrap.Modal.getInstance(modalEl);
+                if (inst) inst.hide();
+            }
+        };
+        modalEl._onKey = onKey;
+        document.addEventListener('keydown', onKey);
+    });
+
+    // Ta bort Escape-lyssnaren när modalen stängs
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        if (modalEl._onKey) {
+            document.removeEventListener('keydown', modalEl._onKey);
+            modalEl._onKey = null;
+        }
+    });
+})();
+
