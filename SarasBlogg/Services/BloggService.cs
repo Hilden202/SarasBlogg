@@ -9,6 +9,8 @@ namespace SarasBlogg.Services
 {
     public class BloggService
     {
+        private const string CacheKeyAll = "blogg:list:all";
+
         private readonly BloggAPIManager _bloggApi;
         private readonly CommentAPIManager _commentApi;
         private readonly ForbiddenWordAPIManager _forbiddenWordApi;
@@ -31,6 +33,9 @@ namespace SarasBlogg.Services
             _imageApi = imageApi;
             _logger = logger;
         }
+
+        /// <summary>Invalidera listcachen så att publika listor uppdateras direkt efter admin-ändringar.</summary>
+        public void InvalidateBlogListCache() => _cache.Remove(CacheKeyAll);
 
         private static string MapTopRoleToCss(string? top) => top?.ToLower() switch
         {
@@ -85,9 +90,7 @@ namespace SarasBlogg.Services
 
             vm.RoleCssByName = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            // Vi behöver kommentarer + top-roll för att räkna och sätta färger.
-            // När vi visar en specifik blogg → hämta bara de kommentarerna.
-            // När vi visar listning/startsida → hämta alla (för räkningen per blogg).
+            // Kommentarer + top-roll (för färger)
             if (vm.Blogg is not null && vm.Blogg.Id != 0)
             {
                 var dtos = await _commentApi.GetByBloggWithRolesAsync(vm.Blogg.Id);
@@ -121,7 +124,6 @@ namespace SarasBlogg.Services
                     CreatedAt = d.CreatedAt
                 }).ToList();
 
-                // Färg för de namn som förekommer i listningen (ofarligt att fylla upp = liten dict)
                 foreach (var d in dtos.Where(d => !string.IsNullOrWhiteSpace(d.Name)))
                 {
                     var css = MapTopRoleToCss(d.TopRole);
@@ -131,21 +133,31 @@ namespace SarasBlogg.Services
             }
 
             return vm;
-
         }
 
-        /// <summary>Hämtar alla bloggar (cache 3 min), filtrerar & laddar bilder för det som returneras.</summary>
-        public async Task<List<Blogg>> GetAllBloggsAsync(bool includeArchived = false)
+        /// <summary>
+        /// Hämtar alla bloggar (IMemoryCache ~45s), filtrerar & laddar bilder för det som returneras.
+        /// Sätt bypassCache=true för att forcera färsk hämtning (t.ex. direkt efter admin-ändring).
+        /// </summary>
+        public async Task<List<Blogg>> GetAllBloggsAsync(bool includeArchived = false, bool bypassCache = false)
         {
-            const string cacheKey = "blogg:list:all";
-            if (!_cache.TryGetValue(cacheKey, out List<Blogg>? all))
+            if (bypassCache)
+            {
+                try { return await FetchAndFilterAsync(includeArchived); }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Bypass misslyckades, faller tillbaka på cache.");
+                }
+            }
+
+            if (!_cache.TryGetValue(CacheKeyAll, out List<Blogg>? all))
             {
                 try
                 {
-                    all = await _bloggApi.GetAllBloggsAsync(); // hämta rå-listan utan filter
-                    _cache.Set(cacheKey, all, new MemoryCacheEntryOptions
+                    all = await _bloggApi.GetAllBloggsAsync(); // rå-lista utan filter
+                    _cache.Set(CacheKeyAll, all, new MemoryCacheEntryOptions
                     {
-                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3)
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(45)
                     });
                 }
                 catch (HttpRequestException ex)
@@ -160,22 +172,31 @@ namespace SarasBlogg.Services
 
             all ??= new List<Blogg>();
 
-            // Svensk "nu"-tid för filtrering/sortering
-            var nowSe = DateTime.UtcNow.ToSwedishTime();
+            var filtered = FilterClientSide(all, includeArchived);
 
-            var filtered = all
+            // Attach:a bilder endast för de som faktiskt visas
+            foreach (var b in filtered)
+                if (b.Images == null) await AttachImagesAsync(b);
+
+            return filtered;
+        }
+
+        private static List<Blogg> FilterClientSide(IEnumerable<Blogg> all, bool includeArchived)
+        {
+            var nowSe = DateTime.UtcNow.ToSwedishTime();
+            return all
                 .Where(b => !b.Hidden
                             && (includeArchived || !b.IsArchived)
                             && b.LaunchDate.ToSwedishTime() <= nowSe)
                 .OrderByDescending(b => b.LaunchDate.ToSwedishTime())
                 .ThenByDescending(b => b.Id)
                 .ToList();
+        }
 
-            // Viktigt: attach:a bilder för de som faktiskt ska visas (t.ex. startsidan)
-            foreach (var b in filtered)
-                if (b.Images == null) await AttachImagesAsync(b);
-
-            return filtered;
+        private async Task<List<Blogg>> FetchAndFilterAsync(bool includeArchived)
+        {
+            var all = await _bloggApi.GetAllBloggsAsync();
+            return FilterClientSide(all ?? Enumerable.Empty<Blogg>(), includeArchived);
         }
 
         public async Task<string> SaveCommentAsync(Comment comment)

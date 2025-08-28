@@ -8,6 +8,7 @@ using SarasBlogg.Data;
 using SarasBlogg.DTOs;
 using SarasBlogg.Models;
 using SarasBlogg.Extensions; // <-- ToSwedishTime
+using SarasBlogg.Services;   // <-- BloggService for cache invalidation
 
 namespace SarasBlogg.Pages.Admin
 {
@@ -18,6 +19,9 @@ namespace SarasBlogg.Pages.Admin
         private readonly BloggAPIManager _bloggApi;
         private readonly BloggImageAPIManager _imageApi;
         private readonly CommentAPIManager _commentApi;
+
+        // Cache-tjänst (publik listcache)
+        private readonly BloggService _bloggService; // <-- injiceras
 
         // Identitet och roller
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -31,13 +35,15 @@ namespace SarasBlogg.Pages.Admin
             BloggImageAPIManager imageApi,
             CommentAPIManager commentApi,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            BloggService bloggService) // <-- lägg till i DI
         {
             _bloggApi = bloggApi;
             _imageApi = imageApi;
             _commentApi = commentApi;
             _userManager = userManager;
             _roleManager = roleManager;
+            _bloggService = bloggService; // <-- spara ref
 
             NewBlogg = new Models.Blogg();
         }
@@ -75,6 +81,7 @@ namespace SarasBlogg.Pages.Admin
                 {
                     bloggToHide.Hidden = !bloggToHide.Hidden;
                     await _bloggApi.UpdateBloggAsync(bloggToHide);
+                    _bloggService.InvalidateBlogListCache(); // <-- viktigt
                 }
             }
 
@@ -87,6 +94,7 @@ namespace SarasBlogg.Pages.Admin
                     await _commentApi.DeleteCommentsAsync(bloggToDelete.Id);
                     await _imageApi.DeleteImagesByBloggIdAsync(bloggToDelete.Id);
                     await _bloggApi.DeleteBloggAsync(bloggToDelete.Id);
+                    _bloggService.InvalidateBlogListCache(); // <-- viktigt
                 }
 
                 return RedirectToPage();
@@ -116,6 +124,7 @@ namespace SarasBlogg.Pages.Admin
                 {
                     bloggToArchive.IsArchived = !bloggToArchive.IsArchived;
                     await _bloggApi.UpdateBloggAsync(bloggToArchive);
+                    _bloggService.InvalidateBlogListCache(); // <-- viktigt
                 }
 
                 await LoadBloggsWithImagesAsync();
@@ -132,9 +141,9 @@ namespace SarasBlogg.Pages.Admin
             NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             // Normalisera LaunchDate:
-            // - Ta datumet som användaren valt (tolka som svensk lokal tid via ToSwedishTime)
-            // - Sätt det till midnatt (Date)
-            // - Konvertera till UTC (T00:00:00Z) för lagring/transport
+            // - datum från användare (svensk lokal tid via ToSwedishTime)
+            // - midnatt (Date)
+            // - konvertera till UTC (T00:00:00Z)
             var seDate = NewBlogg.LaunchDate.ToSwedishTime().Date; // svensk lokal dag
             var utcDate = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(seDate, DateTimeKind.Unspecified), TzSe);
             NewBlogg.LaunchDate = DateTime.SpecifyKind(utcDate, DateTimeKind.Utc);
@@ -178,6 +187,7 @@ namespace SarasBlogg.Pages.Admin
                 }
             }
 
+            _bloggService.InvalidateBlogListCache(); // <-- viktigt efter skapa/uppdatera/bilder
             return RedirectToPage();
         }
 
@@ -195,6 +205,7 @@ namespace SarasBlogg.Pages.Admin
 
                 // Spara nya ordningen i API:et/databasen
                 await _imageApi.UpdateImageOrderAsync(bloggId, images);
+                _bloggService.InvalidateBlogListCache(); // <-- viktigt
             }
 
             return RedirectToPage(new { editId = bloggId });
@@ -203,6 +214,8 @@ namespace SarasBlogg.Pages.Admin
         public async Task<IActionResult> OnPostDeleteImageAsync(int imageId, int bloggId)
         {
             await _imageApi.DeleteImageAsync(imageId);
+            _bloggService.InvalidateBlogListCache(); // <-- viktigt
+
             await LoadBloggsWithImagesAsync();
 
             var blogg = BloggsWithImage.FirstOrDefault(b => b.Blogg.Id == bloggId);
