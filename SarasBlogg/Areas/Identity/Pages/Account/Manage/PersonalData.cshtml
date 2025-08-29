@@ -1,27 +1,39 @@
 ﻿@page
 @model PersonalDataModel
 @{
-    ViewData["Title"] = "Personal Data";
-    ViewData["ActivePage"] = ManageNavPages.PersonalData;
+	ViewData["Title"] = "Personliga data";
+	ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
 <h3>@ViewData["Title"]</h3>
 
 <div class="row">
-    <div class="col-md-6">
-        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
-        <p>
-            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
-        </p>
-        <form id="download-data" asp-page="DownloadPersonalData" method="post">
-            <button class="btn btn-primary" type="submit">Download</button>
-        </form>
-        <p>
-            <a id="delete" asp-page="DeletePersonalData" class="btn btn-danger">Delete</a>
-        </p>
-    </div>
+	<div class="col-md-6">
+		<p>Ditt konto innehåller personuppgifter som du lämnat. Här kan du ladda ner eller radera dem.</p>
+		<p><strong>Radering tar bort ditt konto permanent och kan inte ångras.</strong></p>
+
+		@if (Model.Personal is not null)
+		{
+			<h5>Profil</h5>
+			<table class="table table-sm">
+				@foreach (var kv in Model.Personal.Data)
+				{
+
+					<tr><th>@kv.Key</th><td>@kv.Value</td></tr>
+				}
+
+			</table>
+		}
+
+		<form id="download-data" asp-page="DownloadPersonalData" method="post">
+			<button class="btn btn-primary" type="submit">Download</button>
+		</form>
+		<p>
+			<a id="delete" asp-page="DeletePersonalData" class="btn btn-danger">Radera konto</a>
+		</p>
+	</div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+	<partial name="_ValidationScriptsPartial" />
 }

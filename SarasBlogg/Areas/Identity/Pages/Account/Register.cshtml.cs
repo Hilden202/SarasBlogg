@@ -60,7 +60,7 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
         {
             if (!ModelState.IsValid) return Page();
 
-            var result = await _userApi.RegisterAsync(Input.UserName, Input.Email, Input.Password);
+            var result = await _userApi.RegisterAsync(Input.UserName, Input.Email, Input.Password, Input.Name, Input.BirthYear);
             if (result is null)
             {
                 ModelState.AddModelError(string.Empty, "Kunde inte nå API:t. Försök igen.");

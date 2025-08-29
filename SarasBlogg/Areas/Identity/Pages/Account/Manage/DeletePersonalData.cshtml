@@ -1,33 +1,33 @@
 ﻿@page
 @model DeletePersonalDataModel
 @{
-    ViewData["Title"] = "Delete Personal Data";
-    ViewData["ActivePage"] = ManageNavPages.PersonalData;
+	ViewData["Title"] = "Radera konto";
+	ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
 <h3>@ViewData["Title"]</h3>
 
 <div class="alert alert-warning" role="alert">
-    <p>
-        <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
-    </p>
+	<p>
+		<strong>Om du raderar dina personliga data tas ditt konto bort permanent och kan inte återställas.</strong>
+	</p>
 </div>
 
 <div>
-    <form id="delete-user" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-        @if (Model.RequirePassword)
-        {
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Please enter your password." />
-                <label asp-for="Input.Password" class="form-label"></label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-        }
-        <button class="w-100 btn btn-lg btn-danger" type="submit">Delete data and close my account</button>
-    </form>
+	<form id="delete-user" method="post">
+		<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+		@if (Model.RequirePassword)
+		{
+			<div class="form-floating mb-3">
+				<input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Ange ditt lösenord" />
+				<label asp-for="Input.Password" class="form-label">Lösenord</label>
+				<span asp-validation-for="Input.Password" class="text-danger"></span>
+			</div>
+		}
+		<button class="w-100 btn btn-lg btn-danger" type="submit">Radera mina data och stäng kontot</button>
+	</form>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+	<partial name="_ValidationScriptsPartial" />
 }

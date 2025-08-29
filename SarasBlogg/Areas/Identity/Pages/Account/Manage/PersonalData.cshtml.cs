@@ -1,37 +1,26 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using SarasBlogg.Data;
+using Microsoft.AspNetCore.Authorization;
+using SarasBlogg.DAL;
+using SarasBlogg.DTOs;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 {
+    [Authorize]
     public class PersonalDataModel : PageModel
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<PersonalDataModel> _logger;
+        private readonly UserAPIManager _userApi;
+        public PersonalDataDto? Personal { get; private set; }
 
-        public PersonalDataModel(
-            UserManager<ApplicationUser> userManager,
-            ILogger<PersonalDataModel> logger)
-        {
-            _userManager = userManager;
-            _logger = logger;
-        }
+        public PersonalDataModel(UserAPIManager userApi) => _userApi = userApi;
 
         public async Task<IActionResult> OnGet()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Kunde inte ladda användare med ID '{_userManager.GetUserId(User)}'.");
-            }
-
+            Personal = await _userApi.GetMyPersonalDataAsync();
             return Page();
         }
     }

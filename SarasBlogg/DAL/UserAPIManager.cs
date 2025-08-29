@@ -113,9 +113,9 @@ namespace SarasBlogg.DAL
             var response = await _http.DeleteAsync($"api/Role/delete/{roleName}");
             return response.IsSuccessStatusCode;
         }
-        public async Task<BasicResultDto?> RegisterAsync(string userName, string email, string password, CancellationToken ct = default)
+        public async Task<BasicResultDto?> RegisterAsync(string userName, string email, string password, string? name = null, int? birthYear = null, CancellationToken ct = default)
         {
-            var payload = new RegisterRequest { UserName = userName, Email = email, Password = password };
+            var payload = new RegisterRequest { UserName = userName, Email = email, Password = password, Name = name, BirthYear = birthYear };
             using var res = await _http.PostAsJsonAsync("api/auth/register", payload, _json, ct);
             // Returnera även felmeddelande från API:t om det finns i body
             var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
@@ -213,6 +213,32 @@ namespace SarasBlogg.DAL
             var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
             if (!res.IsSuccessStatusCode) return body ?? new BasicResultDto { Succeeded = false, Message = $"HTTP {(int)res.StatusCode}" };
             return body;
+        }
+
+        public async Task<PersonalDataDto?> GetMyPersonalDataAsync(CancellationToken ct = default)
+        {
+            using var res = await _http.GetAsync("api/User/me/personal-data", ct);
+            if (!res.IsSuccessStatusCode) return null;
+            return await res.Content.ReadFromJsonAsync<PersonalDataDto>(_json, ct);
+        }
+
+        public async Task<(byte[]? bytes, string filename, string contentType)> DownloadMyPersonalDataAsync(CancellationToken ct = default)
+        {
+            using var res = await _http.GetAsync("api/User/me/personal-data/download", ct);
+            if (!res.IsSuccessStatusCode) return (null, "", "");
+            var bytes = await res.Content.ReadAsByteArrayAsync(ct);
+            var ctType = res.Content.Headers.ContentType?.ToString() ?? "application/json";
+            return (bytes, "PersonalData.json", ctType);
+        }
+
+        public async Task<BasicResultDto?> DeleteMeAsync(string? password, CancellationToken ct = default)
+        {
+            var payload = new { password };
+            var req = new HttpRequestMessage(HttpMethod.Delete, "api/User/me")
+            { Content = JsonContent.Create(payload) };
+            using var res = await _http.SendAsync(req, ct);
+            return await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct)
+                   ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
         }
 
     }

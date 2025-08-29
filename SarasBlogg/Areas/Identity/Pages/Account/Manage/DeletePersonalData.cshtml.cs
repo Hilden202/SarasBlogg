@@ -1,40 +1,31 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-#nullable disable
+﻿#nullable disable
 
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using SarasBlogg.Data;
+using Microsoft.AspNetCore.Authorization;
+using SarasBlogg.DAL;
+using SarasBlogg.DTOs;
+using Microsoft.AspNetCore.Authentication;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 {
+    [Authorize]
     public class DeletePersonalDataModel : PageModel
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ILogger<DeletePersonalDataModel> _logger;
+        private readonly UserAPIManager _userApi;
 
-        public DeletePersonalDataModel(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            ILogger<DeletePersonalDataModel> logger)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _logger = logger;
-        }
+        public DeletePersonalDataModel(UserAPIManager userApi) => _userApi = userApi;
 
         [BindProperty]
         public InputModel Input { get; set; }
 
         public class InputModel
         {
-            [Required]
             [DataType(DataType.Password)]
             [Display(Name = "Lösenord")]
             public string Password { get; set; }
@@ -44,46 +35,36 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnGet()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Kunde inte ladda användare med ID '{_userManager.GetUserId(User)}'.");
-            }
-
-            RequirePassword = await _userManager.HasPasswordAsync(user);
+            // Enkelt: visa lösenordsfältet alltid (API kräver det bara om kontot har lösenord)
+            RequirePassword = true;
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            var res = await _userApi.DeleteMeAsync(Input?.Password);
+            if (res?.Succeeded == true)
             {
-                return NotFound($"Kunde inte ladda användare med ID '{_userManager.GetUserId(User)}'.");
+                // 1) Logga ut från Identity-schemat (och ev. externa/tvåfaktor)
+                await HttpContext.SignOutAsync(Microsoft.AspNetCore.Identity.IdentityConstants.ApplicationScheme);
+                await HttpContext.SignOutAsync(Microsoft.AspNetCore.Identity.IdentityConstants.ExternalScheme);
+                await HttpContext.SignOutAsync(Microsoft.AspNetCore.Identity.IdentityConstants.TwoFactorUserIdScheme);
+
+                // 2) Ta bort standard-cookies (justera om du har egna namn)
+                HttpContext.Response.Cookies.Delete(".AspNetCore.Identity.Application"); // huvudcookie
+                HttpContext.Response.Cookies.Delete(".AspNetCore.ExternalCookie");
+                HttpContext.Response.Cookies.Delete(".AspNetCore.TwoFactorUserId");
+                // Om du även sätter API-JWT i cookies:
+                HttpContext.Response.Cookies.Delete("access_token");
+                HttpContext.Response.Cookies.Delete("refresh_token");
+
+                TempData["StatusMessage"] = "Ditt konto är raderat och du har loggats ut.";
+                return RedirectToPage("/Index");
             }
 
-            RequirePassword = await _userManager.HasPasswordAsync(user);
-            if (RequirePassword)
-            {
-                if (!await _userManager.CheckPasswordAsync(user, Input.Password))
-                {
-                    ModelState.AddModelError(string.Empty, "Felaktigt lösenord.");
-                    return Page();
-                }
-            }
-
-            var result = await _userManager.DeleteAsync(user);
-            var userId = await _userManager.GetUserIdAsync(user);
-            if (!result.Succeeded)
-            {
-                throw new InvalidOperationException($"Ett oväntat fel uppstod vid radering av användaren.");
-            }
-
-            await _signInManager.SignOutAsync();
-
-            _logger.LogInformation("Användare med ID '{UserId}' raderade sitt konto.", userId);
-
-            return Redirect("~/");
+            RequirePassword = true;
+            ModelState.AddModelError(string.Empty, res?.Message ?? "Kunde inte radera kontot.");
+            return Page();
         }
     }
 }
