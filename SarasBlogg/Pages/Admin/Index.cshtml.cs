@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.DAL;
 using SarasBlogg.DTOs;
 using SarasBlogg.Models;
-using SarasBlogg.Extensions; // <-- ToSwedishTime
-using SarasBlogg.Services;   // <-- BloggService for cache invalidation
+using SarasBlogg.Extensions; // ToSwedishTime (används i listan)
+using SarasBlogg.Services;   // BloggService för cache-invalidering
 
 namespace SarasBlogg.Pages.Admin
 {
@@ -19,21 +19,21 @@ namespace SarasBlogg.Pages.Admin
         private readonly CommentAPIManager _commentApi;
 
         // Cache-tjänst (publik listcache)
-        private readonly BloggService _bloggService; // <-- injiceras
+        private readonly BloggService _bloggService;
 
-        // Svensk tidszon för konvertering till UTC vid persistens
+        // Svensk tidszon för tolkning av datum i formuläret
         private static readonly TimeZoneInfo TzSe = TimeZoneInfo.FindSystemTimeZoneById("Europe/Stockholm");
 
         public IndexModel(
             BloggAPIManager bloggApi,
             BloggImageAPIManager imageApi,
             CommentAPIManager commentApi,
-            BloggService bloggService) // <-- lägg till i DI
+            BloggService bloggService)
         {
             _bloggApi = bloggApi;
             _imageApi = imageApi;
             _commentApi = commentApi;
-            _bloggService = bloggService; // <-- spara ref
+            _bloggService = bloggService;
 
             NewBlogg = new Models.Blogg();
         }
@@ -45,7 +45,7 @@ namespace SarasBlogg.Pages.Admin
         public Models.Blogg NewBlogg { get; set; }
 
         [BindProperty]
-        public IFormFile[] BloggImages { get; set; } = Array.Empty<IFormFile>();
+        public IFormFile[]? BloggImages { get; set; } = Array.Empty<IFormFile>();
 
         public bool IsAdmin { get; set; }
         public bool IsSuperAdmin { get; set; }
@@ -54,13 +54,18 @@ namespace SarasBlogg.Pages.Admin
         {
             if (TempData.TryGetValue("UploadErrors", out var errsObj) && errsObj is string errs && !string.IsNullOrWhiteSpace(errs))
                 ModelState.AddModelError(string.Empty, errs);
-            // Roller kommer från JWT-claims som sattes vid login
+
+            // Roller från JWT-claims
             IsAdmin = User.IsInRole("admin");
             IsSuperAdmin = User.IsInRole("superadmin");
 
-            if (NewBlogg == null)
+            // Initiera modell och sätt standarddatum (SE) för NY post
+            NewBlogg ??= new Models.Blogg();
+            if (NewBlogg.Id == 0 && NewBlogg.LaunchDate == default)
             {
-                NewBlogg = new Models.Blogg();
+                var todaySe = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TzSe).Date;
+                // Unspecified => <input type="date"> får exakt kalenderdag utan tz-shift
+                NewBlogg.LaunchDate = DateTime.SpecifyKind(todaySe, DateTimeKind.Unspecified);
             }
 
             if (hiddenId.HasValue && hiddenId.Value != 0)
@@ -70,7 +75,7 @@ namespace SarasBlogg.Pages.Admin
                 {
                     bloggToHide.Hidden = !bloggToHide.Hidden;
                     await _bloggApi.UpdateBloggAsync(bloggToHide);
-                    _bloggService.InvalidateBlogListCache(); // <-- viktigt
+                    _bloggService.InvalidateBlogListCache();
                 }
             }
 
@@ -79,11 +84,10 @@ namespace SarasBlogg.Pages.Admin
                 var bloggToDelete = await _bloggApi.GetBloggAsync(deleteId);
                 if (bloggToDelete != null)
                 {
-                    // Ta bort kopplade kommentarer och bilder före bloggen
                     await _commentApi.DeleteCommentsAsync(bloggToDelete.Id);
                     await _imageApi.DeleteImagesByBloggIdAsync(bloggToDelete.Id);
                     await _bloggApi.DeleteBloggAsync(bloggToDelete.Id);
-                    _bloggService.InvalidateBlogListCache(); // <-- viktigt
+                    _bloggService.InvalidateBlogListCache();
                 }
 
                 return RedirectToPage();
@@ -103,6 +107,18 @@ namespace SarasBlogg.Pages.Admin
                     };
 
                     NewBlogg = blogg.Blogg;
+
+                    // Visa datum som svensk kalenderdag i formuläret
+                    if (NewBlogg.LaunchDate.Kind == DateTimeKind.Utc)
+                    {
+                        var se = TimeZoneInfo.ConvertTimeFromUtc(NewBlogg.LaunchDate, TzSe).Date;
+                        NewBlogg.LaunchDate = DateTime.SpecifyKind(se, DateTimeKind.Unspecified);
+                    }
+                    else
+                    {
+                        // Säkerställ att vi inte råkar bära med UTC-kind i inputfältet
+                        NewBlogg.LaunchDate = DateTime.SpecifyKind(NewBlogg.LaunchDate.Date, DateTimeKind.Unspecified);
+                    }
                 }
             }
 
@@ -113,7 +129,7 @@ namespace SarasBlogg.Pages.Admin
                 {
                     bloggToArchive.IsArchived = !bloggToArchive.IsArchived;
                     await _bloggApi.UpdateBloggAsync(bloggToArchive);
-                    _bloggService.InvalidateBlogListCache(); // <-- viktigt
+                    _bloggService.InvalidateBlogListCache();
                 }
 
                 await LoadBloggsWithImagesAsync();
@@ -130,13 +146,10 @@ namespace SarasBlogg.Pages.Admin
             // Sätt användar-id
             NewBlogg.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Normalisera LaunchDate:
-            // - datum från användare (svensk lokal tid via ToSwedishTime)
-            // - midnatt (Date)
-            // - konvertera till UTC (T00:00:00Z)
-            var seDate = NewBlogg.LaunchDate.ToSwedishTime().Date; // svensk lokal dag
-            var utcDate = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(seDate, DateTimeKind.Unspecified), TzSe);
-            NewBlogg.LaunchDate = DateTime.SpecifyKind(utcDate, DateTimeKind.Utc);
+            // Tolkning av <input type="date">: svensk kalenderdag -> UTC midnatt
+            var localDate = DateTime.SpecifyKind(NewBlogg.LaunchDate.Date, DateTimeKind.Unspecified);
+            var utcDate = TimeZoneInfo.ConvertTimeToUtc(localDate, TzSe);
+            NewBlogg.LaunchDate = utcDate;
 
             if (NewBlogg.Id == 0)
             {
@@ -148,7 +161,7 @@ namespace SarasBlogg.Pages.Admin
                     return Page();
                 }
 
-                // Få rätt Id från API:t
+                // Sätt Id från API:t
                 NewBlogg.Id = savedBlogg.Id;
             }
             else
@@ -159,6 +172,7 @@ namespace SarasBlogg.Pages.Admin
                 await _bloggApi.UpdateBloggAsync(NewBlogg);
             }
 
+            // Bilduppladdning
             if (BloggImages is { Length: > 0 })
             {
                 foreach (var f in BloggImages.Where(f => f != null && f.Length > 0))
@@ -175,28 +189,26 @@ namespace SarasBlogg.Pages.Admin
                 }
             }
 
+            _bloggService.InvalidateBlogListCache();
 
-            _bloggService.InvalidateBlogListCache(); // <-- viktigt efter skapa/uppdatera/bilder
             if (uploadErrors.Count > 0)
                 TempData["UploadErrors"] = string.Join("\n", uploadErrors);
+
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostSetFirstImageAsync(int imageId, int bloggId)
         {
-            // Hämta alla bilder för bloggen
             var images = await _imageApi.GetImagesByBloggIdAsync(bloggId);
             var imageToSet = images.FirstOrDefault(i => i.Id == imageId);
 
             if (imageToSet != null)
             {
-                // Flytta vald bild först i listan
                 images.Remove(imageToSet);
                 images.Insert(0, imageToSet);
 
-                // Spara nya ordningen i API:et/databasen
                 await _imageApi.UpdateImageOrderAsync(bloggId, images);
-                _bloggService.InvalidateBlogListCache(); // <-- viktigt
+                _bloggService.InvalidateBlogListCache();
             }
 
             return RedirectToPage(new { editId = bloggId });
@@ -205,7 +217,7 @@ namespace SarasBlogg.Pages.Admin
         public async Task<IActionResult> OnPostDeleteImageAsync(int imageId, int bloggId)
         {
             await _imageApi.DeleteImageAsync(imageId);
-            _bloggService.InvalidateBlogListCache(); // <-- viktigt
+            _bloggService.InvalidateBlogListCache();
 
             await LoadBloggsWithImagesAsync();
 
