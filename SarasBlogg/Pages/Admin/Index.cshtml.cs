@@ -167,7 +167,7 @@ namespace SarasBlogg.Pages.Admin
                     try
                     {
                         await _imageApi.UploadImageAsync(f, NewBlogg.Id); // viktigt med await
-                        await Task.Delay(800); // liten paus hjälper Render + GitHub API
+                        await Task.Delay(200); // liten paus hjälper Render + GitHub API
                     }
                     catch (Exception ex)
                     {

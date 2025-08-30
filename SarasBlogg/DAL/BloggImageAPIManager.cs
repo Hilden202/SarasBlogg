@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using Azure;
 using SarasBlogg.DTOs;
 
 namespace SarasBlogg.DAL
@@ -37,11 +38,16 @@ namespace SarasBlogg.DAL
             var streamContent = new StreamContent(file.OpenReadStream());
             streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 
-            content.Add(streamContent, "file", file.FileName);
-            content.Add(new StringContent(bloggId.ToString(), Encoding.UTF8), "bloggId");
+            // (Case spelar sällan roll, men vi speglar DTO:ns property-namn)
+            content.Add(streamContent, "File", file.FileName);
+            content.Add(new StringContent(bloggId.ToString(), Encoding.UTF8), "BloggId");
 
             var response = await _http.PostAsync("/api/BloggImage/upload", content);
-            if (!response.IsSuccessStatusCode) return null;
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Upload failed {(int)response.StatusCode} {response.ReasonPhrase}: {body}");
+            }
 
             return await response.Content.ReadFromJsonAsync<BloggImageDto>(_jsonOpts);
         }
