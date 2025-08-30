@@ -2,7 +2,6 @@
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using Azure;
 using SarasBlogg.DTOs;
 
 namespace SarasBlogg.DAL
@@ -34,13 +33,11 @@ namespace SarasBlogg.DAL
         public async Task<BloggImageDto?> UploadImageAsync(IFormFile file, int bloggId)
         {
             using var content = new MultipartFormDataContent();
-
-            var streamContent = new StreamContent(file.OpenReadStream());
+            await using var fs = file.OpenReadStream();
+            using var streamContent = new StreamContent(fs);
             streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-
-            // (Case spelar sällan roll, men vi speglar DTO:ns property-namn)
-            content.Add(streamContent, "File", file.FileName);
-            content.Add(new StringContent(bloggId.ToString(), Encoding.UTF8), "BloggId");
+            content.Add(streamContent, "file", file.FileName);
+            content.Add(new StringContent(bloggId.ToString(), Encoding.UTF8), "bloggId");
 
             var response = await _http.PostAsync("/api/BloggImage/upload", content);
             if (!response.IsSuccessStatusCode)

@@ -166,11 +166,8 @@
 				<span asp-validation-for="NewBlogg.LaunchDate" class="text-danger"></span>
 				<br />
 				<!-- Bildhantering -->
-				<label for="BloggImages">Ladda upp en eller flera bilder:</label>
-				<input type="file"
-					   id="BloggImages"
-					   name="BloggImages"
-					   multiple
+				<label asp-for="BloggImages">Ladda upp en eller flera bilder:</label>
+				<input asp-for="BloggImages" type="file" multiple
 					   accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif"
 					   class="form-control" />
 				<br />

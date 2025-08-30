@@ -45,7 +45,7 @@ namespace SarasBlogg.Pages.Admin
         public Models.Blogg NewBlogg { get; set; }
 
         [BindProperty]
-        public List<IFormFile> BloggImages { get; set; } = new();
+        public IFormFile[] BloggImages { get; set; } = Array.Empty<IFormFile>();
 
         public bool IsAdmin { get; set; }
         public bool IsSuperAdmin { get; set; }
@@ -159,23 +159,22 @@ namespace SarasBlogg.Pages.Admin
                 await _bloggApi.UpdateBloggAsync(NewBlogg);
             }
 
-            // Hantera bilder via API (sekventiellt + liten paus)
-            if (BloggImages is { Count: > 0 })
+            if (BloggImages is { Length: > 0 })
             {
                 foreach (var f in BloggImages.Where(f => f != null && f.Length > 0))
                 {
                     try
                     {
-                        await _imageApi.UploadImageAsync(f, NewBlogg.Id); // viktigt med await
-                        await Task.Delay(200); // liten paus hjälper Render + GitHub API
+                        await _imageApi.UploadImageAsync(f, NewBlogg.Id);
+                        await Task.Delay(200);
                     }
                     catch (Exception ex)
                     {
-                        // valfritt: yta fel till sidan/logg
                         uploadErrors.Add($"Kunde inte ladda upp {f.FileName}: {ex.Message}");
                     }
                 }
             }
+
 
             _bloggService.InvalidateBlogListCache(); // <-- viktigt efter skapa/uppdatera/bilder
             if (uploadErrors.Count > 0)
