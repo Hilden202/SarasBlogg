@@ -45,7 +45,7 @@ namespace SarasBlogg.Pages.Admin
         public Models.Blogg NewBlogg { get; set; }
 
         [BindProperty]
-        public IFormFile[] BloggImages { get; set; } = Array.Empty<IFormFile>();
+        public List<IFormFile> BloggImages { get; set; } = new();
 
         public bool IsAdmin { get; set; }
         public bool IsSuperAdmin { get; set; }
@@ -160,7 +160,7 @@ namespace SarasBlogg.Pages.Admin
             }
 
             // Hantera bilder via API (sekventiellt + liten paus)
-            if (BloggImages is { Length: > 0 })
+            if (BloggImages is { Count: > 0 })
             {
                 foreach (var f in BloggImages.Where(f => f != null && f.Length > 0))
                 {
