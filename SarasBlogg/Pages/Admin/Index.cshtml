@@ -138,7 +138,11 @@
 
 		<!-- FORMULÄR FÖR NY BLOGG / ÄNDRING -->
 		<div id="editFormSection">
-			<form class="white-panel p-3 border rounded shadow-sm" method="post" enctype="multipart/form-data">
+			<form id="blogForm" class="white-panel p-3 border rounded shadow-sm" method="post" enctype="multipart/form-data">
+				<div class="text-danger mb-2">
+					@Html.ValidationSummary(excludePropertyErrors: true)
+
+				</div>
 				<input asp-for="NewBlogg.Id" type="hidden" />
 				<input asp-for="NewBlogg.UserId" type="hidden" />
 				<label asp-for="NewBlogg.Title"></label>
@@ -234,7 +238,7 @@
 					</div>
 				}
 
-				<input asp-for="NewBlogg" type="submit" class="btn btn-success" value="Skapa ny blogg/spara ändringar" />
+				<button id="saveBtn" type="submit" class="btn btn-success">Skapa ny blogg/spara ändringar</button>
 			</form>
 		</div>
 		<br />
@@ -342,3 +346,19 @@
 		<p class="text-danger">Du måste vara inloggad för att komma åt denna sida.</p>
 	}
 </div>
+@section Scripts {
+	<script>
+		document.addEventListener("DOMContentLoaded", () => {
+		  const form = document.getElementById("blogForm");
+		  const btn  = document.getElementById("saveBtn");
+		  if (!form || !btn) return;
+
+		  form.addEventListener("submit", (e) => {
+			if (btn.disabled) { e.preventDefault(); return; } // skydda mot dubbelklick precis vid navigation
+			btn.disabled = true;
+			btn.textContent = "Sparar…";
+			// Låt submit gå igenom direkt; sidan navigerar ändå (RedirectToPage)
+		  });
+		});
+	</script>
+}

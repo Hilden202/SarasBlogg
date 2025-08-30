@@ -52,6 +52,8 @@ namespace SarasBlogg.Pages.Admin
 
         public async Task<IActionResult> OnGetAsync(int? hiddenId, int deleteId, int? editId, int? archiveId)
         {
+            if (TempData.TryGetValue("UploadErrors", out var errsObj) && errsObj is string errs && !string.IsNullOrWhiteSpace(errs))
+                ModelState.AddModelError(string.Empty, errs);
             // Roller kommer från JWT-claims som sattes vid login
             IsAdmin = User.IsInRole("admin");
             IsSuperAdmin = User.IsInRole("superadmin");
@@ -122,6 +124,7 @@ namespace SarasBlogg.Pages.Admin
 
         public async Task<IActionResult> OnPostAsync()
         {
+            var uploadErrors = new List<string>();
             var currentBlogg = await _bloggApi.GetBloggAsync(NewBlogg.Id);
 
             // Sätt användar-id
@@ -169,12 +172,14 @@ namespace SarasBlogg.Pages.Admin
                     catch (Exception ex)
                     {
                         // valfritt: yta fel till sidan/logg
-                        ModelState.AddModelError(string.Empty, $"Kunde inte ladda upp {f.FileName}: {ex.Message}");
+                        uploadErrors.Add($"Kunde inte ladda upp {f.FileName}: {ex.Message}");
                     }
                 }
             }
 
             _bloggService.InvalidateBlogListCache(); // <-- viktigt efter skapa/uppdatera/bilder
+            if (uploadErrors.Count > 0)
+                TempData["UploadErrors"] = string.Join("\n", uploadErrors);
             return RedirectToPage();
         }
 
