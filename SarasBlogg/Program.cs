@@ -1,17 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using SarasBlogg.DAL;
-using SarasBlogg.Data;
 using SarasBlogg.Services;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
-using System.Security.Claims;
 using Microsoft.AspNetCore.HttpOverrides;
 using Polly;
 using Polly.Extensions.Http;
 using System.Net.Http;
-using HealthChecks.NpgSql;
 using System.IO;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication;
 
 
 namespace SarasBlogg
@@ -31,25 +30,6 @@ namespace SarasBlogg
 
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
-
-            // Hämta connection string (stöder både DefaultConnection och MyConnection)
-            var connectionString =
-                builder.Configuration.GetConnectionString("DefaultConnection")
-                ?? builder.Configuration.GetConnectionString("MyConnection")
-                ?? throw new InvalidOperationException(
-                    "No connection string found. Expected 'DefaultConnection' or 'MyConnection'.");
-
-            //    - SSL krävs ofta: "SSL Mode=Require; Trust Server Certificate=true"
-            //    - Håll liv efter kallstart: "Keepalive=30"
-            //    - Kortare login-timeout: "Timeout=15"
-            var csb = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
-            {
-                SslMode = Npgsql.SslMode.Require,
-                TrustServerCertificate = true,
-                KeepAlive = 30,
-                Timeout = 15
-            };
-            var pgConn = csb.ConnectionString;
 
             // ---- DataProtection: smart conn-str val + fallback ----
             string? dpConnName = builder.Configuration["DataProtection:ConnectionStringName"];
@@ -74,45 +54,33 @@ namespace SarasBlogg
             }
             // ---- slut DataProtection ----
 
-            // Health checks
-            builder.Services.AddHealthChecks()
-                .AddNpgSql(pgConn, name: "postgres");
-
-            // EF Core med retry-on-failure
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(pgConn, npgsql =>
+            // 🔐 Endast cookie-auth i klienten (JWT hämtas från API och läggs i cookie + minnet)
+            builder.Services
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
                 {
-                    npgsql.EnableRetryOnFailure(
-                        maxRetryCount: 5,
-                        maxRetryDelay: TimeSpan.FromSeconds(10),
-                        errorCodesToAdd: null);
-                }));
+                    options.LoginPath = "/Identity/Account/Login";
+                    options.LogoutPath = "/Identity/Account/Logout";
+                    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                    options.Cookie.Name = "SarasAuth";
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SameSite = SameSiteMode.Lax;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    options.SlidingExpiration = true;
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 
-            // DATABAS OCH IDENTITET
-            builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+                    options.Events = new CookieAuthenticationEvents
+                    {
+                        OnSigningOut = ctx =>
+                        {
+                            ctx.HttpContext.Response.Cookies.Delete("api_access_token",
+                                new CookieOptions { Path = "/" });
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
 
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
-                options.SignIn.RequireConfirmedAccount = true)
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            builder.Services.ConfigureApplicationCookie(options =>
-            {
-                options.LoginPath = "/Identity/Account/Login";
-                options.LogoutPath = "/Identity/Account/Logout";
-                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-                options.Cookie.Name = "SarasAuth";
-                options.Cookie.HttpOnly = true;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.SameSite = SameSiteMode.Lax; // Använd None om du kör olika domäner i prod
-                options.SlidingExpiration = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-            });
-
-            builder.Services.Configure<IdentityOptions>(options =>
-            {
-                options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
-            });
 
             // AUTORISERINGSPOLICIES
             builder.Services.AddAuthorization(options =>
@@ -156,7 +124,7 @@ namespace SarasBlogg
             // TJÄNSTER
             builder.Services.AddScoped<BloggService>();
 
-            builder.Services.AddScoped<IAccessTokenStore, InMemoryAccessTokenStore>();
+            builder.Services.AddSingleton<IAccessTokenStore, InMemoryAccessTokenStore>();
 
             builder.Services.AddTransient<JwtAuthHandler>();
 
@@ -173,7 +141,7 @@ namespace SarasBlogg
             // 🔹 API base URL från konfig (dev: appsettings.Development.json, prod: env ApiSettings__BaseAddress)
             var apiBase = builder.Configuration["ApiSettings:BaseAddress"]
                          ?? throw new InvalidOperationException("ApiSettings:BaseAddress is missing.");
-            
+
             builder.Services.AddTransient<HttpClientLoggingHandler>();
 
             builder.Services.AddHttpClient("formspree", client =>
@@ -332,15 +300,11 @@ namespace SarasBlogg
             {
                 app.UseCookiePolicy();
 
-                if (app.Environment.IsDevelopment())
-                {
-                    app.UseMigrationsEndPoint();
-                }
-                else
+                if (!app.Environment.IsDevelopment())
                 {
                     app.UseExceptionHandler("/Error");
                     app.UseHsts();
-                    // app.UseHttpsRedirection(); // fortsatt avstängt i container om du vill undvika https-portvarning
+                    // app.UseHttpsRedirection();
                 }
 
                 app.UseStaticFiles();
@@ -364,9 +328,6 @@ namespace SarasBlogg
                 });
 
                 app.MapRazorPages();
-
-                // Health endpoints
-                app.MapHealthChecks("/health/db");
 
                 app.Run();
             }

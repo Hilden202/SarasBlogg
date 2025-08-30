@@ -5,8 +5,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Principal;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.DAL;
@@ -57,8 +58,7 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
 
             ReturnUrl ??= returnUrl ??= Url.Content("~/");
 
-            // Rensa ev. externa cookies (ofarligt även om du inte använder externa providers)
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            // Ingen lokal Identity längre – inget att göra här
         }
 
         public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
@@ -77,15 +77,15 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
             var handler = new JwtSecurityTokenHandler();
             var jwt = handler.ReadJwtToken(login.AccessToken);
 
-            // 3) Skapa Identity-cookie (Identity.Application)
-            var identity = new ClaimsIdentity(jwt.Claims, IdentityConstants.ApplicationScheme);
+            // 3) Skapa cookie i vårt generiska cookie-scheme
+            var identity = new ClaimsIdentity(jwt.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
             var props = new AuthenticationProperties
             {
                 IsPersistent = Input.RememberMe,
                 ExpiresUtc = login.AccessTokenExpiresUtc
             };
-            await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principal, props);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props);
             _tokenStore.Set(login.AccessToken);
 
             // 4) 

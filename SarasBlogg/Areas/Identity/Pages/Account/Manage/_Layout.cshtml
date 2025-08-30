@@ -1,26 +1,14 @@
 ﻿@{
-    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout != null)
-    {
-        Layout = parentLayout.ToString();
-    }
-    else
-    {
-        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
-    }
+    // Använd globala layouten med toppmenyn
+    Layout = "/Pages/Shared/_Layout.cshtml";
 }
 
-<h1>Hantera ditt konto</h1>
-
-<div>
-    <h2>Ändra dina kontoinställningar</h2>
-    <hr />
-    <div class="row">
-        <div class="col-md-3">
-            <partial name="_ManageNav" />
-        </div>
-        <div class="col-md-9">
-            @RenderBody()
-        </div>
+<div class="row">
+    <div class="col-md-3">
+        <partial name="_ManageNav" />
+    </div>
+    <div class="col-md-9">
+        @RenderBody()
     </div>
 </div>
 

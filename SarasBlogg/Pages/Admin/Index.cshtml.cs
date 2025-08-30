@@ -1,10 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.DAL;
-using SarasBlogg.Data;
 using SarasBlogg.DTOs;
 using SarasBlogg.Models;
 using SarasBlogg.Extensions; // <-- ToSwedishTime
@@ -23,10 +21,6 @@ namespace SarasBlogg.Pages.Admin
         // Cache-tjänst (publik listcache)
         private readonly BloggService _bloggService; // <-- injiceras
 
-        // Identitet och roller
-        private readonly RoleManager<IdentityRole> _roleManager;
-        public readonly UserManager<ApplicationUser> _userManager;
-
         // Svensk tidszon för konvertering till UTC vid persistens
         private static readonly TimeZoneInfo TzSe = TimeZoneInfo.FindSystemTimeZoneById("Europe/Stockholm");
 
@@ -34,15 +28,11 @@ namespace SarasBlogg.Pages.Admin
             BloggAPIManager bloggApi,
             BloggImageAPIManager imageApi,
             CommentAPIManager commentApi,
-            UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager,
             BloggService bloggService) // <-- lägg till i DI
         {
             _bloggApi = bloggApi;
             _imageApi = imageApi;
             _commentApi = commentApi;
-            _userManager = userManager;
-            _roleManager = roleManager;
             _bloggService = bloggService; // <-- spara ref
 
             NewBlogg = new Models.Blogg();
@@ -62,12 +52,9 @@ namespace SarasBlogg.Pages.Admin
 
         public async Task<IActionResult> OnGetAsync(int? hiddenId, int deleteId, int? editId, int? archiveId)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser != null)
-            {
-                IsAdmin = await _userManager.IsInRoleAsync(currentUser, "admin");
-                IsSuperAdmin = await _userManager.IsInRoleAsync(currentUser, "superadmin");
-            }
+            // Roller kommer från JWT-claims som sattes vid login
+            IsAdmin = User.IsInRole("admin");
+            IsSuperAdmin = User.IsInRole("superadmin");
 
             if (NewBlogg == null)
             {

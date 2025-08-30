@@ -45,4 +45,15 @@
     public sealed class ChangeEmailStartDto { public string NewEmail { get; set; } = ""; }
     public sealed class ChangeEmailConfirmDto { public string UserId { get; set; } = ""; public string Code { get; set; } = ""; }
 
+    public record MeResponse
+    (
+        string Id,
+        string UserName,
+        string? Email,
+        IEnumerable<string> Roles,
+        string? Name,
+        int? BirthYear,
+        string? PhoneNumber,
+        bool EmailConfirmed
+    );
 }

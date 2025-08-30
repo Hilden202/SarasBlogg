@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -24,5 +24,17 @@
     <PackageReference Include="Polly" Version="7.2.3" />
 	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.*" />
   </ItemGroup>
+	<ItemGroup>
+		<!-- Stoppa C#-kodfiler i _archive från att kompilera -->
+		<Compile Remove="Areas\Identity\_archive\**\*.cs" />
+
+		<!-- Stoppa Razor (.cshtml) i _archive från Razor-kompilering OCH från content -->
+		<RazorGenerate Remove="Areas\Identity\_archive\**\*.cshtml" />
+		<Content Remove="Areas\Identity\_archive\**\*.cshtml" />
+
+		<!-- Lägg ändå till allt i _archive som "None" så filerna syns i Solution Explorer och följer med i Git -->
+		<None Include="Areas\Identity\_archive\**\*" />
+	</ItemGroup>
+
 
 </Project>

@@ -14,7 +14,7 @@
 
             <!-- Användarnamn (endast visning) -->
             <div class="form-floating mb-3">
-                <input asp-for="Username" class="form-control" placeholder="Välj ditt användarnamn" disabled />
+                <input asp-for="Username" class="form-control" placeholder="Användarnamn" disabled />
                 <label asp-for="Username" class="form-label">Användarnamn</label>
             </div>
 
@@ -34,7 +34,7 @@
 
             <!-- Födelseår -->
             <div class="form-floating mb-3">
-                <input asp-for="Input.BirthYear" class="form-control" />
+                <input asp-for="Input.BirthYear" class="form-control" type="number" min="1900" max="2100" />
                 <label asp-for="Input.BirthYear">Födelseår</label>
                 <span asp-validation-for="Input.BirthYear" class="text-danger"></span>
             </div>

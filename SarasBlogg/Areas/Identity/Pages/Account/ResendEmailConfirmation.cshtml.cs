@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.DAL;
-using SarasBlogg.Data.Migrations;
 using SarasBlogg.DTOs;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account

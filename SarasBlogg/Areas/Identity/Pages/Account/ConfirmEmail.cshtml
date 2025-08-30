@@ -12,9 +12,9 @@
 
 @if (Model.Message.Contains("bekräftad", StringComparison.OrdinalIgnoreCase))
 {
-    <p><a href="/Identity/Account/Login">Gå till inloggning</a></p>
+    <p><a class="btn btn-primary" href="/Identity/Account/Login">Gå till inloggning</a></p>
 }
 else if (Model.Message.Contains("fel", StringComparison.OrdinalIgnoreCase))
 {
-    <p>Fick du inget mail? Snart kan du <a href="/Identity/Account/ResendEmailConfirmation">skicka en ny länk</a>.</p>
+    <p>Fick du inget mail? <a href="/Identity/Account/ResendEmailConfirmation">Skicka en ny bekräftelselänk</a>.</p>
 }

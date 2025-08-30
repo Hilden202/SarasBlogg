@@ -1,7 +1,5 @@
 ﻿@page
-@using SarasBlogg.Extensions
 @model SarasBlogg.Pages.Admin.IndexModel
-@inject SignInManager<ApplicationUser> SignInManager
 @{
     var todaySE = DateTime.UtcNow.ToSwedishTime().Date;
 }

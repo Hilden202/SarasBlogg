@@ -1,5 +1,8 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using SarasBlogg
-@using SarasBlogg.Data
+﻿@using SarasBlogg
+@using SarasBlogg.Extensions
 @namespace SarasBlogg.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    var isLoggedIn = User?.Identity?.IsAuthenticated ?? false;
+    var isAdmin = User.IsInRole("admin") || User.IsInRole("superadmin");
+}

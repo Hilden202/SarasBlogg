@@ -170,10 +170,25 @@ namespace SarasBlogg.DAL
 
         public async Task<UserDto?> GetMeAsync(CancellationToken ct = default)
         {
-            using var res = await _http.GetAsync("api/auth/me", ct);
+            using var res = await _http.GetAsync("api/users/me", ct); // <-- ny route
             if (!res.IsSuccessStatusCode) return null;
-            return await res.Content.ReadFromJsonAsync<UserDto>(_json, ct);
+
+            var me = await res.Content.ReadFromJsonAsync<MeResponse>(_json, ct);
+            if (me is null) return null;
+
+            return new UserDto
+            {
+                Id = me.Id,
+                UserName = me.UserName,
+                Email = me.Email,
+                Roles = me.Roles?.ToList() ?? new List<string>(),
+                Name = me.Name,
+                BirthYear = me.BirthYear,
+                PhoneNumber = me.PhoneNumber,
+                EmailConfirmed = me.EmailConfirmed
+            };
         }
+
 
         public async Task<BasicResultDto?> ChangePasswordAsync(string currentPassword, string newPassword, CancellationToken ct = default)
         {

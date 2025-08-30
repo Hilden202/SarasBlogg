@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using SarasBlogg.DAL;
-using SarasBlogg.Data;
 using SarasBlogg.Services;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account
@@ -33,8 +33,8 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
             // 1) Logga ut i API:t
             await _userApi.LogoutAsync();
 
-            // 2) Ta bort den lokala Identity-cookie som sattes vid login
-            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            // 2) Logga ut från vårt cookie-schema (inte Identity)
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             // 3) Rensa bearer-token från HttpClient-handlern (IAccessTokenStore)
             HttpContext.RequestServices.GetRequiredService<IAccessTokenStore>().Clear();
@@ -47,12 +47,12 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
                 SameSite = SameSiteMode.None
             });
 
+            // refresh-token:
+            Response.Cookies.Delete("refresh_token", new CookieOptions { Path = "/", Secure = true, SameSite = SameSiteMode.None });
+            
             _logger.LogInformation("Användare loggade ut via API.");
 
-            if (returnUrl != null)
-                return LocalRedirect(returnUrl);
-
-            return RedirectToPage();
+            return returnUrl is not null ? LocalRedirect(returnUrl) : Redirect("~/");
         }
 
     }

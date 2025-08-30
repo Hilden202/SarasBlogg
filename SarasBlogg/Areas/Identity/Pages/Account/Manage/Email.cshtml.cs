@@ -1,145 +1,97 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-#nullable disable
-
+﻿#nullable enable
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using SarasBlogg.Data;
 using SarasBlogg.DAL;
-using SarasBlogg.DTOs;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 {
     public class EmailModel : PageModel
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly UserAPIManager _userApi;
+        public EmailModel(UserAPIManager userApi) => _userApi = userApi;
 
-        public EmailModel(UserManager<ApplicationUser> userManager, UserAPIManager userApi)
-        {
-            _userManager = userManager;   // behålls för att läsa nuvarande email/status
-            _userApi = userApi;           // används för att starta/resa e-postflöden
-        }
-
-        public string Email { get; set; }
+        public string Email { get; set; } = "";
+        public bool ShowResendLink { get; set; }   // <— ny
         public bool IsEmailConfirmed { get; set; }
 
-        [TempData]
-        public string StatusMessage { get; set; }
+        [TempData] public string StatusMessage { get; set; } = "";
+        [TempData] public string? PendingNewEmail { get; set; }
+        [TempData] public string? DevConfirmUrl { get; set; }
 
-        // Håller den nya e-posten över redirect efter ChangeEmailStart
-        [TempData]
-        public string PendingNewEmail { get; set; }
-
-        // Dev: klickbar bekräftelselänk från API (visas bara i Development)
-        [TempData]
-        public string DevConfirmUrl { get; set; }
-
-        [BindProperty]
-        public InputModel Input { get; set; }
+        [BindProperty] public InputModel Input { get; set; } = new();
 
         public class InputModel
         {
-            [Required]
-            [EmailAddress]
+            [Required, EmailAddress]
             [Display(Name = "Ny e-postadress")]
-            public string NewEmail { get; set; }
+            public string NewEmail { get; set; } = "";
         }
 
-        private async Task LoadAsync(ApplicationUser user)
+        private async Task LoadAsync()
         {
-            var email = await _userManager.GetEmailAsync(user);
-            Email = email;
+            var me = await _userApi.GetMeAsync();
+            Email = me?.Email ?? "";
+            IsEmailConfirmed = me?.EmailConfirmed ?? false;
 
-            Input = new InputModel
-            {
-                NewEmail = email,
-            };
-
-            IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+            Input ??= new InputModel();
+            Input.NewEmail = string.IsNullOrWhiteSpace(PendingNewEmail) ? Email : PendingNewEmail!;
+            ShowResendLink = !string.IsNullOrWhiteSpace(PendingNewEmail) &&
+                             !string.Equals(PendingNewEmail, Email, StringComparison.OrdinalIgnoreCase);
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Kunde inte ladda användare med ID '{_userManager.GetUserId(User)}'.");
-            }
-
-            await LoadAsync(user);
-
-            // Om vi precis initierat ett byte: visa den nya adressen i fältet igen
-            if (!string.IsNullOrEmpty(PendingNewEmail) &&
-            !string.Equals(PendingNewEmail, Email, StringComparison.OrdinalIgnoreCase))
-            {
-                Input.NewEmail = PendingNewEmail;
-            }
+            await LoadAsync();
             return Page();
         }
 
         public async Task<IActionResult> OnPostChangeEmailAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Kunde inte ladda användare med ID '{_userManager.GetUserId(User)}'.");
-            }
-
             if (!ModelState.IsValid)
             {
-                await LoadAsync(user);
+                await LoadAsync();
                 return Page();
             }
 
-            var current = await _userManager.GetEmailAsync(user);
+            var me = await _userApi.GetMeAsync();
+            var current = me?.Email ?? "";
             if (string.Equals(Input.NewEmail, current, StringComparison.OrdinalIgnoreCase))
             {
                 StatusMessage = "Din e-postadress är oförändrad.";
                 return RedirectToPage();
             }
 
-            // 👉 API-anrop: starta byte av e-post (skickar mejl, och i dev exponerar ConfirmEmailUrl)
             var result = await _userApi.ChangeEmailStartAsync(Input.NewEmail);
             if (result?.Succeeded == true)
             {
-                StatusMessage = "En bekräftelselänk för att ändra din e-postadress har skickats. Kontrollera din inkorg.";
-                // Spara dev-länken separat så vi kan visa den snyggt i vyn
+                StatusMessage = "En bekräftelselänk har skickats. Kontrollera din inkorg.";
                 DevConfirmUrl = string.IsNullOrWhiteSpace(result.ConfirmEmailUrl) ? "" : result.ConfirmEmailUrl;
-                PendingNewEmail = Input.NewEmail; // <- behåll ny e-post över redirect
+                PendingNewEmail = Input.NewEmail;     // <- triggar ShowResendLink efter redirect
                 return RedirectToPage();
             }
 
             ModelState.AddModelError(string.Empty, result?.Message ?? "Kunde inte initiera e-postbyte.");
-            await LoadAsync(user);
+            await LoadAsync();
             return Page();
         }
 
         public async Task<IActionResult> OnPostSendVerificationEmailAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Kunde inte ladda användare med ID '{_userManager.GetUserId(User)}'.");
-            }
-
-            // 👉 API-anrop: skicka om bekräftelse (neutral response avsiktligt)
-            var current = await _userManager.GetEmailAsync(user);
+            var me = await _userApi.GetMeAsync();
+            var current = me?.Email ?? "";
             var candidate = string.IsNullOrWhiteSpace(PendingNewEmail) ? Input?.NewEmail : PendingNewEmail;
-            var email = !string.IsNullOrWhiteSpace(candidate) &&
-            !string.Equals(candidate, current, StringComparison.OrdinalIgnoreCase)
-                        ? candidate
-                        : current;
-            await _userApi.ResendConfirmationAsync(email);
+
+            var emailToUse = !string.IsNullOrWhiteSpace(candidate) &&
+                             !string.Equals(candidate, current, StringComparison.OrdinalIgnoreCase)
+                               ? candidate!
+                               : current;
+
+            await _userApi.ResendConfirmationAsync(emailToUse);
             StatusMessage = "Om adressen finns skickades en bekräftelselänk.";
-            PendingNewEmail = Input?.NewEmail ?? PendingNewEmail; // behåll värdet i fältet
+            // Behåll PendingNewEmail så länken fortsätter visas tills du bekräftat bytet.
             return RedirectToPage();
         }
     }
