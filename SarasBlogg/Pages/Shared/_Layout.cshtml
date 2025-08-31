@@ -131,7 +131,7 @@
                             <a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Contact" ? "fw-bold" : "")"
                                asp-area="" asp-page="/Contact">Kontakt</a>
                         </li>
-                        @if (User.IsInRole("admin") || User.IsInRole("superadmin"))
+                        @if (User.IsInRole("superuser") || User.IsInRole("admin") || User.IsInRole("superadmin"))
                         {
                             <li class="nav-item me-3">
                                 <a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Admin") == true ? "fw-bold" : "")"

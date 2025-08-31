@@ -10,7 +10,7 @@ using SarasBlogg.Services;   // BloggService för cache-invalidering
 
 namespace SarasBlogg.Pages.Admin
 {
-    [Authorize(Roles = "admin, superadmin")]
+    [Authorize(Roles = "admin, superadmin, superuser")]
     public class IndexModel : PageModel
     {
         // API-tjänster för datahantering
@@ -49,6 +49,7 @@ namespace SarasBlogg.Pages.Admin
 
         public bool IsAdmin { get; set; }
         public bool IsSuperAdmin { get; set; }
+        public bool IsSuperUser { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? hiddenId, int deleteId, int? editId, int? archiveId)
         {
@@ -58,6 +59,7 @@ namespace SarasBlogg.Pages.Admin
             // Roller från JWT-claims
             IsAdmin = User.IsInRole("admin");
             IsSuperAdmin = User.IsInRole("superadmin");
+            IsSuperUser = User.IsInRole("superuser");
 
             // Initiera modell och sätt standarddatum (SE) för NY post
             NewBlogg ??= new Models.Blogg();
@@ -68,7 +70,8 @@ namespace SarasBlogg.Pages.Admin
                 NewBlogg.LaunchDate = DateTime.SpecifyKind(todaySe, DateTimeKind.Unspecified);
             }
 
-            if (hiddenId.HasValue && hiddenId.Value != 0)
+            // Dölj/Visa: admin + superadmin
+            if ((IsAdmin || IsSuperAdmin) && hiddenId.HasValue && hiddenId.Value != 0)
             {
                 var bloggToHide = await _bloggApi.GetBloggAsync(hiddenId.Value);
                 if (bloggToHide != null)
@@ -79,8 +82,10 @@ namespace SarasBlogg.Pages.Admin
                 }
             }
 
+            // Ta bort: endast superadmin
             if (deleteId != 0)
             {
+                if (!IsSuperAdmin) return Forbid();
                 var bloggToDelete = await _bloggApi.GetBloggAsync(deleteId);
                 if (bloggToDelete != null)
                 {
@@ -95,7 +100,8 @@ namespace SarasBlogg.Pages.Admin
 
             await LoadBloggsWithImagesAsync();
 
-            if (editId.HasValue && editId.Value != 0)
+            // Öppna för redigering i formuläret: endast superadmin
+            if (IsSuperAdmin && editId.HasValue && editId.Value != 0)
             {
                 var blogg = BloggsWithImage.FirstOrDefault(b => b.Blogg.Id == editId.Value);
                 if (blogg != null)
@@ -122,7 +128,8 @@ namespace SarasBlogg.Pages.Admin
                 }
             }
 
-            if (archiveId.HasValue && archiveId.Value != 0)
+            // Arkivera/avarkivera: admin + superadmin
+            if ((IsAdmin || IsSuperAdmin) && archiveId.HasValue && archiveId.Value != 0)
             {
                 var bloggToArchive = await _bloggApi.GetBloggAsync(archiveId.Value);
                 if (bloggToArchive != null)
@@ -138,8 +145,12 @@ namespace SarasBlogg.Pages.Admin
             return Page();
         }
 
+        // Skapa/ändra blogg: endast superadmin
         public async Task<IActionResult> OnPostAsync()
         {
+            IsSuperAdmin = User.IsInRole("superadmin");
+            if (!IsSuperAdmin) return Forbid();
+
             var uploadErrors = new List<string>();
             var currentBlogg = await _bloggApi.GetBloggAsync(NewBlogg.Id);
 
@@ -197,8 +208,10 @@ namespace SarasBlogg.Pages.Admin
             return RedirectToPage();
         }
 
+        // Endast superadmin
         public async Task<IActionResult> OnPostSetFirstImageAsync(int imageId, int bloggId)
         {
+            if (!User.IsInRole("superadmin")) return Forbid();
             var images = await _imageApi.GetImagesByBloggIdAsync(bloggId);
             var imageToSet = images.FirstOrDefault(i => i.Id == imageId);
 
@@ -214,8 +227,10 @@ namespace SarasBlogg.Pages.Admin
             return RedirectToPage(new { editId = bloggId });
         }
 
+        // Endast superadmin
         public async Task<IActionResult> OnPostDeleteImageAsync(int imageId, int bloggId)
         {
+            if (!User.IsInRole("superadmin")) return Forbid();
             await _imageApi.DeleteImageAsync(imageId);
             _bloggService.InvalidateBlogListCache();
 

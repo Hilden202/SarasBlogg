@@ -4,7 +4,7 @@
 	ViewData["Title"] = "Förbjudna ord";
 }
 <div class="container-site">
-	@if (User.IsInRole("admin") || User.IsInRole("superadmin"))
+	@if (User.IsInRole("superuser") || User.IsInRole("admin") || User.IsInRole("superadmin"))
 	{
 		<nav class="border-bottom">
 			<div class="container d-flex justify-content-center">
