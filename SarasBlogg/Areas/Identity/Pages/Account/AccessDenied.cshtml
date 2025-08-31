@@ -2,9 +2,34 @@
 @model AccessDeniedModel
 @{
     ViewData["Title"] = "Åtkomst nekad";
-}
 
-<header>
-    <h1 class="text-danger">@ViewData["Title"]</h1>
-    <p class="text-danger">Du har inte behörighet att visa denna resurs.</p>
-</header>
+    // 1) Har användaren någon admin-liknande roll?
+    bool hasAdminishRole =
+        User.IsInRole("superadmin") ||
+        User.IsInRole("admin") ||
+        User.IsInRole("superuser");
+
+    // 2) Såg vi sidan från en /Admin/* sida?
+    var refUrl = ViewContext.HttpContext.Request.Headers["Referer"].ToString();
+    bool fromAdminReferer = !string.IsNullOrWhiteSpace(refUrl)
+                            && refUrl.Contains("/Admin/", StringComparison.OrdinalIgnoreCase);
+
+    // 3) Fallback: ibland skickas ReturnUrl i query vid 403/redirect
+    var returnUrl = ViewContext.HttpContext.Request.Query["ReturnUrl"].ToString();
+    bool fromAdminReturnUrl = !string.IsNullOrWhiteSpace(returnUrl)
+                              && returnUrl.Contains("/Admin/", StringComparison.OrdinalIgnoreCase);
+
+    bool showAdminNav = hasAdminishRole || fromAdminReferer || fromAdminReturnUrl;
+}
+<div class="container-site">
+    @if (showAdminNav)
+    {
+        <partial name="/Pages/Admin/_AdminNav.cshtml" />
+        <hr class="m-1 border" />
+    }
+
+    <header class="mt-3">
+        <h1 class="text-danger">@ViewData["Title"]</h1>
+        <p class="text-danger">Du har inte behörighet att visa denna resurs.</p>
+    </header>
+</div>

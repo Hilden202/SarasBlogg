@@ -1,0 +1,19 @@
+﻿@* Enkel, återanvändbar admin-undermeny *@
+<nav class="border-bottom">
+    <div class="container d-flex justify-content-center">
+        <ul class="mynav">
+            <li class="nav-item me-3">
+                <a class="menutext nav-link theme-dependent @(Context.Request.Path.StartsWithSegments("/Admin", StringComparison.OrdinalIgnoreCase) && !Context.Request.Path.StartsWithSegments("/Admin/RoleAdmin", StringComparison.OrdinalIgnoreCase) && !Context.Request.Path.StartsWithSegments("/Admin/ForbiddenWords", StringComparison.OrdinalIgnoreCase) ? "fw-bold" : "")"
+                   asp-area="" asp-page="/Admin/Index">Bloggar</a>
+            </li>
+            <li class="nav-item me-3">
+                <a class="menutext nav-link theme-dependent @(Context.Request.Path.StartsWithSegments("/Admin/RoleAdmin", StringComparison.OrdinalIgnoreCase) ? "fw-bold" : "")"
+                   asp-area="" asp-page="/Admin/RoleAdmin/Index">Roller</a>
+            </li>
+            <li class="nav-item me-3">
+                <a class="menutext nav-link theme-dependent @(Context.Request.Path.StartsWithSegments("/Admin/ForbiddenWords", StringComparison.OrdinalIgnoreCase) ? "fw-bold" : "")"
+                   asp-area="" asp-page="/Admin/ForbiddenWords/Index">Ord</a>
+            </li>
+        </ul>
+    </div>
+</nav>
