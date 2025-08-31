@@ -48,22 +48,35 @@
 		<div class="alert alert-danger">@TempData["deleteMessage"]</div>
 	}
 
-	@if (User.IsInRole("admin") || User.IsInRole("superadmin"))
-	{
-		<ul>
-		<br />
+@if (User.IsInRole("admin") || User.IsInRole("superadmin"))
+{
+	<ul class="list-group mt-3">
+		@foreach (var item in Model.ContactMes)
+		{
+			<li class="list-group-item d-flex align-items-start justify-content-between">
+				<div class="me-2">
+					<strong>@item.Name</strong>
+					<div>
+						<em>
+							@item.Subject – @item.Message –
+							<a href="mailto:@item.Email">@item.Email</a>
+						</em>
+					</div>
+				</div>
 
-			@foreach (var item in Model.ContactMes)
-			{
-					<li class="list-group-item d-flex">
-						<form method="post" id="contactForm" class="me-2">
-							<input type="hidden" name="deleteId" value="@item.Id" />
-						<button type="submit" class="btn btn-close"></button>
-						</form>
-
-					<strong>@item.Name</strong> - <em>@item.Subject - @item.Message - <a href="mailto:@item.Email">@item.Email</a></em><br />
-					</li>
-			}
+				@* Delete får bara synas för superadmin *@
+				@if (User.IsInRole("superadmin"))
+				{
+					<form method="post" class="ms-2" aria-label="Ta bort meddelande">
+						<input type="hidden" name="deleteId" value="@item.Id" />
+						<button type="submit"
+								class="btn btn-close"
+								title="Ta bort"
+								aria-label="Ta bort"
+								onclick="return confirm('Ta bort detta meddelande?');"></button>
+					</form>
+				}
+			</li>
+		}
 	</ul>
-	}
-</div>
+}

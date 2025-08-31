@@ -36,47 +36,42 @@ namespace SarasBlogg.Pages
 
         public async Task<IActionResult> OnPostAsync(Models.ContactMe contactMe, int deleteId)
         {
+            // 1) RADERA — prio först, och endast superadmin
+            if (deleteId != 0)
+            {
+                if (!User.IsInRole("superadmin"))
+                    return Forbid(); // extra säkerhet
+
+                await _contactManager.DeleteMessageAsync(deleteId);
+                TempData["deleteMessage"] = "Meddelandet raderades.";
+                return RedirectToPage("./Contact", new { contactId = "1" });
+            }
+
+            // 2) SKICKA — samma logik som du hade
             if (ModelState.IsValid)
             {
-                // Normalisera CreatedAt till UTC (exakt tid).
-                // 1) Saknas tid -> sätt nu i UTC.
                 if (contactMe.CreatedAt == default)
                 {
                     contactMe.CreatedAt = DateTime.UtcNow;
                 }
-                else
+                else if (contactMe.CreatedAt.Kind == DateTimeKind.Unspecified)
                 {
-                    // 2) Om tidszonsinfo saknas: tolka som svensk lokal tid och konvertera till UTC.
-                    if (contactMe.CreatedAt.Kind == DateTimeKind.Unspecified)
-                    {
-                        var seLocal = DateTime.SpecifyKind(contactMe.CreatedAt, DateTimeKind.Unspecified);
-                        contactMe.CreatedAt = TimeZoneInfo.ConvertTimeToUtc(seLocal, TzSe);
-                    }
-                    // 3) Om Local: konvertera till UTC.
-                    else if (contactMe.CreatedAt.Kind == DateTimeKind.Local)
-                    {
-                        contactMe.CreatedAt = contactMe.CreatedAt.ToUniversalTime();
-                    }
-                    // 4) Om redan Utc: använd som är.
+                    var seLocal = DateTime.SpecifyKind(contactMe.CreatedAt, DateTimeKind.Unspecified);
+                    contactMe.CreatedAt = TimeZoneInfo.ConvertTimeToUtc(seLocal, TzSe);
+                }
+                else if (contactMe.CreatedAt.Kind == DateTimeKind.Local)
+                {
+                    contactMe.CreatedAt = contactMe.CreatedAt.ToUniversalTime();
                 }
 
-                // 1) Spara via API
                 await _contactManager.SaveMessageAsync(contactMe);
-
-                // 2) Fire-and-forget till Formspree (mailnotis)
                 _ = SendToFormspreeAsync(contactMe);
 
                 TempData["addMessage"] = "Tack för ditt meddelande!";
                 return RedirectToPage("./Contact", new { contactId = "1" });
             }
 
-            if (deleteId != 0)
-            {
-                await _contactManager.DeleteMessageAsync(deleteId);
-                TempData["deleteMessage"] = "Meddelandet raderades.";
-                return RedirectToPage("./Contact", new { contactId = "1" });
-            }
-
+            // 3) Ogiltigt formulär: visa sidan med valideringsfel
             return Page();
         }
 
