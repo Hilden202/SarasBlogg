@@ -420,6 +420,16 @@ div {
     align-items: stretch;
 }
 
+    /* Force left alignment for latest-post cards (beats any inherited .text-center) */
+    .cards-container,
+    .cards-container .card,
+    .cards-container .card-title,
+    .cards-container .card-content {
+        align-self: stretch;
+        width: 100%;
+    }
+
+
     .cards-container .card-link {
         flex: 0 0 250px;
         width: 250px;
