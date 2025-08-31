@@ -7,7 +7,7 @@ using SarasBlogg.Models;
 
 namespace SarasBlogg.Pages.Admin.ForbiddenWords
 {
-    [Authorize(Roles = "superadmin")]
+    [Authorize(Roles = "superuser, admin, superadmin")]
     public class IndexModel : PageModel
     {
         private readonly ForbiddenWordAPIManager _forbiddenWordApi;

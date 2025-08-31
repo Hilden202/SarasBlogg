@@ -10,121 +10,7 @@ table, th, td, ul, ol, li,
 #cookieConsentdiv, .modal, .alert, .badge {
     font-family: inherit !important;
 }
-/* --- Laddningsoverlay och progressiv bildinladdning pausad tillfälligt ---
-   Kan aktiveras igen genom att avkommentera hela detta block.
-*/
-/*#loading-overlay {
-    position: fixed;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    opacity: 1;
-    transition: opacity .3s ease;
-    background: inherit;
-    z-index: 10000;
-    will-change: opacity;
-}
 
-.sb-seen #loading-overlay {
-    display: none !important;
-    opacity: 0 !important;
-}
-
-#loading-overlay.show {
-    display: grid;
-    opacity: 1;
-}
-
-#loading-overlay .loader-status {
-    margin-top: .5rem;
-    font-size: .95rem;
-    color: #666;
-}
-
-#loading-overlay.hiding {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .35s ease;
-}
-
-
-#loading-overlay .loader-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;*/ /* horisontell centrering */
-/*justify-content: center;*/ /* vertikal centrering */
-/*text-align: center;
-    height: 100%;*/ /* gör att vertikal centrering fungerar */
-/*}*/
-
-/* Endast bilder du vill fadea in får klassen .progressive */
-/*img.progressive {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-    img.progressive.is-loaded {
-        opacity: 1;
-    }*/
-
-/* Overlay-loggan påverkas inte */
-/*#loading-overlay .loading-logo,
-#loading-overlay img.no-fade {
-    opacity: 1 !important;
-}
-
-
-.dot-loader {
-    display: inline-block;
-    font-size: 2rem;
-    letter-spacing: 0.2rem;
-    font-weight: bold;
-    color: #C48A7D;*/ /* SarasBlogg-rosa */
-/*margin-top: 0.5rem;
-    text-align: center;
-}
-
-    .dot-loader span {
-        animation: dotFlashing 1.2s ease-in-out infinite;
-    }
-
-        .dot-loader span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .dot-loader span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-@keyframes dotFlashing {
-    0% {
-        opacity: 0.2;
-    }
-
-    50% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0.2;
-    }
-}
-
-.loading-logo {
-    width: 200px;
-    max-width: 80%;
-    height: auto;
-}*/
-
-/* Mjuk fade-in för icke-kritiska bilder */
-/*img:not([data-critical="1"]) {
-    opacity: 0;
-    transition: opacity 0.4s ease;
-}
-
-img.is-loaded {
-    opacity: 1;
-}*/
  .cookie-fixed {
     position: fixed;
     bottom: 100px; /* justera avstånd från nederkant */
@@ -879,6 +765,22 @@ footer.border-top {
     overflow-x: clip;
     overflow-y: clip; /* klipper allt under sidans botten */
 }
+
+/* === Fix: låt Bootstrap-modaler ligga över backdroppen === */
+
+/* 1) När modal är öppen – ta bort z-index-bubblan från layoutnoderna */
+.modal-open .page-wrapper,
+.modal-open header,
+.modal-open main,
+.modal-open footer {
+    z-index: auto !important; /* inga egna stacking contexts */
+}
+
+/* 2) Se till att dekor alltid ligger bakom allt */
+.decor-layer {
+    z-index: -1 !important;
+}
+
 
 /* dekor-lagret täcker sidan men påverkar inte layouten */
 .decor-layer {
