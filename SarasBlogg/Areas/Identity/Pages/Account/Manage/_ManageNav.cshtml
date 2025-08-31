@@ -1,29 +1,41 @@
-﻿<ul class="nav nav-pills flex-column">
+﻿@using SarasBlogg.Areas.Identity.Pages.Account.Manage
+
+<ul class="nav nav-pills flex-column profile-nav">
     <li class="nav-item">
-        <a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)"
-           id="profile" asp-page="./Index">Konto</a>
+        <a class="nav-link menutext-sm @ManageNavPages.IndexNavClass(ViewContext)"
+           id="profile" asp-area="Identity" asp-page="/Account/Manage/Index">
+            Konto
+        </a>
     </li>
 
     <li class="nav-item">
-        <a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)"
-           id="email" asp-page="./Email">E-post</a>
+        <a class="nav-link menutext-sm @ManageNavPages.EmailNavClass(ViewContext)"
+           id="email" asp-area="Identity" asp-page="/Account/Manage/Email">
+            E-post
+        </a>
     </li>
 
     <li class="nav-item">
-        <a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)"
-           id="change-password" asp-page="./ChangePassword">Lösenord</a>
+        <a class="nav-link menutext-sm @ManageNavPages.ChangePasswordNavClass(ViewContext)"
+           id="change-password" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">
+            Lösenord
+        </a>
     </li>
 
     <li class="nav-item">
-        <a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)"
-           id="personal-data" asp-page="./PersonalData">Personlig data</a>
+        <a class="nav-link menutext-sm @ManageNavPages.PersonalDataNavClass(ViewContext)"
+           id="personal-data" asp-area="Identity" asp-page="/Account/Manage/PersonalData">
+            Personlig data
+        </a>
     </li>
 
     @if (User.IsInRole("superadmin"))
     {
         <li class="nav-item">
-            <a class="nav-link"
-               asp-area="Identity" asp-page="/Account/Register">Skapa ny användare</a>
+            <a class="nav-link menutext-sm @ManageNavPages.RegisterNavClass(ViewContext)"
+               asp-area="Identity" asp-page="/Account/Register" asp-route-manage="1">
+                Skapa ny användare
+            </a>
         </li>
     }
 </ul>

@@ -1153,3 +1153,61 @@ footer.footer {
         .auth-links .auth-link:hover::after {
             width: 100%;
         }
+
+/* === Profile menu (Identity Manage) – matchar huvudmenyn === */
+.profile-nav .nav-link {
+    font-family: 'Cormorant SC', serif;
+    text-transform: uppercase;
+    font-size: 14px; /* samma som .menutext-sm */
+    color: #7e6655 !important; /* brun som menyn */
+    -webkit-text-stroke: 0.2px #000;
+    text-decoration: none !important;
+    background: transparent !important;
+    border: 1px solid transparent; /* diskret baseline */
+    border-radius: 9999px; /* pill-form */
+    padding: 0.35rem 0.8rem;
+    display: inline-block;
+    margin: 0.15rem 0;
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+    /* Hover/fokus: lite tyngd och understruken accentlinje ala .auth-links */
+    .profile-nav .nav-link:hover,
+    .profile-nav .nav-link:focus {
+        font-weight: 700;
+        border-color: #C48A7D33; /* tunn rosa kant */
+        outline: none;
+        box-shadow: none;
+    }
+
+    /* Aktiv sida: fyll rosa piller, vit text (ersätter Bootstraps blå) */
+    .profile-nav .nav-link.active,
+    .profile-nav .nav-link[aria-current="page"] {
+        background-color: #C48A7D !important;
+        color: #fff !important;
+        border-color: #C48A7D !important;
+        font-weight: 700;
+    }
+
+/* Vertikal lista men utan stora blå pill-marginaler från BS */
+.profile-nav.nav {
+    gap: .25rem;
+}
+
+.profile-nav.flex-column .nav-link {
+    width: fit-content; /* snygga piller nära textbredden */
+}
+
+/* Mörkare vid hover på aktiv – konsekvent med knappar */
+.profile-nav .nav-link.active:hover {
+    background-color: #a86d62 !important;
+    border-color: #a86d62 !important;
+}
+
+/* Små skärmar: lite större klickyta */
+@media (max-width: 768px) {
+    .profile-nav .nav-link {
+        font-size: 15px;
+        padding: 0.45rem 0.95rem;
+    }
+}

@@ -3,6 +3,15 @@
 @{
     ViewData["Title"] = "Registrera";
 }
+@using SarasBlogg.Areas.Identity.Pages.Account.Manage
+@{
+    var isManageContext = ViewContext.HttpContext.Request.Query.ContainsKey("manage");
+    if (isManageContext)
+    {
+        Layout = "/Areas/Identity/Pages/Account/Manage/_Layout.cshtml";
+        ViewData["ActivePage"] = ManageNavPages.Register;
+    }
+}
 
 <h1>@ViewData["Title"]</h1>
 

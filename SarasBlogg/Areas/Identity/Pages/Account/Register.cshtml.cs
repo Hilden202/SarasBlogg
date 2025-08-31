@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SarasBlogg.DAL;
 using SarasBlogg.DTOs;
+using SarasBlogg.Areas.Identity.Pages.Account.Manage;
 
 namespace SarasBlogg.Areas.Identity.Pages.Account
 {
@@ -22,6 +23,7 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
         [BindProperty] public InputModel Input { get; set; } = new();
 
         public string? DevConfirmLink { get; set; } // visas om API:t skickar länk i dev
+        public bool IsManageContext { get; private set; }
 
         public class InputModel
         {
@@ -54,10 +56,23 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
             public int? BirthYear { get; set; }
         }
 
-        public void OnGet() { }
+        public void OnGet()
+        {
+            IsManageContext = Request?.Query.ContainsKey("manage") == true;
+            if (IsManageContext)
+            {
+                ViewData["ActivePage"] = ManageNavPages.Register;
+            }
+        }
 
         public async Task<IActionResult> OnPostAsync()
         {
+            IsManageContext = Request?.Query.ContainsKey("manage") == true;
+            if (IsManageContext)
+            {
+                ViewData["ActivePage"] = ManageNavPages.Register;
+            }
+
             if (!ModelState.IsValid) return Page();
 
             var result = await _userApi.RegisterAsync(Input.UserName, Input.Email, Input.Password, Input.Name, Input.BirthYear);
