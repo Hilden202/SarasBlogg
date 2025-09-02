@@ -367,3 +367,21 @@ a.blogg-link:visited {
         padding: .5rem 0;
     }
 }
+
+/* Klickbar kommentar-rubrik, diskret */
+.comments-toggle {
+    cursor: pointer;
+    position: relative;
+}
+
+    /* Liten pil som roterar (Bootstrap sätter .collapsed) */
+    .comments-toggle::after {
+        content: "▾";
+        display: inline-block;
+        margin-left: .5rem;
+        transition: transform .2s ease;
+    }
+
+    .comments-toggle.collapsed::after {
+        transform: rotate(-90deg);
+    }

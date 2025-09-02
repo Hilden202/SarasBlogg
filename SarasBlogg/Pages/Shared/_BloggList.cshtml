@@ -14,13 +14,6 @@
 		<img src="~/img/logo/sarablogglogga.png"
 			 alt="SarasBlogg textlogga"
 			 class="index-hero-text" />
-
-		@*         @if (!(Model?.IsArchiveView ?? false))
-        {  // visa inte i arkivvyn
-            <img src="~/img/logo/jagmedbarnen.png"
-                 alt="Jag med barnen"
-                 class="index-hero-family" />
-        } *@
 	</div>
 
 	@if (Model.Blogg == null || Model.Blogg.Hidden)
@@ -118,15 +111,15 @@
 							@for (var i = 0; i < images.Count; i++)
 							{
 								var url = images[i].FilePath;
-								var resolved = !string.IsNullOrWhiteSpace(url) &&
+								var resolvedThumb = !string.IsNullOrWhiteSpace(url) &&
 								(url.StartsWith("http://") || url.StartsWith("https://"))
 								? url
 								: Url.Content(url ?? "/img/blogg/default.png");
 
 								<div class="carousel-item @(i == 0 ? "active" : "")">
-									<div class="card-img-wrapper" style="--img: url('@resolved')">
+									<div class="card-img-wrapper" style="--img: url('@resolvedThumb')">
 										<img class="bloggimg mb-4 rounded shadow-lg js-lightbox"
-											 src="@resolved"
+											 src="@resolvedThumb"
 											 onerror="this.onerror=null; this.src='/img/blogg/default.png';"
 											 alt="Bloggbild @(i + 1)"
 											 style="cursor:zoom-in" />
@@ -146,12 +139,18 @@
 						<div class="carousel-indicators">
 							@for (var i = 0; i < images.Count; i++)
 							{
+								var url = images[i].FilePath;
+								var resolvedThumb = !string.IsNullOrWhiteSpace(url) &&
+								(url.StartsWith("http://") || url.StartsWith("https://"))
+								? url
+								: Url.Content(url ?? "/img/blogg/default.png");
+
 								<button type="button"
 										data-bs-target="#@carouselId"
 										data-bs-slide-to="@i"
 										class="@(i==0 ? "active" : "")"
 										aria-current="@(i==0 ? "true" : "false")"
-										aria-label="Bild @(i+1)"></button>
+										aria-label="Visa bild @(i+1)"></button>
 							}
 						</div>
 					</div>
@@ -180,11 +179,9 @@
 				}
 
 				@{
-					// Bas-URL till samma Razor Page utan querystring = listvyn
-					// Om din arkivvy triggas via en query, byt 'archive = 1' till din faktiska nyckel.
 					var listUrl = Model.IsArchiveView
-					? Url.Page(null, new { archive = 1 })  // <-- justera om din query heter något annat
-					: Url.Page(null);                      // t.ex. /Index
+					? Url.Page(null, new { archive = 1 })
+					: Url.Page(null);
 				}
 				<a href="@Url.Page(null, new { highlightId = Model.Blogg.Id })"
 				   class="btn btn-outline-secondary mb-3">
@@ -225,102 +222,112 @@
 				<!-- 🗨️ Kommentarer -->
 				<section id="comments">
 					<h5 class="mb-3">
-						Kommentarer
-						<small class="text-muted ms-2">
-							@((Model.Comments?.Count(c => c.BloggId == Model.Blogg.Id) ?? 0))
-						</small>
+						<span role="button"
+							  data-bs-toggle="collapse"
+							  data-bs-target="#comments-@Model.Blogg.Id"
+							  aria-expanded="@( (ViewData["OpenComments"] as bool? == true) ? "true" : "false")"
+							  aria-controls="comments-@Model.Blogg.Id"
+							  class="text-dark @(ViewData["OpenComments"] as bool? == true ? "" : "collapsed")">
+							Kommentarer
+							<small class="text-muted ms-2">
+								@((Model.Comments?.Count(c => c.BloggId == Model.Blogg.Id) ?? 0))
+							</small>
+						</span>
 					</h5>
 
-					<!-- Lista kommentarer -->
-					@foreach (var c in (Model.Comments ?? new List<Comment>())
-										.Where(c => c.BloggId == Model.Blogg.Id)
-										.OrderBy(c => c.CreatedAt))
-					{
-						<div class="comment mb-3 p-2 border rounded">
-							<div class="d-flex justify-content-between align-items-start">
-								<div>
-									<div class="comment-header mb-1">
-										<span class="fw-bold">
-											@if (!string.IsNullOrWhiteSpace(c.Name)
-																			&& Model.RoleCssByName != null
-																			&& Model.RoleCssByName.TryGetValue(c.Name, out var roleCss)
-																			&& !string.IsNullOrEmpty(roleCss))
-											{
-												<span class="@roleCss">@c.Name</span>
-											}
-											else if (User.Identity?.IsAuthenticated == true
-											&& string.Equals(c.Name, User.Identity.Name, StringComparison.OrdinalIgnoreCase)
-											&& !string.IsNullOrEmpty(Model.RoleCss))
-											{
-												<span class="@Model.RoleCss">@c.Name</span>
-											}
-											else
-											{
-												@c.Name
-											}
-										</span>
-										<small class="text-muted ms-2">
-											@c.CreatedAt.ToSwedishTime().ToString("yyyy-MM-dd HH:mm")
-										</small>
+					<div id="comments-@Model.Blogg.Id"
+						 class="collapse @(ViewData["OpenComments"] as bool? == true ? "show" : "")">
+
+						<!-- Lista kommentarer -->
+						@foreach (var c in (Model.Comments ?? new List<Comment>())
+											.Where(c => c.BloggId == Model.Blogg.Id)
+											.OrderBy(c => c.CreatedAt))
+						{
+							<div class="comment mb-3 p-2 border rounded">
+								<div class="d-flex justify-content-between align-items-start">
+									<div>
+										<div class="comment-header mb-1">
+											<span class="fw-bold">
+												@if (!string.IsNullOrWhiteSpace(c.Name)
+																				&& Model.RoleCssByName != null
+																				&& Model.RoleCssByName.TryGetValue(c.Name, out var roleCss)
+																				&& !string.IsNullOrEmpty(roleCss))
+												{
+													<span class="@roleCss">@c.Name</span>
+												}
+												else if (User.Identity?.IsAuthenticated == true
+												&& string.Equals(c.Name, User.Identity.Name, StringComparison.OrdinalIgnoreCase)
+												&& !string.IsNullOrEmpty(Model.RoleCss))
+												{
+													<span class="@Model.RoleCss">@c.Name</span>
+												}
+												else
+												{
+													@c.Name
+												}
+											</span>
+											<small class="text-muted ms-2">
+												@c.CreatedAt.ToSwedishTime().ToString("yyyy-MM-dd HH:mm")
+											</small>
+										</div>
+										<div class="comment-body">@c.Content</div>
 									</div>
-									<div class="comment-body">@c.Content</div> <!-- ✅ fått egen klass -->
-								</div>
 
-								@* Visa ta bort för admin/superadmin/superuser ELLER kommentarsägaren *@
-								@if (User.IsInRole("superadmin") || User.IsInRole("admin") || User.IsInRole("superuser")
-													|| (User.Identity?.IsAuthenticated == true
-													&& string.Equals(c.Name, User.Identity.Name, StringComparison.OrdinalIgnoreCase)))
-								{
-									if (c.Id != null)
+									@if (User.IsInRole("superadmin") || User.IsInRole("admin") || User.IsInRole("superuser")
+														|| (User.Identity?.IsAuthenticated == true
+														&& string.Equals(c.Name, User.Identity.Name, StringComparison.OrdinalIgnoreCase)))
 									{
-										<form method="post" class="ms-2" onsubmit="return confirm('Ta bort kommentaren?')">
-											@Html.AntiForgeryToken()
-											<input type="hidden" name="deleteCommentId" value="@c.Id" />
-											<button type="submit" class="btn btn-sm btn-outline-danger" title="Ta bort">🗑</button>
-										</form>
+										if (c.Id != null)
+										{
+											<form method="post" class="ms-2" onsubmit="return confirm('Ta bort kommentaren?')">
+												@Html.AntiForgeryToken()
+												<input type="hidden" name="deleteCommentId" value="@c.Id" />
+												<button type="submit" class="btn btn-sm btn-outline-danger" title="Ta bort">🗑</button>
+											</form>
+										}
 									}
-								}
+								</div>
 							</div>
-						</div>
-					}
-
-					<hr />
-
-					<!-- Formulär: inloggade slipper namnfält -->
-					<form method="post" id="comment-form">
-						@Html.AntiForgeryToken()
-						<input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
-
-						@if (User.Identity?.IsAuthenticated == true)
-						{
-							<div class="mb-2">
-								<span class="text-muted">Skriver som</span>
-								<strong class="ms-1">
-									<span class="@Model.RoleCss">@User.Identity.Name</span>
-								</strong>
-								<span class="badge bg-success ms-2 align-middle">inloggad</span>
-							</div>
-							<input type="hidden" asp-for="Comment.Name" value="@User.Identity.Name" />
-							<input type="hidden" asp-for="Comment.Email"
-								   value="@(User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? User.FindFirst("email")?.Value)" />
 						}
-						else
-						{
+
+						<hr />
+
+						<!-- Formulär: inloggade slipper namnfält -->
+						<form method="post" id="comment-form">
+							@Html.AntiForgeryToken()
+							<input type="hidden" asp-for="Comment.BloggId" value="@Model.Blogg.Id" />
+
+							@if (User.Identity?.IsAuthenticated == true)
+							{
+								<div class="mb-2">
+									<span class="text-muted">Skriver som</span>
+									<strong class="ms-1">
+										<span class="@Model.RoleCss">@User.Identity.Name</span>
+									</strong>
+									<span class="badge bg-success ms-2 align-middle">inloggad</span>
+								</div>
+								<input type="hidden" asp-for="Comment.Name" value="@User.Identity.Name" />
+								<input type="hidden" asp-for="Comment.Email"
+									   value="@(User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? User.FindFirst("email")?.Value)" />
+							}
+							else
+							{
+								<div class="mb-3">
+									<label asp-for="Comment.Name" class="form-label">Namn</label>
+									<input asp-for="Comment.Name" class="form-control" />
+									<span asp-validation-for="Comment.Name" class="text-danger"></span>
+								</div>
+							}
+
 							<div class="mb-3">
-								<label asp-for="Comment.Name" class="form-label">Namn</label> <!-- ✅ form-label -->
-								<input asp-for="Comment.Name" class="form-control" />         <!-- ✅ form-control -->
-								<span asp-validation-for="Comment.Name" class="text-danger"></span>
+								<label asp-for="Comment.Content" class="form-label">Kommentar</label>
+								<textarea asp-for="Comment.Content" class="form-control" rows="4"></textarea>
+								<span asp-validation-for="Comment.Content" class="text-danger"></span>
 							</div>
-						}
 
-						<div class="mb-3">
-							<label asp-for="Comment.Content" class="form-label">Kommentar</label> <!-- ✅ form-label -->
-							<textarea asp-for="Comment.Content" class="form-control" rows="4"></textarea> <!-- ✅ form-control -->
-							<span asp-validation-for="Comment.Content" class="text-danger"></span>
-						</div>
-
-						<button type="submit" class="btn" id="comment-submit">Skicka kommentar</button>
-					</form>
+							<button type="submit" class="btn" id="comment-submit">Skicka kommentar</button>
+						</form>
+					</div> <!-- /collapse -->
 				</section>
 
 			</div>
