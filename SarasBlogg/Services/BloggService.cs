@@ -89,10 +89,11 @@ namespace SarasBlogg.Services
             }
 
             vm.RoleCssByName = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            vm.VerifiedCommentIds ??= new HashSet<int>(); // säkra init
 
-            // Kommentarer + top-roll (för färger)
             if (vm.Blogg is not null && vm.Blogg.Id != 0)
             {
+                // Endast kommentarer för visad blogg
                 var dtos = await _commentApi.GetByBloggWithRolesAsync(vm.Blogg.Id);
 
                 vm.Comments = dtos.Select(d => new Comment
@@ -109,10 +110,14 @@ namespace SarasBlogg.Services
                     var css = MapTopRoleToCss(d.TopRole);
                     if (!string.IsNullOrEmpty(css))
                         vm.RoleCssByName[d.Name] = css;
+
+                    if (!string.IsNullOrWhiteSpace(d.TopRole))
+                        vm.VerifiedCommentIds.Add(d.Id);
                 }
             }
             else
             {
+                // Lista-läget: alla kommentarer för att kunna visa räknare / rollfärg i korten
                 var dtos = await _commentApi.GetAllCommentsWithRolesAsync();
 
                 vm.Comments = dtos.Select(d => new Comment
@@ -130,33 +135,6 @@ namespace SarasBlogg.Services
                     if (!string.IsNullOrEmpty(css))
                         vm.RoleCssByName[d.Name] = css;
 
-                    // per-kommentar verifierad
-                    if (!string.IsNullOrWhiteSpace(d.TopRole))
-                        vm.VerifiedCommentIds.Add(d.Id);
-                }
-
-            }
-
-            if (vm.Blogg is not null && vm.Blogg.Id != 0)
-            {
-                var dtos = await _commentApi.GetByBloggWithRolesAsync(vm.Blogg.Id);
-
-                vm.Comments = dtos.Select(d => new Comment
-                {
-                    Id = d.Id,
-                    BloggId = d.BloggId,
-                    Name = d.Name,
-                    Content = d.Content ?? "",
-                    CreatedAt = d.CreatedAt
-                }).ToList();
-
-                foreach (var d in dtos.Where(d => !string.IsNullOrWhiteSpace(d.Name)))
-                {
-                    var css = MapTopRoleToCss(d.TopRole);
-                    if (!string.IsNullOrEmpty(css))
-                        vm.RoleCssByName[d.Name] = css;
-
-                    // NYTT: markera denna kommentar som verifierad om TopRole fanns
                     if (!string.IsNullOrWhiteSpace(d.TopRole))
                         vm.VerifiedCommentIds.Add(d.Id);
                 }
@@ -231,14 +209,26 @@ namespace SarasBlogg.Services
 
         public async Task<string> SaveCommentAsync(Comment comment)
         {
+            if (comment is null)
+                return "Ogiltig kommentar.";
+
+            // Normalisera fält så vi slipper NRE
+            comment.Content ??= string.Empty;
+            comment.Name ??= string.Empty;
+
             var forbidden = await _forbiddenWordApi.GetForbiddenPatternsAsync();
+
             foreach (var p in forbidden)
             {
-                if (comment.Content.ContainsForbiddenWord(p)) return "Kommentaren innehåller otillåtet språk.";
-                if (comment.Name.ContainsForbiddenWord(p)) return "Namnet innehåller otillåtet språk.";
+                if (comment.Content.ContainsForbiddenWord(p))
+                    return "Kommentaren innehåller otillåtet språk.";
+                if (comment.Name.ContainsForbiddenWord(p))
+                    return "Namnet innehåller otillåtet språk.";
             }
+
             return await _commentApi.SaveCommentAsync(comment);
         }
+
 
         public Task DeleteCommentAsync(int id) => _commentApi.DeleteCommentAsync(id);
         public Task<Comment?> GetCommentAsync(int id) => _commentApi.GetCommentAsync(id);
