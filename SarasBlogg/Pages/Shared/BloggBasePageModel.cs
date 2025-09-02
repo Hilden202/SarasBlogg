@@ -4,6 +4,7 @@ using SarasBlogg.Services;
 using SarasBlogg.ViewModels;
 using SarasBlogg.DAL;
 using System.Security.Claims;
+using SarasBlogg.DTOs;
 
 namespace SarasBlogg.Pages.Shared
 {
@@ -191,6 +192,16 @@ namespace SarasBlogg.Pages.Shared
             // 3) UTC-tid för nya kommentarer
             if (ViewModel?.Comment != null && ViewModel.Comment.Id == null)
                 ViewModel.Comment.CreatedAt = DateTime.UtcNow;
+
+            // 3b) Anonymt namn: normalisera bara (valfritt)
+            if (!IsAuth && ViewModel?.Comment != null && ViewModel.Comment.Id == null)
+            {
+                var proposed = (ViewModel.Comment.Name ?? "").Trim();
+                if (string.IsNullOrWhiteSpace(proposed)) proposed = "Gäst";
+                ViewModel.Comment.Name = proposed;
+                ModelState.Remove("ViewModel.Comment.Name");
+                ModelState.Remove("Comment.Name");
+            }
 
             // 4) Validera + spara
             if (ModelState.IsValid && ViewModel?.Comment?.Id == null)

@@ -129,6 +129,36 @@ namespace SarasBlogg.Services
                     var css = MapTopRoleToCss(d.TopRole);
                     if (!string.IsNullOrEmpty(css))
                         vm.RoleCssByName[d.Name] = css;
+
+                    // per-kommentar verifierad
+                    if (!string.IsNullOrWhiteSpace(d.TopRole))
+                        vm.VerifiedCommentIds.Add(d.Id);
+                }
+
+            }
+
+            if (vm.Blogg is not null && vm.Blogg.Id != 0)
+            {
+                var dtos = await _commentApi.GetByBloggWithRolesAsync(vm.Blogg.Id);
+
+                vm.Comments = dtos.Select(d => new Comment
+                {
+                    Id = d.Id,
+                    BloggId = d.BloggId,
+                    Name = d.Name,
+                    Content = d.Content ?? "",
+                    CreatedAt = d.CreatedAt
+                }).ToList();
+
+                foreach (var d in dtos.Where(d => !string.IsNullOrWhiteSpace(d.Name)))
+                {
+                    var css = MapTopRoleToCss(d.TopRole);
+                    if (!string.IsNullOrEmpty(css))
+                        vm.RoleCssByName[d.Name] = css;
+
+                    // NYTT: markera denna kommentar som verifierad om TopRole fanns
+                    if (!string.IsNullOrWhiteSpace(d.TopRole))
+                        vm.VerifiedCommentIds.Add(d.Id);
                 }
             }
 

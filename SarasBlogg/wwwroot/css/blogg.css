@@ -385,3 +385,7 @@ a.blogg-link:visited {
     .comments-toggle.collapsed::after {
         transform: rotate(-90deg);
     }
+/* gör gäst-namn lite nedtonade */
+.comment .badge.bg-secondary {
+    opacity: 0.9;
+}

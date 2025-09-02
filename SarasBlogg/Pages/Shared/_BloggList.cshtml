@@ -248,24 +248,36 @@
 									<div>
 										<div class="comment-header mb-1">
 											<span class="fw-bold">
-												@if (!string.IsNullOrWhiteSpace(c.Name)
-																				&& Model.RoleCssByName != null
-																				&& Model.RoleCssByName.TryGetValue(c.Name, out var roleCss)
-																				&& !string.IsNullOrEmpty(roleCss))
-												{
-													<span class="@roleCss">@c.Name</span>
+												@{
+													var nameTrim = (c.Name ?? "").Trim();
+													var cid = c.Id ?? 0;
+
+													// Verifiering sker per-kommentar via ViewModel.VerifiedCommentIds
+													var isVerified = Model.VerifiedCommentIds != null && Model.VerifiedCommentIds.Contains(cid);
+
+													// Färgsätt endast om kommentaren är verifierad OCH vi har en rollklass för namnet
+													string? _roleCss = null;
+													var hasRoleMapping = isVerified
+													&& Model.RoleCssByName != null
+													&& Model.RoleCssByName.TryGetValue(nameTrim, out _roleCss)
+													&& !string.IsNullOrEmpty(_roleCss);
 												}
-												else if (User.Identity?.IsAuthenticated == true
-												&& string.Equals(c.Name, User.Identity.Name, StringComparison.OrdinalIgnoreCase)
-												&& !string.IsNullOrEmpty(Model.RoleCss))
+
+												@if (hasRoleMapping)
 												{
-													<span class="@Model.RoleCss">@c.Name</span>
+													<span class="@_roleCss">@nameTrim</span>
 												}
 												else
 												{
-													@c.Name
+													@nameTrim
+													@* Gäst-badge för icke-verifierade *@
+													if (!isVerified)
+													{
+														<span class="badge bg-secondary ms-1">gäst</span>
+													}
 												}
 											</span>
+
 											<small class="text-muted ms-2">
 												@c.CreatedAt.ToSwedishTime().ToString("yyyy-MM-dd HH:mm")
 											</small>
