@@ -108,33 +108,6 @@ table, th, td, ul, ol, li,
     z-index: 1000;
 }
 
-/* --- Krympning först på tablets och neråt --- */
-@media (max-width: 1200px) {
-    .topleft-corner-flower,
-    .bottomright-corner-flower {
-        /*width: clamp(260px, 26vw, 600px);*/
-        opacity: 0.95;
-    }
-}
-
-/* Mindre tablets / större mobiler */
-@media (max-width: 800px) {
-    .topleft-corner-flower,
-    .bottomright-corner-flower {
-        /*width: clamp(240px, 35vw, 500px);*/
-        opacity: 0.85;
-    }
-}
-
-/* 👇 På mobiler behåller vi samma som vid 800px */
-@media (max-width: 500px) {
-    .topleft-corner-flower,
-    .bottomright-corner-flower {
-        /*width: 240px;*/ /* fast storlek, slutar krympa här */
-        opacity: 0.8;
-    }
-}
-
 button {
     background-color: var(--btn-bg, #f8f9fa);
     color: var(--btn-text, #212529);
@@ -764,11 +737,18 @@ footer.border-top {
     justify-content: initial !important;
 }
 .page-wrapper {
-    position: relative;
-    display: block;
-    overflow-x: clip;
-    overflow-y: clip; /* klipper allt under sidans botten */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
+    .page-wrapper > .container {
+        display: flex;
+        flex-direction: column;
+        flex: 1 0 auto;
+    }
+        .page-wrapper > .container > main {
+            flex: 1 0 auto;
+        }
 
 /* === Fix: låt Bootstrap-modaler ligga över backdroppen === */
 
@@ -793,15 +773,6 @@ footer.border-top {
     overflow: hidden; /* klipp inom sidan */
     pointer-events: none;
     z-index: 0; /* under innehåll/footern */
-}
-
-/* själva blomman: följer sidan och kan döljas i botten */
-.bottomright-corner-flower {
-    position: absolute; /* INTE fixed */
-    right: 0px;
-    bottom: 0px;
-    width: clamp(90px, 12vw, 180px);
-    height: auto;
 }
 
 /* footern ligger i normalt flöde över dekor */
@@ -1117,3 +1088,73 @@ footer.footer {
         padding: 0.45rem 0.95rem;
     }
 }
+/* Gör footern sticky i botten när sidan är kort */
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+    .page-wrapper > footer {
+        margin-top: auto;
+        position: relative; /* referens för blomman */
+    }
+
+/* Innehållet i footern ska ligga ovanpå blomman */
+footer .container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Blomman: absolut i hörnet, bakom texten */
+.footer-flower {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: clamp(90px, 12vw, 180px);
+    height: auto;
+    margin: 0;
+    display: block;
+    pointer-events: none;
+    z-index: 0; /* bakom text/ikoner */
+}
+/* Gör footern till referens för absolut positionering */
+footer {
+    position: relative;
+    padding-inline-end: 0; /* säkerställ ingen högermarginal i footern */
+    overflow: visible; /* låt blomman synas helt */
+}
+
+    /* Innehållet ska alltid ligga över blomman */
+    footer .footer-inner {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* SVG-ikoner över blomman */
+    footer .social-icons {
+        position: relative;
+        z-index: 3;
+    }
+
+/* Blomman låses i nedre högra hörnet av footern, utan gap */
+.footer-flower {
+    position: absolute;
+    inset-block-end: 0; /* bottom: 0 */
+    inset-inline-end: 0; /* right: 0 (RTL-säkert) */
+    width: clamp(90px, 12vw, 180px);
+    height: auto;
+    pointer-events: none;
+    z-index: 1; /* bakom text/ikoner, men framför footer-bakgrunden */
+}
+
+/* Sticky footer på korta sidor (om du inte redan har detta) */
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+    .page-wrapper > footer {
+        margin-top: auto;
+    }
