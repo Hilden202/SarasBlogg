@@ -56,7 +56,7 @@
                 btn.addEventListener("click", function () {
                     // Sätt den server-förväntade cookien
                     // (värdet i data-cookie-string funkar också; den kan innehålla path/expiry)
-                    document.cookie = ".AspNet.Consent=yes; path=/";
+                    document.cookie = btn.getAttribute("data-cookie-string");
 
                     // Göm bannern mjukt
                     banner.style.transition = "opacity .25s ease";
