@@ -661,7 +661,7 @@ footer.border-top {
 
 /* ==== Bakgrund/Decor ==== */
 .decor-layer {
-    position: absolute;
+    position: fixed;
     inset: 0;
     pointer-events: none;
     overflow: visible;
