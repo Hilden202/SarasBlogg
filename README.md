@@ -11,14 +11,13 @@ Syftet är att skapa en responsiv, säker och utbyggbar blogg för både publikt
 
 ## 🛠 Teknisk översikt
 - **Backend:** .NET Razor Pages (C#) + separat API-projekt  
-- **Databas:** Entity Framework Core (PostgreSQL/SQL Server)  
+- **Databas:** Entity Framework Core (PostgreSQL, tidigare SQL Server)  
 - **Frontend:** Bootstrap + anpassad CSS  
-- **Hosting:** Webbapp och API på Render (planer på GitHub Pages för frontend)  
+- **Hosting:** Webbapp och API på Render (frontend planeras flyttas till GitHub Pages)  
 - **Kommentarhantering:** AI-analys via Google Perspective API + regex  
 - **Kodhantering:** GitHub med aktiv användning av branches  
 
-> **Status:** Nästan all logik och databasanslutning är flyttad till API-projektet.  
-> Identity och rollhantering körs redan via API:t – det återstår bara viss kodrensning i frontenden från den första scaffoldningen.
+> **Status:** All auth och rollhantering körs via API:t. Blogg och Arkiv delar logik genom `BloggBasePageModel`. Frontenden har städats från äldre scaffoldad kod.
 
 ---
 
@@ -26,7 +25,7 @@ Syftet är att skapa en responsiv, säker och utbyggbar blogg för både publikt
 
 ### För besökare
 - Läsa blogginlägg
-- Lämna kommentarer (AI- och regex-filtrering)
+- Lämna kommentarer (AI + regex-filtrering)
 
 ### Adminfunktioner
 - Skapa, redigera, arkivera/dölja blogginlägg  
@@ -35,19 +34,26 @@ Syftet är att skapa en responsiv, säker och utbyggbar blogg för både publikt
 - Inloggning med bekräftad e-post
 
 ### Bildhantering
-- Bilder sparas i databasen och/eller GitHub-lagring  
-- Tidigare bilder raderas automatiskt vid ny uppladdning
+- Bilder sparas i både GitHub och databasen via API  
+- Order styr visningsordning, omslagsbild kan bytas  
+- Radering av bilder fungerar även för första bilden  
 
 ---
 
 ## 🚀 API-utveckling
 - **Separat projekt:** SarasBloggAPI  
-- Innehåller AI-analys för kommentarer och bildhantering  
-- Identity och rollhantering är flyttat till API:t  
-- Mål: Helt API-drivna klienter (t.ex. appar och fristående frontend)
+- Driver all logik för auth, kommentarer, bilder, AboutMe och ContactMe  
+- Identity och rollhantering helt flyttat till API:t  
+- Mål: helt API-drivna klienter (t.ex. appar och fristående frontend)  
 
 ---
 
-## 📂 Strukturen i projektet
+## 📂 Projektstruktur
 SarasBlogg/         # Huvudprojektet med Razor Pages
 SarasBloggAPI/      # API-projektet
+
+---
+
+## 📑 Dokumentation
+Se **[docs/documentation.md](docs/documentation.md)** för teknisk översikt, arkitektur och drift.
+
