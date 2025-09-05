@@ -55,5 +55,5 @@ SarasBloggAPI/      # API-projektet
 ---
 
 ## 📑 Dokumentation
-Se **[docs/documentation.md](docs/documentation.md)** för teknisk översikt, arkitektur och drift.
+Se **[docs/documentation.md](Sarasblogg/docs/documentation.md)** för teknisk översikt, arkitektur och drift.
 
