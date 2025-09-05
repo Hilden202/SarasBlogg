@@ -272,6 +272,5 @@ namespace SarasBlogg.DAL
             return await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct)
                    ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
         }
-
     }
 }
