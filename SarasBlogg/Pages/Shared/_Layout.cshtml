@@ -27,7 +27,6 @@
           document.documentElement.classList.add('sb-seen');
         }
     </script>
-
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/blogg.css" asp-append-version="true" />
@@ -38,26 +37,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 </head>
 <body>
-    @* Loading overlay temporärt inaktiverad för felsökning – spara för senare *@
-    @*  <div id="loading-overlay" aria-live="polite" aria-busy="true">
-          <div class="loader-content">
-            <img src="/img/logo/sarasblogg_loading_text.png"
-                 alt="SarasBlogg logga"
-                 class="loading-logo no-fade"
-                 data-critical="1"/>
-            <p>Laddar SarasBlogg...</p>
-            <div class="dot-loader" aria-hidden="true">
-              <span>.</span><span>.</span><span>.</span>
-            </div>
-            <p id="loader-status-text" class="loader-status">Startar…</p>
-          </div>
-        </div> *@
-
     <div class="page-wrapper">
-        @* <img src="/img/logo/top-line.png" data-critical="1" alt="Top line" class="top-line" /> *@
-        @* <img src="/img/logo/top-corner-right.png" data-critical="1" alt="Högerhörnbild" class="rightcorner-image" /> *@
-        @* <img src="/img/logo/bottom-corner-left.png" data-critical="1" alt="Vänsterhörnbild" class="leftcorner-image" /> *@
-
         <img src="/img/logo/hJärtatvänsterhörnuppebeskuret.png"
              data-critical="1"
              alt="Flower top left corner"
@@ -68,13 +48,9 @@
             <img src="/img/logo/moln.png" alt="" class="cloud cloud-2" />
             <img src="/img/logo/moln.png" alt="" class="cloud cloud-3" />
         </div>
-
         <header>
             <nav class="navbar navbar-expand-sm navbar-light">
                 <div class="container">
-                    @* <a class="navbar-brand" asp-area="" asp-page="/Index">
-                         <img src="~/img/logo/medhjärtatsomkompass.png" alt="Saras Blogg" class="navbar-logo" />
-                       </a> *@
 
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,21 +62,15 @@
                         <div class="d-flex align-items-center ms-3">
                             <partial name="_LoginPartial" />
                         </div>
-                        @* <button class="btn theme-dependent border-0 shadow-none" onclick="toggleDarkMode()" id="darkModeToggle">🌓</button> *@
                     </div>
                 </div>
             </nav>
 
             <div class="text-center">
                 <h1 class="header-title">
-                    @* <a asp-area="" asp-page="/Index">
-                           <img class="sg-logo img-fluid" src="~/img/logo/sglogga.png" alt="Sara Gustafsson logotype" />
-                       </a> *@
                 </h1>
                 <br />
-                @* <h2 class="header-text">När ingen ser mig då hittar jag mig</h2> *@
             </div>
-
             <nav class="navbar-expand-sm border-bottom">
                 <div class="container d-flex justify-content-center">
                     <ul class="mynav">
@@ -144,8 +114,6 @@
                 @RenderBody()
             </main>
         </div>
-
-
 
         <footer class="border-top footer text-faded">
             <div class="footer-inner container d-flex flex-column align-items-center text-center">

@@ -23,79 +23,10 @@ table, th, td, ul, ol, li,
     overflow-wrap: anywhere;
 }
 
-
-/*.page-wrapper {
-    position: relative;*/ /* gör att absoluta element fäster här */
-/*}*/
-/* Bas för alla moln */
-.cloud {
-    position: absolute;
-    width: 450px; /* justera som du vill */
-    height: auto;
-    opacity: 0.85; /* lite transparent */
-    pointer-events: none; /* dekor – ej klickbar */
-    z-index: 0; /* nu följer dekor-lagret */
-    user-select: none;
-}
-
-/* Moln 1: lite till höger högre upp */
-.cloud-1 {
-    top: 50vh; /* höjd från toppen */
-    left: 80vw; /* lite till höger */
-    transform: translate(-50%, -50%);
-}
-
-/* Moln 2: någonstans till vänster */
-.cloud-2 {
-    top: 75vh;
-    left: 22vw;
-    transform: translate(-50%, -50%);
-    width: 450px; /* kan vara lite större */
-}
-
-/* Moln 3: lite till höger, nedre halvan nära mitten */
-.cloud-3 {
-    top: 110vh;
-    left: 60vw;
-    transform: translate(-50%, -50%);
-    width: 450px;
-}
-
-/* Dölj moln på små skärmar om du vill */
-@media (max-width: 768px) {
-    .cloud {
-        display: none;
-    }
-}
-
 .navbar-logo {
     max-height: 125px;
     height: auto;
     width: auto;
-}
-
-.top-line,
-.rightcorner-image,
-.topleft-corner-flower {
-    position: fixed;
-    height: auto; /* behåll proportioner */
-    z-index: 9999;
-    pointer-events: none;
-}
-
-.top-line {
-    top: -1.5px;
-    left: 0;
-}
-
-.rightcorner-image {
-    top: 0;
-    right: 0;
-}
-
-.leftcorner-image {
-    bottom: 2rem;
-    left: 0;
 }
 
 .topleft-corner-flower {
@@ -157,18 +88,6 @@ html {
         background-color: #fff4e4 !important;
     }
 
-/* Se till att inget ovanpå mörkar ner */
-.page-wrapper,
-header,
-main,
-footer {
-    position: relative; /* skapar en egen stacking context */
-    z-index: 1; /* lägger allt ovanför .decor-layer (som har 0) */
-    background: transparent !important;
-    opacity: 1 !important;
-    filter: none !important;
-}
-
 
 body {
     background-color: #fff4e4 !important;
@@ -212,10 +131,6 @@ div {
 
 .linebreak {
     white-space: pre-wrap;
-}
-
-.linebreakormal {
-    white-space: nowrap;
 }
 
 .header-container {
@@ -468,9 +383,6 @@ body.modal-open {
     max-height: 90vh;
     overflow-y: auto;
     overscroll-behavior: contain;
-}
-
-#cookieConsentdiv {
     background-color: #fff !important;
     color: #000 !important;
 }
@@ -736,19 +648,6 @@ footer.border-top {
     flex-direction: initial !important;
     justify-content: initial !important;
 }
-.page-wrapper {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-    .page-wrapper > .container {
-        display: flex;
-        flex-direction: column;
-        flex: 1 0 auto;
-    }
-        .page-wrapper > .container > main {
-            flex: 1 0 auto;
-        }
 
 /* === Fix: låt Bootstrap-modaler ligga över backdroppen === */
 
@@ -760,31 +659,90 @@ footer.border-top {
     z-index: auto !important; /* inga egna stacking contexts */
 }
 
-/* 2) Se till att dekor alltid ligger bakom allt */
-.decor-layer {
-    z-index: -1 !important;
-}
-
-
-/* dekor-lagret täcker sidan men påverkar inte layouten */
+/* ==== Bakgrund/Decor ==== */
 .decor-layer {
     position: absolute;
     inset: 0;
-    overflow: hidden; /* klipp inom sidan */
     pointer-events: none;
-    z-index: 0; /* under innehåll/footern */
+    overflow: visible;
+    z-index: 0; /* bakom innehåll */
 }
 
-/* footern ligger i normalt flöde över dekor */
-footer,
-footer.footer {
-    position: static !important;
-    z-index: 2;
+/* Bas för alla moln */
+.cloud {
+    z-index: 0;
+    position: absolute;
+    width: 450px;
+    height: auto;
+    opacity: .85;
+    user-select: none;
 }
-    footer .social-icons {
-        position: relative; /* skapar egen stacking context */
-        z-index: 5; /* säkert över blomman (0–2) */
+
+.cloud-1 {
+    top: 50vh;
+    left: 80vw;
+    transform: translate(-50%, -50%);
+}
+
+.cloud-2 {
+    top: 75vh;
+    left: 22vw;
+    transform: translate(-50%, -50%);
+}
+
+.cloud-3 {
+    top: 110vh;
+    left: 60vw;
+    transform: translate(-50%, -50%);
+}
+
+@media (max-width: 768px) {
+    .cloud {
+        display: none;
     }
+}
+
+/* ==== Layout-stomme + sticky footer ==== */
+.page-wrapper {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+    .page-wrapper > header,
+    .page-wrapper > .container,
+    .page-wrapper > footer {
+        position: relative; /* eget stacking context över .decor-layer */
+        z-index: 1;
+    }
+
+    .page-wrapper > .container {
+        flex: 1 0 auto; /* <— tryck ner footern på korta sidor */
+    }
+
+footer {
+    margin-top: auto; /* <— sticky */
+    position: relative;
+    overflow: visible;
+}
+
+/* ==== Footer-blomman ==== */
+.footer-flower {
+    position: absolute;
+    inset-block-end: 0; /* bottom: 0 */
+    inset-inline-end: 0; /* right: 0, RTL-säkert */
+    width: clamp(90px, 12vw, 180px);
+    height: auto;
+    pointer-events: none;
+    z-index: 1; /* bakom footer-innehåll */
+}
+
+footer .footer-inner,
+footer .social-icons {
+    position: relative;
+    z-index: 2; /* text/ikoner över blomman */
+}
 
 .cards-container .card {
     display: flex;
@@ -1088,41 +1046,11 @@ footer.footer {
         padding: 0.45rem 0.95rem;
     }
 }
-/* Gör footern sticky i botten när sidan är kort */
-.page-wrapper {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-    .page-wrapper > footer {
-        margin-top: auto;
-        position: relative; /* referens för blomman */
-    }
 
 /* Innehållet i footern ska ligga ovanpå blomman */
 footer .container {
     position: relative;
     z-index: 1;
-}
-
-/* Blomman: absolut i hörnet, bakom texten */
-.footer-flower {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: clamp(90px, 12vw, 180px);
-    height: auto;
-    margin: 0;
-    display: block;
-    pointer-events: none;
-    z-index: 0; /* bakom text/ikoner */
-}
-/* Gör footern till referens för absolut positionering */
-footer {
-    position: relative;
-    padding-inline-end: 0; /* säkerställ ingen högermarginal i footern */
-    overflow: visible; /* låt blomman synas helt */
 }
 
     /* Innehållet ska alltid ligga över blomman */
@@ -1137,24 +1065,3 @@ footer {
         z-index: 3;
     }
 
-/* Blomman låses i nedre högra hörnet av footern, utan gap */
-.footer-flower {
-    position: absolute;
-    inset-block-end: 0; /* bottom: 0 */
-    inset-inline-end: 0; /* right: 0 (RTL-säkert) */
-    width: clamp(90px, 12vw, 180px);
-    height: auto;
-    pointer-events: none;
-    z-index: 1; /* bakom text/ikoner, men framför footer-bakgrunden */
-}
-
-/* Sticky footer på korta sidor (om du inte redan har detta) */
-.page-wrapper {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-    .page-wrapper > footer {
-        margin-top: auto;
-    }
