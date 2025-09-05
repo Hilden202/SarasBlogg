@@ -1065,3 +1065,21 @@ footer .container {
         z-index: 3;
     }
 
+/* === Account-collapse: höger på xs === */
+@media (max-width: 575.98px) {
+    /* Om _LoginPartial_ renderar <ul class="navbar-nav"> ... */
+    #accountNav .navbar-nav {
+        flex-direction: column !important;
+        align-items: flex-end !important; /* flytta punkterna till höger */
+    }
+
+    #accountNav .nav-link {
+        text-align: right; /* texten högerställd */
+    }
+    /* Ev. profil-dropdown ska också öppna åt höger */
+    #accountNav .dropdown-menu {
+        left: auto;
+        right: 0;
+        text-align: right;
+    }
+}
