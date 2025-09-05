@@ -113,14 +113,31 @@ namespace SarasBlogg.DAL
             var response = await _http.DeleteAsync($"api/Role/delete/{roleName}");
             return response.IsSuccessStatusCode;
         }
-        public async Task<BasicResultDto?> RegisterAsync(string userName, string email, string password, string? name = null, int? birthYear = null, CancellationToken ct = default)
+        public async Task<BasicResultDto?> RegisterAsync(
+            string userName, string email, string password, string? name = null, int? birthYear = null, CancellationToken ct = default)
         {
             var payload = new RegisterRequest { UserName = userName, Email = email, Password = password, Name = name, BirthYear = birthYear };
             using var res = await _http.PostAsJsonAsync("api/auth/register", payload, _json, ct);
-            // Returnera även felmeddelande från API:t om det finns i body
-            var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
-            return body ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
+
+            // Läs råtext en gång
+            var raw = await res.Content.ReadAsStringAsync(ct);
+
+            // Försök först JSON
+            try
+            {
+                var dto = System.Text.Json.JsonSerializer.Deserialize<BasicResultDto>(raw, _json);
+                if (dto != null) return dto;
+            }
+            catch { /* fall back to text */ }
+
+            // Fallback: bygg ett BasicResultDto från texten/statuskoden
+            return new BasicResultDto
+            {
+                Succeeded = res.IsSuccessStatusCode,
+                Message = string.IsNullOrWhiteSpace(raw) ? $"HTTP {(int)res.StatusCode}" : raw
+            };
         }
+
         public async Task<BasicResultDto?> ConfirmEmailAsync(string userId, string code, CancellationToken ct = default)
         {
             var payload = new ConfirmEmailRequestDto { UserId = userId, Code = code };
