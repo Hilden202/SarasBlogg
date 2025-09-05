@@ -215,22 +215,6 @@ div {
         align-items: stretch;
     }
 
-    /*.cards-container .card {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-        border-radius: 20px;
-        padding: 1rem;
-        background: transparent;
-        min-height: 340px;
-        height: 100%;
-        text-align: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        backdrop-filter: blur(4px);*/ /* gör bakgrunden mjukt dimmad */
-        /*-webkit-backdrop-filter: blur(4px);*/ /* för Safari */
-    /*}*/
-
     .cards-container .card-title {
         margin: 0 0 0.5rem 0;
         font-size: 1.25rem;
@@ -266,15 +250,6 @@ div {
 .card-content {
     min-height: 3em;
     white-space: pre-wrap;
-}
-
-.content-container {
-    display: flex;
-    gap: 2rem;
-}
-
-.blog-posts {
-    flex: 1 1 auto;
 }
 
 .right-side {
@@ -643,22 +618,6 @@ footer.border-top {
     box-shadow: none !important;
 }
 
-/* 6) Ta bort “ryck”: blockera ev. tidigare flex-styrning */
-.content-container {
-    flex-direction: initial !important;
-    justify-content: initial !important;
-}
-
-/* === Fix: låt Bootstrap-modaler ligga över backdroppen === */
-
-/* 1) När modal är öppen – ta bort z-index-bubblan från layoutnoderna */
-.modal-open .page-wrapper,
-.modal-open header,
-.modal-open main,
-.modal-open footer {
-    z-index: auto !important; /* inga egna stacking contexts */
-}
-
 /* ==== Bakgrund/Decor ==== */
 .decor-layer {
     position: fixed;
@@ -790,24 +749,6 @@ footer .social-icons {
             text-shadow: none !important;
         }
 
-/* Titel på korten → Cormorant SC, versaler */
-.cards-container .card-title {
-    font-family: 'Cormorant SC', serif;
-    text-transform: uppercase;
-    font-weight: 600; /* lite tyngd, du kan testa 500/700 */
-    font-size: 1.4rem; /* större titel */
-    margin: 0.5rem 0;
-    color: #C48A7D; /* matcha SarasBlogg-rosa */
-}
-
-/* Innehållet → Cormorant Garamond */
-.cards-container .card-content {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 400;
-    font-size: 1rem;
-    line-height: 1.4;
-    color: #212529; /* mörk text */
-}
 /* 1) Sätt samma bruna färg som menyn */
 .cards-container .card-title,
 .cards-container .card-content {
@@ -1082,4 +1023,22 @@ footer .container {
         right: 0;
         text-align: right;
     }
+}
+
+/* När en Bootstrap-modal är öppen, nolla z-index på layoutnoder som skapar stacking-context */
+.modal-open .page-wrapper,
+.modal-open header,
+.modal-open main,
+.modal-open footer,
+.modal-open .page-wrapper > .container { /* ← DENNA SAKNADES */
+    z-index: auto !important;
+}
+
+/* Se till att modalen alltid ligger över backdroppen */
+.modal {
+    z-index: 1065 !important;
+}
+
+.modal-backdrop {
+    z-index: 1060 !important;
 }
