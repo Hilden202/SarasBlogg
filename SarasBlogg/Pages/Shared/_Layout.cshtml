@@ -111,10 +111,10 @@
 		<br />
 
 		<div class="container">
-			<partial name="_CookieConsentPartial" />
 			<main role="main" class="pb-3">
 				@RenderBody()
 			</main>
+
 		</div>
 
 		<footer class="border-top footer text-faded">
@@ -160,5 +160,6 @@
 			<script>window.sbApiFirstLoadDone?.();</script>
 		}
 	</div>
+	<partial name="_CookieConsentPartial" />
 </body>
 </html>

@@ -17,7 +17,7 @@ table, th, td, ul, ol, li,
     left: 50%;
     transform: translateX(-50%);
     bottom: 1rem; /* kan höjas/sänkas */
-    z-index: 2000;
+    z-index: 9999 !important;
     width: clamp(280px, 92vw, 560px); /* min 280, max 560, annars 92% av viewport */
     box-sizing: border-box;
     overflow-wrap: anywhere;
@@ -1041,4 +1041,14 @@ footer .container {
 
 .modal-backdrop {
     z-index: 1060 !important;
+}
+
+/* === Force cookie banner on top of everything === */
+body > #cookieConsentdiv {
+    position: fixed !important; /* relativt viewport, inte en förälder */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: 1rem !important;
+    z-index: 2147483647 !important; /* extremt högt, slår allt */
+    pointer-events: auto !important;
 }
