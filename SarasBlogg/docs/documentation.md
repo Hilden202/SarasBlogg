@@ -34,10 +34,10 @@
 ---
 
 ## API-klienter
-- Alla `*APIManager` (Blogg, BloggImage, Comment, ForbiddenWord, AboutMe, ContactMe) är typed HttpClient via `AddHttpClient` i `Program.cs`.
+- Alla `*APIManager` (Blogg, BloggImage, Comment, ForbiddenWord, AboutMe, ContactMe, Like) är typed HttpClient via `AddHttpClient` i `Program.cs`.
   - Gemensam konfiguration: BaseAddress, Timeout
   - Robusthet: Polly-retry för kallstart/temporära fel
-  - Konsekvent JSON-hantering via gemensamma `JsonSerializerOptions`
+  - JSON-hantering med `System.Text.Json` (standardinställningar)
 - `UserAPIManager` är också typed HttpClient
   - Endast GET/HEAD har retry (POST har ingen retry för att undvika dubletter)
 
@@ -107,6 +107,14 @@
 - `GET /api/users/me/personal-data` – hämtar personlig data, roller och claims
 - `DELETE /api/users/me` – raderar konto
 
+### API-säkerhet (RBAC – kort)
+- JWT med roll-claims (`ClaimTypes.Role`), roller skrivs i **gemener** i token.
+- Policies: `RequireUser`, `CanModerateComments`, `CanManageBlogs`, `AdminOrSuperadmin`, `SuperadminOnly`.
+- **Publikt läs**: Blogg & BloggImage (GET), Kommentarer (GET), Likes (GET).
+- **Skriv låst**: Blogg/BloggImage kräver `CanManageBlogs`; ForbiddenWord (**GET/POST/DELETE**) & ContactMe (**GET/DELETE**) kräver `AdminOrSuperadmin`.
+- **Rollhantering**: hela `RoleController` är `SuperadminOnly`. Grundroller (`user`, `superuser`, `admin`, `superadmin`) kan **inte** tas bort.
+- **Kommentarer**: POST är öppen (`AllowAnonymous`); borttag kräver ägarskap eller `CanModerateComments` (massradering per blogg kräver `CanModerateComments`).
+
 **Klientens auth-beteende**
 - Cookie-schema: `SarasAuth`
 - Vid login:
@@ -155,8 +163,6 @@
 **Planerat**
 - Flytt av frontend till GitHub Pages
 - Flerdrag i tarotkortsspelet (förberedelse för betalflöde)
-- Förbättrad hantering av Om mig-sidan (skapa vid saknad)
-- Fixa cookie-popup som återkommer trots accept
 
 ---
 
