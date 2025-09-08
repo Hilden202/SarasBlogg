@@ -279,10 +279,13 @@ namespace SarasBlogg
 
             // COOKIEPOLICY
             builder.Services.Configure<CookiePolicyOptions>(options =>
-            {
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
+             {
+                 // Visa banners & kräv samtycke
+                 options.CheckConsentNeeded = context => true;
+                 // Cookies ska fungera över flikar/refresh men vara säkra
+                 options.MinimumSameSitePolicy = SameSiteMode.Lax;
+                 options.Secure = CookieSecurePolicy.Always;   // Render kör https
+             });
 
             builder.Services.AddMemoryCache();
 

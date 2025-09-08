@@ -24,20 +24,21 @@
         (function () {
             const banner = document.getElementById("cookieConsentdiv");
             const body = document.body;
+            if (!banner) return;
 
-            // HJÄLPARE: kolla om consent-cookien redan finns (utan localStorage)
-            function hasConsent() {
-                return document.cookie.split("; ").some(c => c.indexOf(".AspNet.Consent=") === 0)
-                    || document.cookie.includes(".AspNet.Consent=yes");
-            }
+            // --- helpers ---
+            const has = (name, val) => document.cookie.split("; ").some(c => c.indexOf(name + "=") === 0 && (!val || c.endsWith("=" + val)));
+            const accepted =
+                has(".AspNetCore.Consent", "yes") ||
+                has(".AspNet.Consent", "yes") ||
+                (localStorage.getItem("sb_cookie_ok") === "1");
 
-            // Om cookien redan finns → göm direkt (utan reload)
-            if (hasConsent()) {
-                if (banner) banner.style.display = "none";
+            if (accepted) {
+                banner.style.display = "none";
                 return;
             }
 
-            // Visa/dölj sekretessinnehåll
+            // Läs mer / Visa mindre
             const toggle = document.getElementById("showPrivacyContent");
             if (toggle) {
                 toggle.addEventListener("click", function (e) {
@@ -50,25 +51,33 @@
                 });
             }
 
-            // Klick på Acceptera → sätt samtyckes-cookie och göm bannern (ingen reload)
-            const btn = banner && banner.querySelector("button[data-cookie-string]");
-            if (btn) {
-                btn.addEventListener("click", function () {
-                    // Sätt den server-förväntade cookien
-                    // (värdet i data-cookie-string funkar också; den kan innehålla path/expiry)
-                    document.cookie = btn.getAttribute("data-cookie-string");
+            // Accept
+            const btn = banner.querySelector("button[data-cookie-string]");
+            if (!btn) return;
 
-                    // Göm bannern mjukt
-                    banner.style.transition = "opacity .25s ease";
-                    banner.style.opacity = "0";
-                    setTimeout(() => {
-                        banner.style.display = "none";
-                        body.classList.remove("modal-open");
-                    }, 250);
+            btn.addEventListener("click", function () {
+                // 1) Sätt den cookie-sträng som servern gav oss (rätt namn/attribut för din miljö)
+                const serverCookie = btn.getAttribute("data-cookie-string");
+                if (serverCookie) document.cookie = serverCookie;
 
-                    // OBS: ingen window.location.reload();
-                });
-            }
+                // 2) Sätt båda vanliga namnen explicit (failsafe mellan .AspNetCore.Consent / .AspNet.Consent)
+                const secure = location.protocol === "https:" ? "; Secure" : "";
+                const commonAttrs = "; Path=/; Max-Age=31536000; SameSite=Lax" + secure;
+                document.cookie = ".AspNetCore.Consent=yes" + commonAttrs;
+                document.cookie = ".AspNet.Consent=yes" + commonAttrs;
+
+                // 3) Backup-flagga (överlever flikar/refresh)
+                try { localStorage.setItem("sb_cookie_ok", "1"); } catch {}
+
+                // 4) Göm mjukt (ingen reload)
+                banner.style.transition = "opacity .25s ease";
+                banner.style.opacity = "0";
+                setTimeout(() => {
+                    banner.style.display = "none";
+                    body.classList.remove("modal-open");
+                }, 250);
+            });
         })();
     </script>
+
 }
