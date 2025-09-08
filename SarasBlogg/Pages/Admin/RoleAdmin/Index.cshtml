@@ -2,257 +2,265 @@
 @model SarasBlogg.Pages.Admin.RoleAdmin.IndexModel
 
 <div class="container-site">
-    @if (Model.IsApiAdminOrSuper)
-    {
-        <partial name="/Pages/Admin/_AdminNav.cshtml" />
+	@if (Model.IsApiAdminOrSuper)
+	{
+		<partial name="/Pages/Admin/_AdminNav.cshtml" />
 
-        <h2>Användare och Roller</h2>
+		<h2>Användare och Roller</h2>
 
-        <p>Antal användare: @Model.Users?.Count</p>
-        <p>Antal roller: @Model.Roles?.Count</p>
+		<p>Antal användare: @Model.Users?.Count</p>
+		<p>Antal roller: @Model.Roles?.Count</p>
 
-        <div class="table-responsive-lg">
-            <table class="border table table-striped shadow-sm align-middle admin-table">
-                <thead>
-                    <tr>
-                        <th>Ta bort</th>
-                        <th>Användare</th>
-                        <th class="d-none d-md-table-cell">Byt användarnamn</th>
-                        @foreach (var role in Model.Roles)
-                        {
-                            <th class="d-none d-md-table-cell">@role</th>
-                        }
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var user in Model.Users)
-                    {
-                        var isSysAdmin = Model.IsSystemAdmin(user.Email);
+		<div class="table-responsive-lg">
+			<table class="border table table-striped shadow-sm align-middle admin-table">
+				<thead>
+					<tr>
+						<th>Ta bort</th>
+						<th>Användare</th>
+						<th class="d-none d-md-table-cell">Byt användarnamn</th>
+						@foreach (var role in Model.Roles)
+						{
+							<th class="d-none d-md-table-cell">@role</th>
+						}
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var user in Model.Users)
+					{
+						var isSysAdmin = Model.IsSystemAdmin(user.Email);
 
-                        <tr>
-                            <td>
-                                @if (!isSysAdmin)
-                                {
-                                    @if (Model.IsApiSuperadmin)
-                                    {
-                                        <form method="post" asp-page-handler="DeleteUser"
-                                              onsubmit="return confirm('Ta bort användare @user.Email?')">
-                                            <input type="hidden" name="DeleteUserId" value="@user.Id" />
-                                            <button class="btn btn-sm btn-outline-danger">🗑</button>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <span class="btn btn-sm btn-outline-secondary disabled"
-                                              title="Endast superadmin kan ta bort">🗑</span>
-                                    }
-                                }
-                            </td>
+						<tr>
+							<td>
+								@if (!isSysAdmin)
+								{
+									@if (Model.IsApiSuperadmin)
+									{
+										<form method="post" asp-page-handler="DeleteUser"
+											  onsubmit="return confirm('Ta bort användare @user.Email?')">
+											<input type="hidden" name="DeleteUserId" value="@user.Id" />
+											<button class="btn btn-sm btn-outline-danger">🗑</button>
+										</form>
+									}
+									else
+									{
+										<span class="btn btn-sm btn-outline-secondary disabled"
+											  title="Endast superadmin kan ta bort">🗑</span>
+									}
+								}
+							</td>
 
-                            <!-- Användare -->
-                            <td>
-                                <div>
-                                    <strong>
-                                        @if (isSysAdmin)
-                                        {
-                                            <span class="text-muted">—</span>
-                                        }
-                                        else
-                                        {
-                                            @user.UserName
-                                        }
-                                    </strong>
-                                    (@user.Email)
-                                </div>
-                                <div class="d-md-none mt-2">
-                                    <!-- Mobil: visa byta namn direkt -->
-                                    @if (Model.IsApiSuperadmin && !isSysAdmin)
-                                    {
-                                        <form method="post" asp-page-handler="ChangeUserName" class="d-flex gap-2">
-                                            <input type="hidden" name="TargetUserId" value="@user.Id" />
-                                            <input type="text"
-                                                   name="NewUserName"
-                                                   value="@user.UserName"
-                                                   class="form-control form-control-sm"
-                                                   style="max-width: 180px"
-                                                   placeholder="Nytt användarnamn" />
-                                            <button class="btn btn-sm btn-outline-primary">Byt</button>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <input type="text"
-                                               value="@(isSysAdmin ? "—" : user.UserName)"
-                                               class="form-control form-control-sm"
-                                               style="max-width: 180px"
-                                               disabled
-                                               title="Endast superadmin kan ändra" />
-                                    }
-                                </div>
-                                <div class="d-md-none mt-2">
-                                    <small>Roller:</small>
-                                    <div class="d-flex flex-wrap gap-1 mt-1">
-                                        @foreach (var role in Model.Roles)
-                                        {
-                                            var hasRole = user.Roles.Contains(role);
-                                            if (isSysAdmin)
-                                            {
-                                                <span class="btn btn-sm btn-outline-secondary disabled">@role</span>
-                                            }
-                                            else if (hasRole)
-                                            {
-                                                if (Model.IsApiSuperadmin)
-                                                {
-                                                    <a class="btn btn-sm btn-outline-danger"
-                                                       href="?RemoveUserId=@user.Id&amp;RoleName=@role">@role ✓</a>
-                                                }
-                                                else
-                                                {
-                                                    <span class="btn btn-sm btn-outline-secondary disabled">@role ✓</span>
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (Model.IsApiSuperadmin)
-                                                {
-                                                    <a class="btn btn-sm btn-outline-success"
-                                                       href="?AddUserId=@user.Id&amp;RoleName=@role">@role</a>
-                                                }
-                                                else
-                                                {
-                                                    <span class="btn btn-sm btn-outline-secondary disabled">@role</span>
-                                                }
-                                            }
-                                        }
-                                    </div>
-                                </div>
-                            </td>
+							<!-- Användare -->
+							<td>
+								<div>
+									<strong>
+										@if (isSysAdmin)
+										{
+											<span class="text-muted">—</span>
+										}
+										else
+										{
+											@user.UserName
+										}
+									</strong>
+									(@user.Email)
+								</div>
+								<div class="d-md-none mt-2">
+									<!-- Mobil: visa byta namn direkt -->
+									@if (Model.IsApiSuperadmin && !isSysAdmin)
+									{
+										<form method="post" asp-page-handler="ChangeUserName" class="d-flex gap-2">
+											<input type="hidden" name="TargetUserId" value="@user.Id" />
+											<input type="text"
+												   name="NewUserName"
+												   value="@user.UserName"
+												   class="form-control form-control-sm"
+												   style="max-width: 180px"
+												   placeholder="Nytt användarnamn" />
+											<button class="btn btn-sm btn-outline-primary">Byt</button>
+										</form>
+									}
+									else
+									{
+										<input type="text"
+											   value="@(isSysAdmin ? "—" : user.UserName)"
+											   class="form-control form-control-sm"
+											   style="max-width: 180px"
+											   disabled
+											   title="Endast superadmin kan ändra" />
+									}
+								</div>
+								<div class="d-md-none mt-2">
+									<small>Roller:</small>
+									<div class="d-flex flex-wrap gap-1 mt-1">
+										@foreach (var role in Model.Roles)
+										{
+											var hasRole = user.Roles.Contains(role);
+											if (isSysAdmin)
+											{
+												<span class="btn btn-sm btn-outline-secondary disabled">@role</span>
+											}
+											else if (hasRole)
+											{
+												if (Model.IsApiSuperadmin)
+												{
+													<a class="btn btn-sm btn-outline-danger"
+													   href="?RemoveUserId=@user.Id&amp;RoleName=@role">@role ✓</a>
+												}
+												else
+												{
+													<span class="btn btn-sm btn-outline-secondary disabled">@role ✓</span>
+												}
+											}
+											else
+											{
+												if (Model.IsApiSuperadmin)
+												{
+													<a class="btn btn-sm btn-outline-success"
+													   href="?AddUserId=@user.Id&amp;RoleName=@role">@role</a>
+												}
+												else
+												{
+													<span class="btn btn-sm btn-outline-secondary disabled">@role</span>
+												}
+											}
+										}
+									</div>
+								</div>
+							</td>
 
-                            <!-- Byt användarnamn desktop -->
-                            <td class="d-none d-md-table-cell">
-                                @if (Model.IsApiSuperadmin && !isSysAdmin)
-                                {
-                                    <form method="post" asp-page-handler="ChangeUserName" class="d-flex gap-2">
-                                        <input type="hidden" name="TargetUserId" value="@user.Id" />
-                                        <input type="text"
-                                               name="NewUserName"
-                                               value="@user.UserName"
-                                               class="form-control form-control-sm"
-                                               style="max-width: 220px"
-                                               placeholder="Nytt användarnamn" />
-                                        <button class="btn btn-sm btn-outline-primary">Byt</button>
-                                    </form>
-                                }
-                                else
-                                {
-                                    <input type="text"
-                                           value="@(isSysAdmin ? "—" : user.UserName)"
-                                           class="form-control form-control-sm"
-                                           style="max-width: 220px"
-                                           disabled
-                                           title="Endast superadmin kan ändra" />
-                                }
-                            </td>
+							<!-- Byt användarnamn desktop -->
+							<td class="d-none d-md-table-cell">
+								@if (Model.IsApiSuperadmin && !isSysAdmin)
+								{
+									<form method="post" asp-page-handler="ChangeUserName" class="d-flex gap-2">
+										<input type="hidden" name="TargetUserId" value="@user.Id" />
+										<input type="text"
+											   name="NewUserName"
+											   value="@user.UserName"
+											   class="form-control form-control-sm"
+											   style="max-width: 220px"
+											   placeholder="Nytt användarnamn" />
+										<button class="btn btn-sm btn-outline-primary">Byt</button>
+									</form>
+								}
+								else
+								{
+									<input type="text"
+										   value="@(isSysAdmin ? "—" : user.UserName)"
+										   class="form-control form-control-sm"
+										   style="max-width: 220px"
+										   disabled
+										   title="Endast superadmin kan ändra" />
+								}
+							</td>
 
-                            <!-- Roll-matris desktop -->
-                            @foreach (var role in Model.Roles)
-                            {
-                                <td class="d-none d-md-table-cell">
-                                    @if (isSysAdmin)
-                                    {
-                                        <span class="btn btn-sm btn-outline-secondary disabled">Ja</span>
-                                    }
-                                    else if (user.Roles.Contains(role))
-                                    {
-                                        @if (Model.IsApiSuperadmin)
-                                        {
-                                            <a class="btn btn-sm btn-outline-danger"
-                                               href="?RemoveUserId=@user.Id&amp;RoleName=@role">Ja</a>
-                                        }
-                                        else
-                                        {
-                                            <span class="btn btn-sm btn-outline-secondary disabled">Ja</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        @if (Model.IsApiSuperadmin)
-                                        {
-                                            <a class="btn btn-sm btn-outline-success"
-                                               href="?AddUserId=@user.Id&amp;RoleName=@role">Nej</a>
-                                        }
-                                        else
-                                        {
-                                            <span class="btn btn-sm btn-outline-secondary disabled">Nej</span>
-                                        }
-                                    }
-                                </td>
-                            }
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+							<!-- Roll-matris desktop -->
+							@foreach (var role in Model.Roles)
+							{
+								<td class="d-none d-md-table-cell">
+									@if (isSysAdmin)
+									{
+										<span class="btn btn-sm btn-outline-secondary disabled">Ja</span>
+									}
+									else if (user.Roles.Contains(role))
+									{
+										@if (Model.IsApiSuperadmin)
+										{
+											<a class="btn btn-sm btn-outline-danger"
+											   href="?RemoveUserId=@user.Id&amp;RoleName=@role">Ja</a>
+										}
+										else
+										{
+											<span class="btn btn-sm btn-outline-secondary disabled">Ja</span>
+										}
+									}
+									else
+									{
+										@if (Model.IsApiSuperadmin)
+										{
+											<a class="btn btn-sm btn-outline-success"
+											   href="?AddUserId=@user.Id&amp;RoleName=@role">Nej</a>
+										}
+										else
+										{
+											<span class="btn btn-sm btn-outline-secondary disabled">Nej</span>
+										}
+									}
+								</td>
+							}
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
 
-        <!-- Ny roll -->
-        @if (Model.IsApiSuperadmin)
-        {
-            <form method="post" class="mt-4">
-                <label for="RoleName">Ny Roll</label>
-                <input type="text" name="RoleName" id="RoleName" class="form-control" />
-                <input type="submit" value="Skapa ny roll" class="btn btn-primary mt-2" />
-            </form>
+		<!-- Ny roll -->
+		@if (Model.IsApiSuperadmin)
+		{
+			<form method="post" class="mt-4">
+				<label for="RoleName">Ny Roll</label>
+				<input type="text" name="RoleName" id="RoleName" class="form-control" />
+				<input type="submit" value="Skapa ny roll" class="btn btn-primary mt-2" />
+			</form>
 
-            <hr />
-            <h4>Hantera roller</h4>
-            <div class="table-responsive-md">
-                <table class="table table-bordered w-auto">
-                    <thead>
-                        <tr>
-                            <th>Roll</th>
-                            <th>Ta bort</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var role in Model.Roles)
-                        {
-                            <tr>
-                                <td>@role</td>
-                                <td>
-                                    @if (role.ToLower() != "superadmin")
-                                    {
-                                        <form method="post" asp-page-handler="DeleteRole">
-                                            <input type="hidden" name="DeleteRoleName" value="@role" />
-                                            <button type="submit" class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Ta bort rollen @role?')">
-                                                🗑
-                                            </button>
-                                        </form>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <p class="text-muted mt-4">Endast superadmin kan skapa eller ta bort roller.</p>
-        }
-    }
+			<hr />
+			<h4>Hantera roller</h4>
+			<div class="table-responsive-md">
+				<table class="table table-bordered w-auto">
+					<thead>
+						<tr>
+							<th>Roll</th>
+							<th>Ta bort</th>
+						</tr>
+					</thead>
+					<tbody>
+						@{
+							var protectedRoles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+								{ "superadmin", "admin", "superuser", "user" };
+						}
+						@foreach (var role in Model.Roles)
+						{
+							<tr>
+								<td class="text-start">@role</td>
+								<td class="text-center" style="width:80px;">
+										@if (protectedRoles.Contains(role))
+										{
+										<span class="text-muted" title="Grundroll kan inte tas bort">🔒</span>
+										}
+										else
+										{
+										<form method="post" asp-page-handler="DeleteRole">
+											<input type="hidden" name="DeleteRoleName" value="@role" />
+											<button type="submit" class="btn btn-sm btn-danger"
+													onclick="return confirm('Ta bort rollen @role?')">
+												🗑
+											</button>
+										</form>
+										}
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+		else
+		{
+			<p class="text-muted mt-4">Endast superadmin kan skapa eller ta bort roller.</p>
+		}
+	}
 </div>
 
 @section Scripts {
-    <script>
-        if (window.innerWidth < 992) {
-          document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('input[name="NewUserName"]').forEach(el => {
-              el.tabIndex = -1;
-              el.removeAttribute('autofocus');
-            });
-            setTimeout(() => document.activeElement?.blur(), 0);
-          });
-        }
-    </script>
+	<script>
+		if (window.innerWidth < 992) {
+		  document.addEventListener('DOMContentLoaded', () => {
+			document.querySelectorAll('input[name="NewUserName"]').forEach(el => {
+			  el.tabIndex = -1;
+			  el.removeAttribute('autofocus');
+			});
+			setTimeout(() => document.activeElement?.blur(), 0);
+		  });
+		}
+	</script>
 }
