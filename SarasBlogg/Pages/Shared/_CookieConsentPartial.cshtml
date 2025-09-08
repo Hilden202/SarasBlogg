@@ -27,11 +27,15 @@
             if (!banner) return;
 
             // --- helpers ---
-            const has = (name, val) => document.cookie.split("; ").some(c => c.indexOf(name + "=") === 0 && (!val || c.endsWith("=" + val)));
+            const has = (name, val) =>
+                document.cookie.split("; ").some(c =>
+                    c.indexOf(name + "=") === 0 && (!val || c.endsWith("=" + val))
+                );
+
+            // Endast cookies avgör om vi redan accepterat
             const accepted =
                 has(".AspNetCore.Consent", "yes") ||
-                has(".AspNet.Consent", "yes") ||
-                (localStorage.getItem("sb_cookie_ok") === "1");
+                has(".AspNet.Consent", "yes");
 
             if (accepted) {
                 banner.style.display = "none";
@@ -56,7 +60,7 @@
             if (!btn) return;
 
             btn.addEventListener("click", function () {
-                // 1) Sätt den cookie-sträng som servern gav oss (rätt namn/attribut för din miljö)
+                // 1) Sätt den cookie-sträng som servern gav (rätt namn/attribut för din miljö)
                 const serverCookie = btn.getAttribute("data-cookie-string");
                 if (serverCookie) document.cookie = serverCookie;
 
@@ -66,10 +70,7 @@
                 document.cookie = ".AspNetCore.Consent=yes" + commonAttrs;
                 document.cookie = ".AspNet.Consent=yes" + commonAttrs;
 
-                // 3) Backup-flagga (överlever flikar/refresh)
-                try { localStorage.setItem("sb_cookie_ok", "1"); } catch {}
-
-                // 4) Göm mjukt (ingen reload)
+                // 3) Göm mjukt (ingen reload)
                 banner.style.transition = "opacity .25s ease";
                 banner.style.opacity = "0";
                 setTimeout(() => {
