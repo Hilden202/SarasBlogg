@@ -241,3 +241,57 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 })();
+
+// --- Cookie accept banner script ---
+document.addEventListener('DOMContentLoaded', function () {
+    const banner = document.getElementById("cookieConsentdiv");
+    const body = document.body;
+    if (!banner) return;
+
+    const has = (name, val) =>
+        document.cookie.split("; ").some(c =>
+            c.indexOf(name + "=") === 0 && (!val || c.endsWith("=" + val))
+        );
+
+    const accepted =
+        has(".AspNetCore.Consent", "yes") ||
+        has(".AspNet.Consent", "yes");
+
+    if (accepted) {
+        banner.style.display = "none";
+        return;
+    }
+
+    const toggle = document.getElementById("showPrivacyContent");
+    if (toggle) {
+        toggle.addEventListener("click", function (e) {
+            e.preventDefault();
+            const box = document.getElementById("privacyContent");
+            const show = box.style.display !== "block";
+            box.style.display = show ? "block" : "none";
+            toggle.textContent = show ? "Visa mindre" : "Läs mer här";
+            body.classList.toggle("modal-open", show);
+        });
+    }
+
+    const btn = banner.querySelector("button[data-cookie-string]");
+    if (!btn) return;
+
+    btn.addEventListener("click", function () {
+        const serverCookie = btn.getAttribute("data-cookie-string");
+        if (serverCookie) document.cookie = serverCookie;
+
+        const secure = location.protocol === "https:" ? "; Secure" : "";
+        const commonAttrs = "; Path=/; Max-Age=31536000; SameSite=Lax" + secure;
+        document.cookie = ".AspNetCore.Consent=yes" + commonAttrs;
+        document.cookie = ".AspNet.Consent=yes" + commonAttrs;
+
+        banner.style.transition = "opacity .25s ease";
+        banner.style.opacity = "0";
+        setTimeout(() => {
+            banner.style.display = "none";
+            body.classList.remove("modal-open");
+        }, 250);
+    });
+});
+// --- End cookie accept banner script ---
