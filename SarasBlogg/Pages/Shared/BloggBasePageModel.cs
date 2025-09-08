@@ -5,6 +5,8 @@ using SarasBlogg.ViewModels;
 using SarasBlogg.DAL;
 using System.Security.Claims;
 using SarasBlogg.DTOs;
+using Microsoft.Extensions.DependencyInjection;
+using Humanizer;
 
 namespace SarasBlogg.Pages.Shared
 {
@@ -13,6 +15,7 @@ namespace SarasBlogg.Pages.Shared
         protected readonly BloggService _bloggService;
         protected readonly UserAPIManager _userApi;
         private readonly bool _isArchive;
+        private LikeAPIManager LikeApi => HttpContext.RequestServices.GetRequiredService<LikeAPIManager>();
 
         protected BloggBasePageModel(BloggService bloggService, UserAPIManager userApi, bool isArchive)
         {
@@ -23,6 +26,10 @@ namespace SarasBlogg.Pages.Shared
 
         [BindProperty]
         public BloggViewModel ViewModel { get; set; } = new();
+
+        // Likes för aktuell post
+        public int LikeCount { get; private set; }
+        public bool IsLiked { get; private set; }
 
         // För inloggad skribent (formulär)
         public string RoleCss => GetRoleCss(User);
@@ -131,6 +138,19 @@ namespace SarasBlogg.Pages.Shared
             await HydrateRoleLookupsForCurrentPostAsync(ViewModel);
 
             ViewData["OpenComments"] = openComments;
+
+            // Ladda likes för visad post (endast detaljvy)
+            var currentId = ViewModel?.Blogg?.Id ?? showId;
+            if (currentId > 0)
+            {
+                var dto = await LikeApi.GetAsync(currentId);
+                LikeCount = dto?.Count ?? 0;
+                IsLiked = dto?.Liked ?? false;
+
+                // Gör värdena tillgängliga för _blogglist.cshtml (som har BloggViewModel som modell)
+                ViewData["LikeCount"] = LikeCount;
+                ViewData["IsLiked"] = IsLiked;
+            }
         }
 
         public async Task<IActionResult> OnPostCoreAsync(int deleteCommentId)
@@ -223,6 +243,35 @@ namespace SarasBlogg.Pages.Shared
             // 5) Tillbaka till samma inlägg
             return RedirectToPage(pageName: null, pageHandler: null,
                 routeValues: new { showId = ViewModel?.Comment?.BloggId, openComments = true }, fragment: "comments");
+
+            // 🔄 Toggle Like
+
+        }
+        public async Task<IActionResult> OnPostLikeToggleCoreAsync(int showId)
+        {
+            if (showId <= 0)
+                return RedirectToPage(pageName: null, pageHandler: null, routeValues: new { showId }, fragment: "likes");
+
+            if (!(User?.Identity?.IsAuthenticated ?? false))
+            {
+                TempData["Error"] = "Logga in för att gilla.";
+                return RedirectToPage(pageName: null, pageHandler: null, routeValues: new { showId }, fragment: "likes");
+            }
+
+            var current = await LikeApi.GetAsync(showId);
+
+            LikeDto? dto = current?.Liked == true
+                ? await LikeApi.RemoveAsync(showId)
+                : await LikeApi.AddAsync(showId, "_"); // "_" räcker; servern tar userId från JWT-claims
+
+            LikeCount = dto?.Count ?? current?.Count ?? 0;
+            IsLiked = dto?.Liked ?? current?.Liked ?? false;
+
+            // Skicka med till vyn (partialen har BloggViewModel, så den läser ViewData)
+            ViewData["LikeCount"] = LikeCount;
+            ViewData["IsLiked"] = IsLiked;
+
+            return RedirectToPage(pageName: null, pageHandler: null, routeValues: new { showId }, fragment: "likes");
         }
     }
 }

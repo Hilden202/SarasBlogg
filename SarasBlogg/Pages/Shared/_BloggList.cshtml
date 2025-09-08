@@ -189,16 +189,21 @@
 						</span>
 					}
 				</p>
-				<div class="d-flex align-items-center gap-2 mb-3">
-					<button type="button"
-							class="btn btn-like"
-							data-like-btn
-							data-blogg-id="@Model.Blogg.Id"
-							data-user-id="@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "")"
-							title="Gilla">
-						<span class="like-heart" aria-hidden="true">♡</span>
-						<span class="like-count">0</span>
-					</button>
+				@{
+					var likeCount = (int?)ViewData["LikeCount"] ?? 0;
+					var isLiked = (bool?)ViewData["IsLiked"] ?? false;
+				}
+				<div id="likes" class="d-flex align-items-center gap-2 mb-3">
+					<form method="post" asp-page-handler="LikeToggleCore" class="d-inline">
+						<input type="hidden" name="showId" value="@Model.Blogg.Id" />
+						<button type="submit"
+								class="btn btn-like"
+								title="@(User.Identity?.IsAuthenticated == true ? (isLiked ? "Ångra gilla" : "Gilla") : "Logga in för att gilla")"
+						@(User.Identity?.IsAuthenticated == true ? null : "disabled")>
+							<span class="like-heart" aria-hidden="true">@((isLiked ? "❤️" : "♡"))</span>
+							<span class="like-count">@likeCount</span>
+						</button>
+					</form>
 					@if (User.Identity?.IsAuthenticated != true)
 					{
 						<small class="text-muted">Logga in för att gilla</small>
