@@ -20,7 +20,7 @@
 	<meta name="twitter:card" content="summary_large_image" />
 	@* OG/Twitter-bild: bygg absolut URL till PNG i wwwroot *@
 	@{
-		var ogImagePath = Url.Content("~/img/logo/medhjärtatsomkompasslogga.png");
+		var ogImagePath = Url.Content("~/img/share/og-card.png"); // ASCII-säkert namn
 		var absoluteOgImage = $"{Context.Request.Scheme}://{Context.Request.Host}{ogImagePath}";
 	}
 	<meta property="og:image" content="@absoluteOgImage" />
