@@ -10,31 +10,36 @@
 	<meta charset="utf-8" />
 	<link rel="icon" type="image/x-icon" href="~/img/logo/hjartafavicon.ico" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="application-name" content="MedHjärtatSomKompass" />
+	<meta name="apple-mobile-web-app-title" content="MedHjärtatSomKompass" />
 
 	<!-- Open Graph metadata for link previews -->
-	<meta property="og:title" content="SarasBlogg" />
+	<meta property="og:title" content="MedHjärtatSomKompass" />
 	<meta property="og:description" content="En personlig blogg av Sara Gustafsson" />
-	<meta property="og:url" content="https://sarasblogg.onrender.com/" />
+	<meta property="og:url" content="https://medhjärtatsomkompass.se/" />
+	<meta property="og:site_name" content="MedHjärtatSomKompass" />
 	<meta property="og:type" content="website" />
 	<meta property="og:image:type" content="image/png" />
 	<meta name="twitter:card" content="summary_large_image" />
 	@* OG/Twitter-bild: bygg absolut URL till PNG i wwwroot *@
 	@{
-		var ogImagePath = Url.Content("~/img/share/og-card.png"); // ASCII-säkert namn
-		var absoluteOgImage = $"{Context.Request.Scheme}://{Context.Request.Host}{ogImagePath}";
+		var ogImagePath = Url.Content("~/img/share/og-card.png");
+		    // Tvinga kanonisk host + cache-buster så scrapers verkligen hämtar rätt bild
+		var absoluteOgImage = $"https://medhjärtatsomkompass.se{ogImagePath}?v=1";
 	}
 	<meta property="og:image" content="@absoluteOgImage" />
+	<meta property="og:image:secure_url" content="@absoluteOgImage" />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta property="og:image:alt" content="Med Hjärtat som Kompass – logotyp" />
 
 	<!-- Twitter (använder samma bild) -->
-	<meta name="twitter:title" content="SarasBlogg" />
+	<meta name="twitter:title" content="MedHjärtatSomKompass" />
 	<meta name="twitter:description" content="En personlig blogg av Sara Gustafsson" />
 	<meta name="twitter:image" content="@absoluteOgImage" />
 
 
-	<title>@ViewData["Title"] - SarasBlogg</title>
+	<title>@ViewData["Title"] - MedHjärtatSomKompass</title>
 
 	<script>
 		if (sessionStorage.getItem('sb_first_visit_done') ||
