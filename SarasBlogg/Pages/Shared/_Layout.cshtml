@@ -27,10 +27,9 @@
 	<meta property="og:description" content="En personlig blogg av Sara Gustafsson" />
 	<meta property="og:image:type" content="image/png" />
 	@{
-		// Viktigt: bilden ska finnas och ha ASCII-namn (inga å/ä/ö/mellanslag)
 		var ogImagePath = Url.Content("~/img/logo/medhjartatsomkompasslogga.png");
-		// Lås till kanonisk host + cache-buster för att tvinga omhämtning hos scrapers
-		var absoluteOgImage = $"https://medhjärtatsomkompass.se{ogImagePath}?v=1";
+		// Använd punycode-host för att undvika "Invalid URL" hos scrapers
+		var absoluteOgImage = $"https://xn--medhjrtatsomkompass-kwb.se{ogImagePath}?v=1";
 	}
 	<meta property="og:image" content="@absoluteOgImage" />
 	<meta property="og:image:secure_url" content="@absoluteOgImage" />
