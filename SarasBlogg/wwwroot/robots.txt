@@ -1,0 +1,4 @@
+﻿User-agent: *
+Allow: /
+
+Sitemap: https://xn--medhjrtatsomkompass-kwb.se/sitemap.xml
