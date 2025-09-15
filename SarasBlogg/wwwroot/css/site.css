@@ -1105,3 +1105,26 @@ body > #cookieConsentdiv {
         color: #eee
     }
 }
+
+/* AboutMe: placera "Läs mer" */
+.aboutme-link .readmore-link {
+    display: inline; /* desktop: efter ... på samma rad */
+    margin-left: 6px;
+    text-decoration: none;
+    /* valfritt: använd accentfärg i stället för standardlänk */
+    color: var(--color-teal, inherit);
+}
+
+    .aboutme-link .readmore-link:hover {
+        text-decoration: underline;
+    }
+
+/* Mobil: på egen rad och centrerad */
+@media (max-width:768px) {
+    .aboutme-link .readmore-link {
+        display: block;
+        margin: 8px auto 0; /* mitt under texten */
+        width: fit-content;
+        text-align: center;
+    }
+}

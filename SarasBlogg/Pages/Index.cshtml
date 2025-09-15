@@ -35,7 +35,8 @@
                          alt="Om Mig-bild" />
                     <div>
                         <h3 class="blogg-title">@Model.AboutMe.Title</h3>
-                        <p class="blogg-content linebreak">@Model.AboutMe.Content</p>
+                        <p class="blogg-content linebreak">@Model.AboutMe.Content.LimitLength(120)
+                            <span class="readmore-link">Läs mer</span></p>
                     </div>
                 </div>
             }
@@ -44,7 +45,6 @@
                 <p>Om mig-sektionen är ännu inte skapad.</p>
             }
         </a>
-
     </div>
 </div>
 
