@@ -36,7 +36,8 @@
 									@if (Model.IsApiSuperadmin)
 									{
 										<form method="post" asp-page-handler="DeleteUser"
-											  onsubmit="return confirm('Ta bort användare @user.Email?')">
+											  onsubmit="return handleDeleteSubmit(event, this)"
+											  data-confirm="Ta bort användare @user.Email?">
 											<input type="hidden" name="DeleteUserId" value="@user.Id" />
 											<button class="btn btn-sm btn-outline-danger">🗑</button>
 										</form>

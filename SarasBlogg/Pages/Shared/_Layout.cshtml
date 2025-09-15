@@ -187,5 +187,18 @@
 		}
 	</div>
 	<partial name="_CookieConsentPartial" />
+	<!-- Confirm-modal -->
+	<div id="confirmModal" class="cmodal" aria-hidden="true" role="dialog" aria-modal="true">
+		<div class="cmodal__backdrop" data-cmodal-close></div>
+		<div class="cmodal__dialog" role="document" tabindex="-1">
+			<h2 class="cmodal__title">Bekräfta</h2>
+			<p id="confirmMessage" class="cmodal__text">Ta bort kommentaren?</p>
+			<div class="cmodal__actions">
+				<button type="button" class="btn btn-outline-secondary" data-cmodal-cancel>Avbryt</button>
+				<button type="button" class="btn btn-danger" data-cmodal-ok>Ta bort</button>
+			</div>
+		</div>
+	</div>
+
 </body>
 </html>

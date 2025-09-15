@@ -37,3 +37,20 @@
 
     document.querySelectorAll('.js-load-older').forEach(setup);
 })();
+// Delete Comment helper
+// Hybrid-confirm: använd snygg modal om showConfirm() finns, annars native confirm()
+function handleDeleteSubmit(e, form) {
+    const msg = form.getAttribute('data-confirm') || 'Ta bort kommentaren?';
+
+    // Om vår custom modal är inladdad
+    if (typeof window.showConfirm === 'function') {
+        e.preventDefault(); // stoppa POST tills vi vet svaret
+        window.showConfirm(msg).then(ok => {
+            if (ok) form.submit(); // kör vanlig POST
+        });
+        return false; // för säkerhets skull – förhindra submit här
+    }
+
+    // Fallback: inbyggd confirm (iOS visar domän, men funkar)
+    return window.confirm(msg);
+}

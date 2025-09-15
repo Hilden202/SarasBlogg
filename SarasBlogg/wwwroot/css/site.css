@@ -1052,3 +1052,56 @@ body > #cookieConsentdiv {
     z-index: 2147483647 !important; /* extremt högt, slår allt */
     pointer-events: auto !important;
 }
+
+/* --- Confirm modal --- */
+.cmodal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050
+}
+
+    .cmodal.is-open {
+        display: flex
+    }
+
+.cmodal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    backdrop-filter: saturate(120%) blur(2px)
+}
+
+.cmodal__dialog {
+    position: relative;
+    max-width: 420px;
+    width: 92vw;
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25)
+}
+
+.cmodal__title {
+    margin: 0 0 6px 0;
+    font-size: 1.2rem
+}
+
+.cmodal__text {
+    margin: 0 0 14px 0
+}
+
+.cmodal__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end
+}
+
+@media (prefers-color-scheme: dark) {
+    .cmodal__dialog {
+        background: #1f1f1f;
+        color: #eee
+    }
+}

@@ -295,3 +295,45 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 // --- End cookie accept banner script ---
+// Promise-baserad confirm – ersätter window.confirm()
+async function showConfirm(message = "Är du säker?") {
+    return new Promise(resolve => {
+        const root = document.getElementById('confirmModal');
+        const msg = document.getElementById('confirmMessage');
+        const okBtn = root.querySelector('[data-cmodal-ok]');
+        const cancelBtn = root.querySelector('[data-cmodal-cancel]');
+        const backdrop = root.querySelector('[data-cmodal-close]');
+        let lastFocus = document.activeElement;
+
+        function cleanup(result) {
+            root.classList.remove('is-open');
+            document.body.style.overflow = '';
+            okBtn.removeEventListener('click', onOk);
+            cancelBtn.removeEventListener('click', onCancel);
+            backdrop.removeEventListener('click', onCancel);
+            window.removeEventListener('keydown', onKey);
+            lastFocus && lastFocus.focus?.();
+            resolve(result);
+        }
+        function onOk() { cleanup(true); }
+        function onCancel() { cleanup(false); }
+        function onKey(e) { if (e.key === 'Escape') onCancel(); }
+
+        msg.textContent = message;
+        root.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        okBtn.addEventListener('click', onOk);
+        cancelBtn.addEventListener('click', onCancel);
+        backdrop.addEventListener('click', onCancel);
+        window.addEventListener('keydown', onKey);
+        // fokus för bättre a11y
+        root.querySelector('.cmodal__dialog').focus();
+    });
+}
+
+// Byt från: if (confirm("Ta bort kommentaren?")) { removeComment(id); }
+async function confirmDelete(commentId) {
+    if (await showConfirm("Ta bort kommentaren?")) {
+        removeComment(commentId); // din befintliga funktion som faktiskt raderar
+    }
+}

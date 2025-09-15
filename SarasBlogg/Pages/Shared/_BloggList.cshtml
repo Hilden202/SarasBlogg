@@ -351,7 +351,7 @@
 									{
 										if (c.Id != null)
 										{
-											<form method="post" class="ms-2" onsubmit="return confirm('Ta bort kommentaren?')">
+											<form method="post" class="ms-2" onsubmit="return handleDeleteSubmit(event, this)" data-confirm="Ta bort kommentaren?">
 												@Html.AntiForgeryToken()
 												<input type="hidden" name="deleteCommentId" value="@c.Id" />
 												<button type="submit" class="btn btn-sm btn-outline-danger" title="Ta bort">🗑</button>
