@@ -45,6 +45,7 @@ function handleDeleteSubmit(e, form) {
     // Om vår custom modal är inladdad
     if (typeof window.showConfirm === 'function') {
         e.preventDefault(); // stoppa POST tills vi vet svaret
+        e.preventDefault(); // stoppa POST tills vi vet svaret
         window.showConfirm(msg).then(ok => {
             if (ok) form.submit(); // kör vanlig POST
         });
@@ -54,3 +55,23 @@ function handleDeleteSubmit(e, form) {
     // Fallback: inbyggd confirm (iOS visar domän, men funkar)
     return window.confirm(msg);
 }
+//
+function handleDeleteButton(e, message = "Är du säker?") {
+    const btn = e.currentTarget;
+
+    if (typeof window.showConfirm === 'function') {
+        e.preventDefault();
+        window.showConfirm(message).then(ok => {
+            if (ok && btn.form) {
+                if (typeof btn.form.requestSubmit === 'function') {
+                    btn.form.requestSubmit(btn); // behåller handler + formnovalidate
+                } else {
+                    btn.form.submit();
+                }
+            }
+        });
+        return false;
+    }
+    return window.confirm(message);
+}
+

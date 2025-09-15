@@ -82,22 +82,6 @@ namespace SarasBlogg.Pages.Admin
                 }
             }
 
-            // Ta bort: endast superadmin
-            if (deleteId != 0)
-            {
-                if (!IsSuperAdmin) return Forbid();
-                var bloggToDelete = await _bloggApi.GetBloggAsync(deleteId);
-                if (bloggToDelete != null)
-                {
-                    await _commentApi.DeleteCommentsAsync(bloggToDelete.Id);
-                    await _imageApi.DeleteImagesByBloggIdAsync(bloggToDelete.Id);
-                    await _bloggApi.DeleteBloggAsync(bloggToDelete.Id);
-                    _bloggService.InvalidateBlogListCache();
-                }
-
-                return RedirectToPage();
-            }
-
             await LoadBloggsWithImagesAsync();
 
             // Öppna för redigering i formuläret: endast superadmin
@@ -247,6 +231,23 @@ namespace SarasBlogg.Pages.Admin
             }
 
             return RedirectToPage(new { editId = bloggId });
+        }
+
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> OnPostDeleteBloggAsync(int deleteId)
+        {
+            if (!User.IsInRole("superadmin")) return Forbid();
+
+            var bloggToDelete = await _bloggApi.GetBloggAsync(deleteId);
+            if (bloggToDelete != null)
+            {
+                await _commentApi.DeleteCommentsAsync(bloggToDelete.Id);
+                await _imageApi.DeleteImagesByBloggIdAsync(bloggToDelete.Id);
+                await _bloggApi.DeleteBloggAsync(bloggToDelete.Id);
+                _bloggService.InvalidateBlogListCache();
+            }
+
+            return RedirectToPage();
         }
 
         private async Task LoadBloggsWithImagesAsync()

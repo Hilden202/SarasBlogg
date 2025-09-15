@@ -236,7 +236,7 @@
 													formnovalidate
 													class="btn btn-sm btn-danger p-1"
 													data-busy-text="Tar bort…"
-													onclick="return confirm('Ta bort bilden?')">
+													onclick="return handleDeleteButton(event, 'Ta bort bilden?')">
 												&times;
 
 											</button>
@@ -308,10 +308,13 @@
 										@* Ta bort: endast superadmin *@
 										@if (Model.IsSuperAdmin)
 										{
-											<form method="get" class="me-1">
+											<form method="post" asp-page-handler="DeleteBlogg"
+												  class="me-1"
+												  onsubmit="return handleDeleteSubmit(event, this)"
+												  data-confirm="Ta bort inlägget ”@item.Blogg.Title”?">
+												@Html.AntiForgeryToken()
 												<input type="hidden" name="deleteId" value="@item.Blogg.Id" />
 												<button type="submit" class="btn btn-outline-danger">Ta bort</button>
-
 											</form>
 										}
 										else
@@ -340,10 +343,12 @@
 									<div class="d-flex flex-column gap-1">
 										@if (Model.IsSuperAdmin)
 										{
-											<form method="get">
+											<form method="post" asp-page-handler="DeleteBlogg"
+												  onsubmit="return handleDeleteSubmit(event, this)"
+												  data-confirm="Ta bort inlägget ”@item.Blogg.Title”?">
+												@Html.AntiForgeryToken()
 												<input type="hidden" name="deleteId" value="@item.Blogg.Id" />
 												<button type="submit" class="btn btn-outline-danger w-100">Ta bort</button>
-
 											</form>
 										}
 										else
