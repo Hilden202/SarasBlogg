@@ -51,54 +51,49 @@ namespace SarasBlogg.Pages.Admin
         public bool IsSuperAdmin { get; set; }
         public bool IsSuperUser { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? hiddenId, int deleteId, int? editId, int? archiveId)
+        public async Task<IActionResult> OnGetAsync(int? hiddenId, int? archiveId, int? editId)
         {
-            if (TempData.TryGetValue("UploadErrors", out var errsObj) && errsObj is string errs && !string.IsNullOrWhiteSpace(errs))
-                ModelState.AddModelError(string.Empty, errs);
-
-            // Roller från JWT-claims
+            // roles
             IsAdmin = User.IsInRole("admin");
             IsSuperAdmin = User.IsInRole("superadmin");
             IsSuperUser = User.IsInRole("superuser");
 
-            // Initiera modell och sätt standarddatum (SE) för NY post
+            // Default date for the form (SE)
             NewBlogg ??= new Models.Blogg();
             if (NewBlogg.Id == 0 && NewBlogg.LaunchDate == default)
             {
                 var todaySe = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TzSe).Date;
-                // Unspecified => <input type="date"> får exakt kalenderdag utan tz-shift
                 NewBlogg.LaunchDate = DateTime.SpecifyKind(todaySe, DateTimeKind.Unspecified);
             }
 
-            // Dölj/Visa: admin + superadmin
-            if ((IsAdmin || IsSuperAdmin) && hiddenId.HasValue && hiddenId.Value != 0)
+            // ---- Toggle HIDDEN (admin + superadmin) ----
+            if ((IsAdmin || IsSuperAdmin) && hiddenId is int hid and > 0)
             {
-                var bloggToHide = await _bloggApi.GetBloggAsync(hiddenId.Value);
-                if (bloggToHide != null)
-                {
-                    bloggToHide.Hidden = !bloggToHide.Hidden;
-                    await _bloggApi.UpdateBloggAsync(bloggToHide);
-                    _bloggService.InvalidateBlogListCache();
-                }
+                await _bloggApi.ToggleHiddenAsync(hid);
+                _bloggService.InvalidateBlogListCache();
+                return RedirectToPage();
             }
 
+            // ---- Toggle ARCHIVED (admin + superadmin) ----
+            if ((IsAdmin || IsSuperAdmin) && archiveId is int aid and > 0)
+            {
+                await _bloggApi.ToggleArchivedAsync(aid);
+                _bloggService.InvalidateBlogListCache();
+                return RedirectToPage();
+            }
+
+            // load lists
             await LoadBloggsWithImagesAsync();
 
-            // Öppna för redigering i formuläret: endast superadmin
+            // open edit form (superadmin)
             if (IsSuperAdmin && editId.HasValue && editId.Value != 0)
             {
-                var blogg = BloggsWithImage.FirstOrDefault(b => b.Blogg.Id == editId.Value);
-                if (blogg != null)
+                var row = BloggsWithImage.FirstOrDefault(x => x.Blogg.Id == editId.Value);
+                if (row != null)
                 {
-                    EditedBloggWithImages = new BloggWithImage
-                    {
-                        Blogg = blogg.Blogg,
-                        Images = blogg.Images
-                    };
+                    EditedBloggWithImages = new BloggWithImage { Blogg = row.Blogg, Images = row.Images };
+                    NewBlogg = row.Blogg;
 
-                    NewBlogg = blogg.Blogg;
-
-                    // Visa datum som svensk kalenderdag i formuläret
                     if (NewBlogg.LaunchDate.Kind == DateTimeKind.Utc)
                     {
                         var se = TimeZoneInfo.ConvertTimeFromUtc(NewBlogg.LaunchDate, TzSe).Date;
@@ -106,24 +101,9 @@ namespace SarasBlogg.Pages.Admin
                     }
                     else
                     {
-                        // Säkerställ att vi inte råkar bära med UTC-kind i inputfältet
                         NewBlogg.LaunchDate = DateTime.SpecifyKind(NewBlogg.LaunchDate.Date, DateTimeKind.Unspecified);
                     }
                 }
-            }
-
-            // Arkivera/avarkivera: admin + superadmin
-            if ((IsAdmin || IsSuperAdmin) && archiveId.HasValue && archiveId.Value != 0)
-            {
-                var bloggToArchive = await _bloggApi.GetBloggAsync(archiveId.Value);
-                if (bloggToArchive != null)
-                {
-                    bloggToArchive.IsArchived = !bloggToArchive.IsArchived;
-                    await _bloggApi.UpdateBloggAsync(bloggToArchive);
-                    _bloggService.InvalidateBlogListCache();
-                }
-
-                await LoadBloggsWithImagesAsync();
             }
 
             return Page();

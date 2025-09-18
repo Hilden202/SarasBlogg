@@ -40,38 +40,40 @@
 // Delete Comment helper
 // Hybrid-confirm: använd snygg modal om showConfirm() finns, annars native confirm()
 function handleDeleteSubmit(e, form) {
-    const msg = form.getAttribute('data-confirm') || 'Ta bort kommentaren?';
-
-    // Om vår custom modal är inladdad
+    const opts = form.getAttribute('data-confirm') || 'Ta bort?';
     if (typeof window.showConfirm === 'function') {
-        e.preventDefault(); // stoppa POST tills vi vet svaret
-        e.preventDefault(); // stoppa POST tills vi vet svaret
-        window.showConfirm(msg).then(ok => {
-            if (ok) form.submit(); // kör vanlig POST
-        });
-        return false; // för säkerhets skull – förhindra submit här
+        e.preventDefault();
+        window.showConfirm(opts).then(ok => { if (ok) form.submit(); });
+        return false;
     }
-
-    // Fallback: inbyggd confirm (iOS visar domän, men funkar)
-    return window.confirm(msg);
+    // Fallback: native confirm måste få en sträng
+    return window.confirm(typeof opts === 'string' ? opts : 'Ta bort?');
 }
-//
-function handleDeleteButton(e, message = "Är du säker?") {
+
+// Knapp-varianten
+function handleDeleteButton(e, messageOrOptions) {
     const btn = e.currentTarget;
+    const form = btn.form;
+
+    // Bygg vettig text även om vi bara har fallback (native confirm)
+    const fallbackMsg = (typeof messageOrOptions === 'string')
+        ? messageOrOptions
+        : (messageOrOptions && messageOrOptions.text) || 'Är du säker?';
 
     if (typeof window.showConfirm === 'function') {
         e.preventDefault();
-        window.showConfirm(message).then(ok => {
-            if (ok && btn.form) {
-                if (typeof btn.form.requestSubmit === 'function') {
-                    btn.form.requestSubmit(btn); // behåller handler + formnovalidate
+        window.showConfirm(messageOrOptions).then(ok => {
+            if (ok && form) {
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit(btn);      // bevarar validering/handler
                 } else {
-                    btn.form.submit();
+                    form.submit();
                 }
             }
         });
-        return false;
+        return false; // stoppa default
     }
-    return window.confirm(message);
-}
 
+    // Fallback: native confirm (måste få sträng, inte objekt!)
+    return window.confirm(fallbackMsg);
+}

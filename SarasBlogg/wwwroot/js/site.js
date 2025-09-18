@@ -331,9 +331,53 @@ async function showConfirm(message = "Är du säker?") {
     });
 }
 
-// Byt från: if (confirm("Ta bort kommentaren?")) { removeComment(id); }
-async function confirmDelete(commentId) {
-    if (await showConfirm("Ta bort kommentaren?")) {
-        removeComment(commentId); // din befintliga funktion som faktiskt raderar
+// ---- Nice confirm modal (string ELLER options) ----
+(function () {
+    const modal = document.getElementById('confirmModal');
+    if (!modal) return;
+
+    const backdrop = modal.querySelector('[data-cmodal-close]');
+    const titleEl = document.getElementById('confirmTitle');
+    const textEl = document.getElementById('confirmMessage');
+    const okBtn = modal.querySelector('[data-cmodal-ok]');
+    const cancelBtn = modal.querySelector('[data-cmodal-cancel]');
+
+    let resolver = null;
+    let prevActive = null;
+
+    function open() {
+        modal.classList.add('is-open');
+        prevActive = document.activeElement;
+        setTimeout(() => okBtn?.focus(), 0);
+        document.addEventListener('keydown', onKey);
     }
-}
+    function close(result) {
+        modal.classList.remove('is-open');
+        document.removeEventListener('keydown', onKey);
+        prevActive?.focus?.();
+        const r = resolver; resolver = null;
+        r && r(result);
+    }
+    function onKey(e) {
+        if (e.key === 'Escape') close(false);
+        if (e.key === 'Enter') close(true);
+    }
+
+    // Publik: acceptera sträng ELLER objekt { title?, text?, okLabel?, cancelLabel?, danger? }
+    window.showConfirm = function (opts) {
+        const o = (typeof opts === 'string') ? { text: opts } : (opts || {});
+
+        if (titleEl) titleEl.textContent = o.title ?? 'Bekräfta';
+        if (textEl) textEl.textContent = o.text ?? 'Är du säker?';
+        if (okBtn) okBtn.textContent = o.okLabel ?? 'OK';
+        if (cancelBtn) cancelBtn.textContent = o.cancelLabel ?? 'Avbryt';
+        okBtn?.classList.toggle('btn-danger', !!o.danger);
+        okBtn?.classList.toggle('btn-primary', !o.danger);
+
+        okBtn?.addEventListener('click', () => close(true), { once: true });
+        cancelBtn?.addEventListener('click', () => close(false), { once: true });
+        backdrop?.addEventListener('click', () => close(false), { once: true });
+
+        return new Promise(resolve => { resolver = resolve; open(); });
+    };
+})();

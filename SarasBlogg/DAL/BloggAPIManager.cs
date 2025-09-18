@@ -51,6 +51,29 @@ namespace SarasBlogg.DAL
             await _httpClient.PutAsync($"api/Blogg/{blogg.Id}", content);
         }
 
+        public async Task<bool> ToggleHiddenAsync(int id)
+        {
+            var resp = await _httpClient.PatchAsync($"api/Blogg/{id}/hidden", null);
+            if (!resp.IsSuccessStatusCode)
+            {
+                var body = await resp.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"PATCH hidden failed: {(int)resp.StatusCode} {resp.ReasonPhrase}. Body: {body}");
+            }
+            return true;
+        }
+
+        public async Task<bool> ToggleArchivedAsync(int id)
+        {
+            var resp = await _httpClient.PatchAsync($"api/Blogg/{id}/archived", null);
+            if (!resp.IsSuccessStatusCode)
+            {
+                var body = await resp.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"PATCH archived failed: {(int)resp.StatusCode} {resp.ReasonPhrase}. Body: {body}");
+            }
+            return true;
+        }
+
+
         public async Task DeleteBloggAsync(int id)
         {
             await _httpClient.DeleteAsync($"api/Blogg/{id}");

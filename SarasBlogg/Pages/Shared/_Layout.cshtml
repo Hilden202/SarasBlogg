@@ -174,7 +174,7 @@
 		</footer>
 
 		<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-		<script src="~/js/site.js" asp-append-version="true"></script>
+		<script src="~/js/site.js?b=confirm2" asp-append-version="true"></script>
 		<script src="~/js/blogg.js" asp-append-version="true"></script>
 
 		<partial name="_ValidationScriptsPartial" />
@@ -191,7 +191,7 @@
 	<div id="confirmModal" class="cmodal" aria-hidden="true" role="dialog" aria-modal="true">
 		<div class="cmodal__backdrop" data-cmodal-close></div>
 		<div class="cmodal__dialog" role="document" tabindex="-1">
-			<h2 class="cmodal__title">Bekräfta</h2>
+			<h2 id="confirmTitle" class="cmodal__title">Bekräfta</h2>
 			<p id="confirmMessage" class="cmodal__text">Ta bort kommentaren?</p>
 			<div class="cmodal__actions">
 				<button type="button" class="btn btn-outline-secondary" data-cmodal-cancel>Avbryt</button>
@@ -199,6 +199,5 @@
 			</div>
 		</div>
 	</div>
-
 </body>
 </html>

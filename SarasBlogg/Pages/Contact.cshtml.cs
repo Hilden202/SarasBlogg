@@ -55,7 +55,18 @@ namespace SarasBlogg.Pages
 
         public async Task<IActionResult> OnPostAsync(Models.ContactMe contactMe, int deleteId)
         {
-            // --- Anti-spam ---
+            // 1) RADERA — prio först, och endast superadmin
+            if (deleteId != 0)
+            {
+                if (!User.IsInRole("superadmin"))
+                    return Forbid(); // extra säkerhet
+
+                await _contactManager.DeleteMessageAsync(deleteId);
+                TempData["deleteMessage"] = "Meddelandet raderades.";
+                return RedirectToPage("./Contact", new { contactId = "1" });
+            }
+
+            // 1.5)--- Anti-spam ---
             if (!string.IsNullOrWhiteSpace(Website))
             {
                 TempData["addMessage"] = "Tack för ditt meddelande!";
@@ -90,17 +101,6 @@ namespace SarasBlogg.Pages
             }
             // --- /Anti-spam ---
 
-            // 1) RADERA — prio först, och endast superadmin
-            if (deleteId != 0)
-            {
-                if (!User.IsInRole("superadmin"))
-                    return Forbid(); // extra säkerhet
-
-                await _contactManager.DeleteMessageAsync(deleteId);
-                TempData["deleteMessage"] = "Meddelandet raderades.";
-                return RedirectToPage("./Contact", new { contactId = "1" });
-            }
-
             // 2) SKICKA — samma logik som du hade
             if (ModelState.IsValid)
             {
@@ -127,6 +127,16 @@ namespace SarasBlogg.Pages
 
             // 3) Ogiltigt formulär: visa sidan med valideringsfel
             return Page();
+        }
+
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> OnPostDeleteAsync(int deleteId)
+        {
+            if (!User.IsInRole("superadmin")) return Forbid();
+
+            await _contactManager.DeleteMessageAsync(deleteId);
+            TempData["deleteMessage"] = "Meddelandet raderades.";
+            return RedirectToPage("./Contact", new { contactId = "1" });
         }
 
         private async Task<bool> SendToFormspreeAsync(Models.ContactMe m)

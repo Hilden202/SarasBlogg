@@ -78,11 +78,16 @@
 
 				@if (User.IsInRole("superadmin"))
 				{
-					<form method="post" class="delete-form">
+					<form method="post"
+						  asp-page-handler="Delete"
+						  onsubmit="return handleDeleteSubmit(event, this)"
+						  data-confirm="Ta bort detta meddelande?"
+						  class="ms-auto d-inline">
+						@Html.AntiForgeryToken()
 						<input type="hidden" name="deleteId" value="@item.Id" />
 						<button type="submit"
 								class="btn btn-sm btn-outline-danger"
-								onclick="return confirm('Ta bort detta meddelande?');">
+								title="Ta bort" aria-label="Ta bort">
 							Ta bort
 						</button>
 					</form>

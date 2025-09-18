@@ -301,10 +301,24 @@
 											{
 												if (c.Id != null)
 												{
-													<form method="post" class="ms-2" onsubmit="return confirm('Ta bort kommentaren?')">
+													<form method="post"
+														  onsubmit="return handleDeleteSubmit(event, this)"
+														  data-confirm="Ta bort kommentaren?">
 														@Html.AntiForgeryToken()
 														<input type="hidden" name="deleteCommentId" value="@c.Id" />
-														<button type="submit" class="btn btn-sm btn-outline-danger" title="Ta bort">🗑</button>
+
+														<!-- NOTE: type="button" so the form doesn't post until we confirm -->
+														<button type="button"
+																class="dropdown-item text-danger"
+																onclick="return handleDeleteButton(event, {
+																	title: 'Bekräfta',
+																	text: 'Ta bort kommentaren?',
+																	okLabel: 'Ta bort',
+																	cancelLabel: 'Avbryt',
+																	danger: true
+																})">
+															Ta bort
+														</button>
 													</form>
 												}
 											}
@@ -351,11 +365,29 @@
 									{
 										if (c.Id != null)
 										{
-											<form method="post" class="ms-2" onsubmit="return handleDeleteSubmit(event, this)" data-confirm="Ta bort kommentaren?">
-												@Html.AntiForgeryToken()
-												<input type="hidden" name="deleteCommentId" value="@c.Id" />
-												<button type="submit" class="btn btn-sm btn-outline-danger" title="Ta bort">🗑</button>
-											</form>
+											<div class="dropdown">
+												<button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+														type="button"
+														id="commentMenu-@c.Id"
+														data-bs-toggle="dropdown"
+														aria-expanded="false">
+													⋯
+												</button>
+												<ul class="dropdown-menu" aria-labelledby="commentMenu-@c.Id">
+													<li>
+														<form method="post"
+															  onsubmit="return handleDeleteSubmit(event, this)"
+															  data-confirm="Ta bort kommentaren?">
+															@Html.AntiForgeryToken()
+															<input type="hidden" name="deleteCommentId" value="@c.Id" />
+															<button type="submit" class="dropdown-item text-danger">
+																Ta bort
+															</button>
+														</form>
+													</li>
+												</ul>
+											</div>
+
 										}
 									}
 								</div>

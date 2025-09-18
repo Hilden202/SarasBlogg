@@ -36,11 +36,7 @@
 										@* Dölj/Visa + Arkivera: admin & superadmin. Superuser = disabled *@
 										@if (Model.IsAdmin || Model.IsSuperAdmin)
 										{
-											<form method="get" class="me-1">
-												<input type="hidden" name="hiddenId" value="@item.Blogg.Id" />
-												<button type="submit" class="btn btn-outline-warning">Dölj</button>
-
-											</form>
+											<a asp-route-hiddenId="@item.Blogg.Id" class="btn btn-outline-warning">Dölj</a>
 											@if (item.Blogg.IsArchived)
 											{
 												<a asp-route-archiveId="@item.Blogg.Id" class="btn btn-outline-warning ms-1">Arkiverad</a>
@@ -308,14 +304,16 @@
 										@* Ta bort: endast superadmin *@
 										@if (Model.IsSuperAdmin)
 										{
-											<form method="post" asp-page-handler="DeleteBlogg"
-												  class="me-1"
+											<form method="post"
+												  asp-page-handler="DeleteBlogg"
 												  onsubmit="return handleDeleteSubmit(event, this)"
-												  data-confirm="Ta bort inlägget ”@item.Blogg.Title”?">
+												  data-confirm="Ta bort inlägget ”@item.Blogg.Title” permanent?">
 												@Html.AntiForgeryToken()
 												<input type="hidden" name="deleteId" value="@item.Blogg.Id" />
 												<button type="submit" class="btn btn-outline-danger">Ta bort</button>
 											</form>
+
+
 										}
 										else
 										{
