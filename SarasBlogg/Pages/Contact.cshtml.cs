@@ -28,14 +28,68 @@ namespace SarasBlogg.Pages
         public Models.ContactMe ContactMe { get; set; }
         public IList<Models.ContactMe> ContactMes { get; set; }
 
+        [BindProperty] public string? Website { get; set; } // honeypot
+        [BindProperty] public string? FormIssuedAt { get; set; }
+        [BindProperty] public string? FormToken { get; set; }
+
+        private string Sign(string data)
+        {
+            var secret = _config["AntiSpam:Secret"] ?? "fallback-secret";
+            using var h = new System.Security.Cryptography.HMACSHA256(
+                System.Text.Encoding.UTF8.GetBytes(secret));
+            var hash = h.ComputeHash(System.Text.Encoding.UTF8.GetBytes(data));
+            return Convert.ToHexString(hash);
+        }
+        private bool Verify(string? data, string? sig)
+            => !string.IsNullOrEmpty(data) && !string.IsNullOrEmpty(sig) && Sign(data!) == sig;
+
         public async Task OnGetAsync()
         {
             // Hämta alla meddelanden (vy ansvarar för ToSwedishTime vid render)
             ContactMes = await _contactManager.GetAllMessagesAsync();
+
+            var issuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+            FormIssuedAt = issuedAt;
+            FormToken = Sign(issuedAt);
         }
 
         public async Task<IActionResult> OnPostAsync(Models.ContactMe contactMe, int deleteId)
         {
+            // --- Anti-spam ---
+            if (!string.IsNullOrWhiteSpace(Website))
+            {
+                TempData["addMessage"] = "Tack för ditt meddelande!";
+                return RedirectToPage("./Contact");
+            }
+            if (!Verify(FormIssuedAt, FormToken))
+            {
+                TempData["addMessage"] = "Tack för ditt meddelande!";
+                return RedirectToPage("./Contact");
+            }
+            if (long.TryParse(FormIssuedAt, out var ts))
+            {
+                var age = DateTimeOffset.UtcNow - DateTimeOffset.FromUnixTimeSeconds(ts);
+                if (age.TotalSeconds < 5)
+                {
+                    TempData["addMessage"] = "Tack för ditt meddelande!";
+                    return RedirectToPage("./Contact");
+                }
+            }
+            // blocka länkar/domäner
+            string msg = contactMe?.Message ?? "";
+            string subj = contactMe?.Subject ?? "";
+            string email = contactMe?.Email ?? "";
+            string[] blocked = { "searchregister.org", "searchindexer.pro" };
+            if (blocked.Any(b => msg.Contains(b, StringComparison.OrdinalIgnoreCase) ||
+                                 subj.Contains(b, StringComparison.OrdinalIgnoreCase) ||
+                                 email.Contains(b, StringComparison.OrdinalIgnoreCase)) ||
+                System.Text.RegularExpressions.Regex.IsMatch(msg, @"https?://|www\.", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            {
+                TempData["addMessage"] = "Tack för ditt meddelande!";
+                return RedirectToPage("./Contact");
+            }
+            // --- /Anti-spam ---
+
             // 1) RADERA — prio först, och endast superadmin
             if (deleteId != 0)
             {

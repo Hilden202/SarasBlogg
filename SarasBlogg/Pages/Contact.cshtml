@@ -15,6 +15,14 @@
 
 	<form class="contact-form p-1 p-4 border rounded shadow-sm" method="post">
 		<div class="mb-3">
+			@* Anti-spam: Honeypot + tidslås *@
+			<div class="hp-field" aria-hidden="true">
+				<label for="website">Webbplats (lämna tomt)</label>
+				<input id="website" name="Website" autocomplete="off" tabindex="-1" />
+			</div>
+			<input type="hidden" name="FormIssuedAt" value="@Model.FormIssuedAt" />
+			<input type="hidden" name="FormToken" value="@Model.FormToken" />
+
 			<label asp-for="ContactMe.Name" class="control-label contact-content"></label>
 			<input asp-for="ContactMe.Name" class="form-control" />
 			<span asp-validation-for="ContactMe.Name" class="text-danger"></span>
@@ -57,27 +65,26 @@
 	<ul class="list-group mt-3">
 		@foreach (var item in Model.ContactMes)
 		{
-			<li class="list-group-item d-flex align-items-start justify-content-between">
-				<div class="me-2">
+			<li class="list-group-item message-item">
+				<div class="message-header">
 					<strong>@item.Name</strong>
-					<div>
-						<em>
-							@item.Subject – @item.Message –
-							<a href="mailto:@item.Email">@item.Email</a>
-						</em>
-					</div>
+					<span class="text-muted">(@item.Email)</span>
+					<span class="message-date">@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
+				</div>
+				<div class="message-body">
+					<div><em>Ämne:</em> @item.Subject</div>
+					<div>@item.Message</div>
 				</div>
 
-				@* Delete får bara synas för superadmin *@
 				@if (User.IsInRole("superadmin"))
 				{
-					<form method="post" class="ms-2" aria-label="Ta bort meddelande">
+					<form method="post" class="delete-form">
 						<input type="hidden" name="deleteId" value="@item.Id" />
 						<button type="submit"
-								class="btn btn-close"
-								title="Ta bort"
-								aria-label="Ta bort"
-								onclick="return confirm('Ta bort detta meddelande?');"></button>
+								class="btn btn-sm btn-outline-danger"
+								onclick="return confirm('Ta bort detta meddelande?');">
+							Ta bort
+						</button>
 					</form>
 				}
 			</li>

@@ -1128,3 +1128,48 @@ body > #cookieConsentdiv {
         text-align: center;
     }
 }
+
+.message-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.75rem 1rem;
+    border-left: 4px solid #C48A7D; /* accentfärg */
+    background-color: #fffdfb;
+}
+
+.message-header {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #5a4632;
+}
+
+    .message-header .text-muted {
+        font-weight: 400;
+        font-size: 0.9rem;
+    }
+
+.message-body {
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.delete-form {
+    margin-top: 0.5rem;
+    align-self: flex-end;
+}
+
+.message-date {
+    font-size: 0.85rem;
+    color: #888;
+    margin-left: auto; /* trycker ut datum till höger */
+}
+
+.hp-field {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    height: 0;
+    width: 0;
+    overflow: hidden;
+}
