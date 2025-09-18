@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SarasBlogg.Models;
 
 namespace SarasBlogg.DAL
@@ -7,9 +8,17 @@ namespace SarasBlogg.DAL
     public class AboutMeAPIManager
     {
         private readonly HttpClient _httpClient;
+
         private static readonly JsonSerializerOptions _jsonOpts = new()
         {
             PropertyNameCaseInsensitive = true
+        };
+
+        // Viktigt: skickar alltid med null istället för att ignorera
+        private static readonly JsonSerializerOptions _writeOpts = new()
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
         public AboutMeAPIManager(HttpClient httpClient)
@@ -27,15 +36,19 @@ namespace SarasBlogg.DAL
 
         public async Task<string?> SaveAboutMeAsync(AboutMe aboutMe)
         {
-            var content = new StringContent(JsonSerializer.Serialize(aboutMe), Encoding.UTF8, "application/json");
+            var json = JsonSerializer.Serialize(aboutMe, _writeOpts);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
             var resp = await _httpClient.PostAsync("api/AboutMe", content);
-            return resp.IsSuccessStatusCode ? null : await resp.Content.ReadAsStringAsync();
+            resp.EnsureSuccessStatusCode(); // fånga fel direkt
+            return null;
         }
 
         public async Task UpdateAboutMeAsync(AboutMe aboutMe)
         {
-            var content = new StringContent(JsonSerializer.Serialize(aboutMe), Encoding.UTF8, "application/json");
-            await _httpClient.PutAsync($"api/AboutMe/{aboutMe.Id}", content);
+            var json = JsonSerializer.Serialize(aboutMe, _writeOpts);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var resp = await _httpClient.PutAsync($"api/AboutMe/{aboutMe.Id}", content);
+            resp.EnsureSuccessStatusCode(); // nu syns det om API vägrar spara
         }
 
         public async Task<bool> DeleteAboutMeAsync(int id)

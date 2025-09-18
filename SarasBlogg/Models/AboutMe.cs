@@ -11,14 +11,12 @@ namespace SarasBlogg.Models
         public int Id { get; set; }
 
         [JsonPropertyName("title")]
-        [Required(ErrorMessage = "Vänligen ange en titel")]
         [DisplayName("Titel")]
-        public string Title { get; set; } = string.Empty;
+        public string? Title { get; set; }
 
         [JsonPropertyName("content")]
-        [Required(ErrorMessage = "Du behöver skriva något här")]
         [DisplayName("Innehåll")]
-        public string Content { get; set; } = string.Empty;
+        public string? Content { get; set; }
 
         [JsonPropertyName("image")]
         [Display(Name = "Bild")]
@@ -26,7 +24,7 @@ namespace SarasBlogg.Models
 
         [JsonPropertyName("userId")]
         [DisplayName("Användare")]
-        public string UserId { get; set; } = string.Empty;
+        public string UserId { get; set; }
 
     }
 }

@@ -381,3 +381,10 @@ async function showConfirm(message = "Är du säker?") {
         return new Promise(resolve => { resolver = resolve; open(); });
     };
 })();
+
+//
+function openCropperWithExisting() {
+    if (!imgEl) return;
+    imgEl.src = "@Model.AboutMe.Image";
+    bsModal.show();
+}
