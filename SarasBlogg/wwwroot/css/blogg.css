@@ -255,6 +255,31 @@
         color: #fff !important;
     }
 
+/* Diskret trepunktsknapp i kommentarlistan */
+#comments .comment-menu-btn {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 .25rem;
+    color: #222;
+    border-radius: 0;
+    box-shadow: none !important;
+    line-height: 1;
+    font-size: 22px; /* storlek på punkterna */
+    cursor: pointer;
+}
+    /* Ingen extra caret från Bootstrap på .dropdown-toggle */
+    #comments .comment-menu-btn.dropdown-toggle::after {
+        display: none;
+    }
+
+    /* Hover/focus: bara färg, ingen bakgrund */
+    #comments .comment-menu-btn:hover,
+    #comments .comment-menu-btn:focus {
+        color: #000;
+        outline: none;
+    }
+
+
 /* === Blogg-typsnitt & färger (separat från menyn) === */
 
 /* Titel i bloggkort och i detaljvy */
