@@ -52,6 +52,8 @@
 		}
 	</script>
 	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<!-- CropperJS CSS (måste komma före site.css så våra overrides vinner) -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css" />
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 	<link rel="stylesheet" href="~/css/blogg.css" asp-append-version="true" />
 	<link rel="stylesheet" href="~/css/bloggadmin.css" asp-append-version="true" />
@@ -174,6 +176,8 @@
 		</footer>
 
 		<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+		<!-- CropperJS script (måste vara laddat innan vår site.js kör init) -->
+		<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
 		<script src="~/js/site.js?b=confirm2" asp-append-version="true"></script>
 		<script src="~/js/blogg.js" asp-append-version="true"></script>
 

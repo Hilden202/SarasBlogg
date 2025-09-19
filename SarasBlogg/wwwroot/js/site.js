@@ -388,3 +388,104 @@ function openCropperWithExisting() {
     imgEl.src = "@Model.AboutMe.Image";
     bsModal.show();
 }
+// ===== START: AboutMe - Cropper init + modal-backdrop cleanup =====
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("aboutMeForm");
+    const fileInput = document.querySelector('input[name="AboutMeImage"]');
+    const modalEl = document.getElementById("cropperModal");
+    const imgEl = document.getElementById("cropperImage");
+    const applyBtn = document.getElementById("applyCropBtn");
+    const hiddenOut = document.getElementById("croppedData");
+
+    // Kör bara på AboutMe-sidan
+    if (!form || !fileInput || !modalEl || !imgEl || !applyBtn || !hiddenOut) return;
+
+    const bsModal = new bootstrap.Modal(modalEl);
+    let cropper = null;
+    let objectUrl = null;
+
+    function initCropper() {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(imgEl, {
+            viewMode: 2,
+            aspectRatio: 1,
+            autoCrop: true,
+            autoCropArea: 0.8,
+            responsive: true,
+            dragMode: 'none',
+            movable: false,
+            zoomable: false,
+            zoomOnWheel: false,
+            zoomOnTouch: false,
+            toggleDragModeOnDblclick: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            background: false,
+            center: true,
+            guides: true,
+            highlight: true,
+            ready() {
+                const c = this.cropper;
+                setTimeout(() => {
+                    c.reset();
+                    const img = c.getImageData();
+                    const size = Math.min(img.width, img.height) * 0.6;
+                    c.setCropBoxData({
+                        left: img.left + (img.width - size) / 2,
+                        top: img.top + (img.height - size) / 2,
+                        width: size,
+                        height: size
+                    });
+                }, 0);
+            }
+        });
+    }
+
+    // Auto-öppna när ny fil väljs
+    fileInput.addEventListener("change", () => {
+        hiddenOut.value = "";
+        if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+        if (fileInput.files && fileInput.files[0]) {
+            objectUrl = URL.createObjectURL(fileInput.files[0]);
+            imgEl.onload = () => { imgEl.onload = null; bsModal.show(); };
+            imgEl.src = objectUrl;
+        } else {
+            imgEl.removeAttribute("src");
+        }
+    });
+
+    modalEl.addEventListener("shown.bs.modal", initCropper);
+
+    // ⬇️ Behåll denna cleanup – den var avgörande
+    modalEl.addEventListener("hidden.bs.modal", () => {
+        if (cropper) { cropper.destroy(); cropper = null; }
+        if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+        imgEl.removeAttribute("src");
+
+        if (document.querySelector('.modal.show')) {
+            document.body.classList.add('modal-open');
+            const backs = document.querySelectorAll('.modal-backdrop');
+            if (backs.length > 1) {
+                for (let i = 0; i < backs.length - 1; i++) backs[i].remove();
+            }
+        }
+    });
+
+    applyBtn.addEventListener("click", () => {
+        if (!cropper) return;
+        const canvas = cropper.getCroppedCanvas({ width: 800, height: 800 });
+        hiddenOut.value = canvas.toDataURL("image/png");
+        bsModal.hide();
+    });
+
+    // Busy-knapp
+    form.addEventListener("submit", (e) => {
+        if (!form.checkValidity()) return;
+        const btn = e.submitter;
+        if (!btn) return;
+        if (btn.disabled) { e.preventDefault(); return; }
+        btn.disabled = true;
+        btn.textContent = btn.getAttribute("data-busy-text") || "Sparar…";
+    });
+});
+// ===== END: AboutMe - Cropper init + modal-backdrop cleanup =====

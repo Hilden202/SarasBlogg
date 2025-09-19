@@ -1173,3 +1173,44 @@ body > #cookieConsentdiv {
     width: 0;
     overflow: hidden;
 }
+/* ===== START: Cropper customization (AboutMe) ===== */
+.cropper-crop-box {
+    pointer-events: auto !important;
+    z-index: 10 !important;
+}
+
+.cropper-drag-box {
+    pointer-events: none !important; /* släpp igenom till rutan */
+    z-index: 5 !important;
+}
+
+/* Face täcker hela rutan och tar emot drag */
+.cropper-crop-box .cropper-face {
+    position: absolute !important;
+    inset: 0 !important; /* top/right/bottom/left:0 */
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: auto !important;
+    z-index: 2 !important;
+    cursor: grab !important; /* byt ev. till 'move' för 4-pilar */
+    background-color: rgba(255,255,255,0.001) !important;
+    outline: 1px solid rgba(255,255,255,.85);
+}
+
+    .cropper-crop-box .cropper-face:active {
+        cursor: grabbing !important;
+    }
+
+/* Guider och viewbox ska inte stjäla events från face */
+.cropper-crop-box .cropper-view-box,
+.cropper-dashed {
+    pointer-events: none !important;
+    z-index: 1 !important;
+}
+
+/* Kanter/hörn ska kunna greppas för resize */
+.cropper-line,
+.cropper-point {
+    pointer-events: auto !important;
+}
+/* ===== END: Cropper customization (AboutMe) ===== */
