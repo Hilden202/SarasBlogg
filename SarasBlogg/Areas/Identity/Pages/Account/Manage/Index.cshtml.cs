@@ -33,7 +33,12 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
 
             [Display(Name = "Födelseår")]
             public int? BirthYear { get; set; }
+
+            [Display(Name = "Mejla mig vid nya blogginlägg")]
+            public bool NotifyOnNewPost { get; set; }
         }
+
+
 
         private async Task LoadAsync()
         {
@@ -44,7 +49,8 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
             {
                 PhoneNumber = me?.PhoneNumber,
                 Name = me?.Name,
-                BirthYear = me?.BirthYear
+                BirthYear = me?.BirthYear,
+                NotifyOnNewPost = me?.NotifyOnNewPost ?? false
             };
         }
 
@@ -59,7 +65,7 @@ namespace SarasBlogg.Areas.Identity.Pages.Account.Manage
             if (!ModelState.IsValid) return Page();
 
             var res = await _userApi.UpdateMyProfileAsync(
-                Input.PhoneNumber, Input.Name, Input.BirthYear);
+                Input.PhoneNumber, Input.Name, Input.BirthYear, notifyOnNewPost: Input.NotifyOnNewPost);
 
             StatusMessage = res?.Message ?? (res?.Succeeded == true
                 ? "Din profil har uppdaterats."

@@ -16,6 +16,7 @@
         public string Password { get; set; } = "";
         public string? Name { get; set; }
         public int? BirthYear { get; set; }
+        public bool SubscribeNewPosts { get; set; }
     }
 
     public sealed class BasicResultDto
@@ -54,6 +55,7 @@
         string? Name,
         int? BirthYear,
         string? PhoneNumber,
-        bool EmailConfirmed
+        bool EmailConfirmed,
+        bool NotifyOnNewPost
     );
 }

@@ -54,6 +54,10 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
 
             [Display(Name = "Födelseår")]
             public int? BirthYear { get; set; }
+
+            [Display(Name = "Mejla mig när nya blogginlägg publiceras")]
+            public bool SubscribeNewPosts { get; set; }
+
         }
 
         public void OnGet()
@@ -75,7 +79,10 @@ namespace SarasBlogg.Areas.Identity.Pages.Account
 
             if (!ModelState.IsValid) return Page();
 
-            var result = await _userApi.RegisterAsync(Input.UserName, Input.Email, Input.Password, Input.Name, Input.BirthYear);
+            var result = await _userApi.RegisterAsync(
+                Input.UserName, Input.Email, Input.Password, Input.Name, Input.BirthYear,
+                subscribeNewPosts: Input.SubscribeNewPosts);
+
             if (result is null)
             {
                 ModelState.AddModelError(string.Empty, "Kunde inte nå API:t. Försök igen.");

@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Net.Http.Json;
 using SarasBlogg.DTOs;
 using static System.Net.WebRequestMethods;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace SarasBlogg.DAL
 {
@@ -114,9 +115,21 @@ namespace SarasBlogg.DAL
             return response.IsSuccessStatusCode;
         }
         public async Task<BasicResultDto?> RegisterAsync(
-            string userName, string email, string password, string? name = null, int? birthYear = null, CancellationToken ct = default)
+            string userName, string email, string password,
+           string? name = null, int? birthYear = null,
+            bool subscribeNewPosts = false,
+            CancellationToken ct = default)
         {
-            var payload = new RegisterRequest { UserName = userName, Email = email, Password = password, Name = name, BirthYear = birthYear };
+            var payload = new RegisterRequest
+            {
+                UserName = userName,
+                Email = email,
+                Password = password,
+                Name = name,
+                BirthYear = birthYear,
+                SubscribeNewPosts = subscribeNewPosts
+            }
+            ;
             using var res = await _http.PostAsJsonAsync("api/auth/register", payload, _json, ct);
 
             // Läs råtext en gång
@@ -202,7 +215,8 @@ namespace SarasBlogg.DAL
                 Name = me.Name,
                 BirthYear = me.BirthYear,
                 PhoneNumber = me.PhoneNumber,
-                EmailConfirmed = me.EmailConfirmed
+                EmailConfirmed = me.EmailConfirmed,
+                NotifyOnNewPost = me.NotifyOnNewPost
             };
         }
 
@@ -238,14 +252,26 @@ namespace SarasBlogg.DAL
             .ContinueWith(async t => (await t.Result.Content.ReadFromJsonAsync<BasicResultDto>(cancellationToken: ct))!, ct).Unwrap();
 
         // ==== PROFILE ====
-        public async Task<BasicResultDto?> UpdateMyProfileAsync(string? phoneNumber, string? name, int? birthYear, CancellationToken ct = default)
+        public async Task<BasicResultDto?> UpdateMyProfileAsync(
+            string? phoneNumber, string? name, int? birthYear,
+            bool? notifyOnNewPost = null,
+            CancellationToken ct = default)
         {
-            var payload = new UpdateProfileDto { PhoneNumber = phoneNumber, Name = name, BirthYear = birthYear };
+            var payload = new UpdateProfileDto
+            {
+                PhoneNumber = phoneNumber,
+                Name = name,
+                BirthYear = birthYear,
+                NotifyOnNewPost = notifyOnNewPost
+            };
+
             using var res = await _http.PutAsJsonAsync("api/User/me/profile", payload, _json, ct);
             var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
-            if (!res.IsSuccessStatusCode) return body ?? new BasicResultDto { Succeeded = false, Message = $"HTTP {(int)res.StatusCode}" };
+            if (!res.IsSuccessStatusCode)
+                return body ?? new BasicResultDto { Succeeded = false, Message = $"HTTP {(int)res.StatusCode}" };
             return body;
         }
+
 
         public async Task<PersonalDataDto?> GetMyPersonalDataAsync(CancellationToken ct = default)
         {
