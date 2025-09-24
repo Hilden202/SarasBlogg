@@ -40,10 +40,10 @@ namespace SarasBlogg
 
             if (!string.IsNullOrWhiteSpace(dpConn))
             {
-                builder.Services.AddDbContext<DataProtectionKeysContext>(opt => opt.UseNpgsql(dpConn));
-                builder.Services.AddDataProtection()
-                    .PersistKeysToDbContext<DataProtectionKeysContext>()
-                    .SetApplicationName("SarasBloggSharedKeys");
+                //builder.Services.AddDbContext<DataProtectionKeysContext>(opt => opt.UseNpgsql(dpConn));
+                //builder.Services.AddDataProtection()
+                //    .PersistKeysToDbContext<DataProtectionKeysContext>()
+                //    .SetApplicationName("SarasBloggSharedKeys");
             }
             else
             {
