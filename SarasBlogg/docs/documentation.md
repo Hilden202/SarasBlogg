@@ -40,6 +40,11 @@
   - JSON-hantering med `System.Text.Json` (standardinställningar)
 - `UserAPIManager` är också typed HttpClient
   - Endast GET/HEAD har retry (POST har ingen retry för att undvika dubletter)
+	- **Backup & Restore**
+  - Daglig backup körs via schemalagd PowerShell (`backup-sarasblogg.ps1`) som använder `pg_dump`.
+  - Scriptet sparar dumpfiler i `Desktop\SarasBlogg\Backups` och loggar i CSV/XLSX.
+  - Viktigt: den schemalagda uppgiften måste köra **.ps1 direkt i PowerShell** (inte via `.bat`), annars kan datum i filnamnet bli fel p.g.a. Windows `%DATE%`-format.
+  - Återställning sker i pgAdmin med **Clean before restore** ibockat för att undvika FK-krockar.
 
 ---
 
@@ -87,6 +92,8 @@
   - Kan inte raderas (API & frontend)
   - Kan inte få roller borttagna
   - Roller visas som låsta “Ja” i admin-UI
+- **Notiser vid nya blogginlägg**
+  - Användare kan ha `NotifyOnNewPost = true` (lagras på ApplicationUser)
 
 ---
 
