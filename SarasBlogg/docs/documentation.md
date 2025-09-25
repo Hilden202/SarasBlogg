@@ -30,6 +30,10 @@
 - SendGrid används för transaktionsmail (bekräftelse/återställning)
   - Dev-läge: loggar e-post till konsolen
   - Prod-läge: skickar riktiga mail
+- API:t kan köras i två lokala miljöer:  
+  - **Test** – använder en separat Docker-databas (sarasblogg_test) för helt isolerad testning och e2e-tester.  
+  - **Prod** – kör samma kod och konfiguration som den skarpa Render-miljön, men lokalt på datorn (använder riktiga databasen om den är vald).  
+  På så sätt kan man växla mellan sandbox och skarp miljö utan att ändra klientkod.
 
 ---
 
