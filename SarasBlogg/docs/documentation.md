@@ -31,9 +31,10 @@
   - Dev-läge: loggar e-post till konsolen
   - Prod-läge: skickar riktiga mail
 - API:t kan köras i två lokala miljöer:  
-  - **Test** – använder en separat Docker-databas (sarasblogg_test) för helt isolerad testning och e2e-tester.  
+  - **Test** – använder en separat Docker-databas (`sarasblogg_test`) för helt isolerad testning.  
+    Här är det möjligt att köra automatiserade end-to-end-tester med **Playwright** utan risk att påverka produktionen.  
   - **Prod** – kör samma kod och konfiguration som den skarpa Render-miljön, men lokalt på datorn (använder riktiga databasen om den är vald).  
-  På så sätt kan man växla mellan sandbox och skarp miljö utan att ändra klientkod.
+    Detta gör att man kan växla mellan sandbox och skarp miljö utan att ändra klientkod.
 
 ---
 
