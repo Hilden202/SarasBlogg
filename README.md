@@ -1,4 +1,4 @@
-![SarasBlogg](./assets/medhjärtatsomkompasslogga.png)
+![SarasBlogg](./assets/Sarablogglogga.png)
 
 # SarasBlogg
 
