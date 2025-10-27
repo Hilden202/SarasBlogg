@@ -31,18 +31,38 @@ namespace SarasBlogg
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
 
-            // --- DataProtection: lokal, databasfri lösning ---
-            var keysPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "SarasBlogg", "data-keys");
+// --- DataProtection: miljömedveten och robust ---
+            string keysPath;
 
-            Directory.CreateDirectory(keysPath);
+            if (builder.Environment.IsDevelopment())
+            {
+                // Lokal: skriv i användarprofilen
+                keysPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "SarasBlogg", "data-keys");
+            }
+            else
+            {
+                // Render/produktion: skrivbar och beständig mapp på Render
+                // (lever kvar mellan deploys)
+                keysPath = "/opt/render/project/.render/data-keys";
+            }
+
+            // Skapa och använd vald plats, med fallback till /tmp om något strular
+            try
+            {
+                Directory.CreateDirectory(keysPath);
+            }
+            catch
+            {
+                keysPath = "/tmp/sarasblogg-keys";
+                Directory.CreateDirectory(keysPath);
+            }
 
             builder.Services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
                 .SetApplicationName("SarasBloggSharedKeys");
             // --- slut DataProtection ---
-
 
             // 🔐 Endast cookie-auth i klienten (JWT hämtas från API och läggs i cookie + minnet)
             builder.Services
