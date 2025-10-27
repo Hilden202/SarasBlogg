@@ -31,28 +31,18 @@ namespace SarasBlogg
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
 
-            // ---- DataProtection: smart conn-str val + fallback ----
-            string? dpConnName = builder.Configuration["DataProtection:ConnectionStringName"];
-            string? dpConn =
-                (dpConnName is not null ? builder.Configuration.GetConnectionString(dpConnName) : null)
-                ?? builder.Configuration.GetConnectionString("DefaultConnection")
-                ?? builder.Configuration.GetConnectionString("MyConnection");
+            // --- DataProtection: lokal, databasfri lösning ---
+            var keysPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "SarasBlogg", "data-keys");
 
-            if (!string.IsNullOrWhiteSpace(dpConn))
-            {
-                //builder.Services.AddDbContext<DataProtectionKeysContext>(opt => opt.UseNpgsql(dpConn));
-                //builder.Services.AddDataProtection()
-                //    .PersistKeysToDbContext<DataProtectionKeysContext>()
-                //    .SetApplicationName("SarasBloggSharedKeys");
-            }
-            else
-            {
-                Directory.CreateDirectory("/app/data-keys");
-                builder.Services.AddDataProtection()
-                    .PersistKeysToFileSystem(new DirectoryInfo("/app/data-keys"))
-                    .SetApplicationName("SarasBloggSharedKeys");
-            }
-            // ---- slut DataProtection ----
+            Directory.CreateDirectory(keysPath);
+
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+                .SetApplicationName("SarasBloggSharedKeys");
+            // --- slut DataProtection ---
+
 
             // 🔐 Endast cookie-auth i klienten (JWT hämtas från API och läggs i cookie + minnet)
             builder.Services
