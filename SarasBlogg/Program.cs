@@ -31,7 +31,7 @@ namespace SarasBlogg
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
 
-// --- DataProtection: miljömedveten och robust ---
+            // --- DataProtection: miljömedveten och robust ---
             string keysPath;
 
             if (builder.Environment.IsDevelopment())
