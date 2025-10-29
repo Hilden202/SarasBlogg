@@ -219,9 +219,13 @@ div {
         margin: 0 0 0.5rem 0;
         font-size: 1.25rem;
         max-width: 100%;
-        word-break: break-all;
-        overflow-wrap: break-word;
+        overflow-wrap: anywhere;
         white-space: normal;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        min-height: 3.2rem;
     }
 
     .cards-container .card-link,
@@ -238,13 +242,17 @@ div {
 
     .cards-container .card-content {
         font-size: 1rem;
-        line-height: 1.2em;
+        line-height: 1.3em;
         max-width: 30ch;
         white-space: normal;
         overflow-wrap: break-word;
         margin: 0 auto;
         text-overflow: clip;
-        display: block;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 4;
+        overflow: hidden;
+        min-height: 5.2rem;
     }
 
 .card-content {
@@ -256,6 +264,28 @@ div {
     display: flex;
     justify-content: center;
     width: 100%;
+}
+
+.contact-card {
+    background-color: #fef9f6;
+    border: 1px solid rgba(196, 138, 125, 0.35);
+    box-shadow: 0 22px 45px rgba(116, 85, 74, 0.22) !important;
+    padding: 2.25rem 2.5rem;
+}
+
+@media (max-width: 576px) {
+    .contact-card {
+        padding: 1.75rem;
+    }
+}
+
+.blogg-detail-card .card-img-wrapper,
+.blogg-detail-card .carousel {
+    margin-bottom: 2.75rem !important;
+}
+
+.blogg-detail-card .thumb-strip {
+    margin-bottom: 2.5rem;
 }
 
 .aboutme-img {
@@ -613,9 +643,17 @@ footer.border-top {
 
 /* 5) Säkra att om-mig inte får någon oväntad offset */
 .om-mig-box {
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
+    background: rgba(255, 245, 238, 0.92) !important;
+    border: 1px solid rgba(196, 138, 125, 0.3) !important;
+    border-radius: 18px !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 18px 35px rgba(116, 85, 74, 0.12) !important;
+    backdrop-filter: blur(4px);
+}
+
+.om-mig-box > a {
+    display: block;
+    color: inherit;
 }
 
 /* ==== Bakgrund/Decor ==== */
@@ -711,14 +749,19 @@ footer .social-icons {
     position: relative;
     border-radius: 20px;
     padding: 1rem;
-    background-color: #fbefe2 !important;
+    background-color: #fdf3ec !important;
     min-height: 340px;
     height: 100%;
     text-align: left;
     /* Kortets egen skugga i rosa/röd ton */
-    box-shadow: 0 2px 6px rgba(231, 84, 128, 0.2);
+    box-shadow: 0 10px 24px rgba(196, 138, 125, 0.18);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
+}
+
+.cards-container .card-img-wrapper::before {
+    filter: blur(14px) brightness(1.08) saturate(1.05);
+    transform: scale(1.08);
 }
 
 /* 👇 neutralisera bootstrap-stilar för card-footer */
