@@ -177,7 +177,7 @@
 				</a>
 
 				<h3 class="card-title blogg-title">@Model.Blogg.Title</h3>
-				<p class="card-text linebreak blogg-content">@Model.Blogg.Content</p>
+                                <div class="card-text blogg-content prose">@Html.Raw(Model.Blogg.Content)</div>
 				<p class="text-faded">
 					<strong>Författare:</strong> @Model.Blogg.Author<br />
 					<strong>Publicerad:</strong> @Model.Blogg.LaunchDate.ToSwedishTime().ToString("yyyy-MM-dd")
