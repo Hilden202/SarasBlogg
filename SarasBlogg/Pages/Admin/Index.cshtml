@@ -116,7 +116,7 @@
 										</div>
 									}
 								</td>
-								<td class="text-lg-start align-middle border d-none d-md-table-cell">@item.Blogg.Content?.LimitLength(10)</td>
+								<td class="text-lg-start align-middle border d-none d-md-table-cell">@item.Blogg.Content?.LimitLength(10, true)</td>
 								<td class="text-center align-middle border d-none d-md-table-cell">@item.Blogg.Author</td>
 								<td class="text-center align-middle border d-none d-md-table-cell">
 									@{
@@ -156,7 +156,7 @@
 		@if (Model.IsSuperAdmin)
 		{
 			<div id="editFormSection">
-				<form id="blogForm" class="white-panel p-3 border rounded shadow-sm" method="post" enctype="multipart/form-data" novalidate>
+                                <form id="blogForm" class="white-panel p-3 border rounded shadow-sm" method="post" enctype="multipart/form-data" novalidate data-editor-token="@Model.EditorAccessToken">
 					<div class="text-danger mb-2">
 						@Html.ValidationSummary(excludePropertyErrors: true)
 					</div>
@@ -170,7 +170,7 @@
 					<br />
 
 					<label asp-for="NewBlogg.Content"></label>
-					<textarea asp-for="NewBlogg.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
+                                        <textarea asp-for="NewBlogg.Content" id="ContentEditor" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
 					<span asp-validation-for="NewBlogg.Content" class="text-danger"></span>
 					<br />
 
@@ -396,7 +396,7 @@
 										</div>
 									}
 								</td>
-								<td class="text-lg-start align-middle border d-none d-md-table-cell">@item.Blogg.Content?.LimitLength(10)</td>
+								<td class="text-lg-start align-middle border d-none d-md-table-cell">@item.Blogg.Content?.LimitLength(10, true)</td>
 								<td class="text-center align-middle border d-none d-md-table-cell">@item.Blogg.Author</td>
 								<td class="text-center align-middle border d-none d-md-table-cell">
 									@{
@@ -435,24 +435,9 @@
 </div>
 
 @section Scripts {
-	<script>
-		document.addEventListener("DOMContentLoaded", () => {
-		  const form = document.getElementById("blogForm");
-		  if (!form) return;
-
-		  form.addEventListener("submit", (e) => {
-			// Låt HTML5-validering hindra submit om något är fel (annars fastnar knappen)
-			if (!form.checkValidity()) return;
-
-			// Lås endast den knapp som faktiskt skickade
-			const btn = e.submitter;
-			if (!btn) return;
-			if (btn.disabled) { e.preventDefault(); return; }
-
-			const busyText = btn.getAttribute("data-busy-text") || "Sparar…";
-			btn.disabled = true;
-			btn.textContent = busyText;
-		  });
-		});
-	</script>
+	<script src="https://cdn.tiny.cloud/1/w08a15i4apxeim3cv9u3cawuv0j8l8dwrd5o54igvvybtyh1/tinymce/7/tinymce.min.js"
+			referrerpolicy="origin"></script>
+	<script src="~/js/tinymce-config.js"></script>
 }
+
+

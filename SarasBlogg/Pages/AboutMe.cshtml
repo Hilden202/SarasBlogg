@@ -7,11 +7,11 @@
 	@if (User.IsInRole("superadmin"))
 	{
 		<!-- Tre-punkts knapp -->
-		<div class="mt-2 three-dots-container"> 
+		<div class="mt-2 three-dots-container">
 			<button class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center three-dots-btn"
-			type="button"
-			data-bs-toggle="modal"
-			data-bs-target="#aboutMeFormModal">
+					type="button"
+					data-bs-toggle="modal"
+					data-bs-target="#aboutMeFormModal">
 
 				<span class="three-dots-icon">
 					<span class="three-dot">&#x2022;</span>
@@ -35,7 +35,9 @@
 			}
 			<div>
 				<h3 class="blogg-title">@Model.AboutMe.Title</h3>
-				<p class="blogg-content linebreak">@Model.AboutMe.Content</p>
+				<div class="blogg-content prose">
+					@Html.Raw(Model.AboutMe.Content)
+				</div>
 			</div>
 		</div>
 	}
@@ -45,29 +47,29 @@
 	}
 
 	<!-- Modal för formulär -->
-		<div class="modal fade" id="aboutMeFormModal" tabindex="-1" aria-labelledby="aboutMeFormModalLabel" aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="aboutMeFormModalLabel">Redigera Om Mig</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Stäng"></button>
-					</div>
-					<div class="modal-body">
+	<div class="modal fade" id="aboutMeFormModal" tabindex="-1" aria-labelledby="aboutMeFormModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="aboutMeFormModalLabel">Redigera Om Mig</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Stäng"></button>
+				</div>
+				<div class="modal-body">
 					<form id="aboutMeForm" method="post" enctype="multipart/form-data" novalidate>
-							<input asp-for="AboutMe.Id" type="hidden" />
-							<input asp-for="AboutMe.UserId" type="hidden" />
-							<label asp-for="AboutMe.Title"></label>
-							<input asp-for="AboutMe.Title" class="form-control" placeholder="Ange titel här" maxlength="100" />
-							<span asp-validation-for="AboutMe.Title" class="text-danger"></span>
-							<br />
-							<label asp-for="AboutMe.Content"></label>
-							<textarea asp-for="AboutMe.Content" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
-							<span asp-validation-for="AboutMe.Content" class="text-danger"></span>
-							<br />
-							<!-- Bildhantering -->
-							<label asp-for="AboutMe.Image"></label>
-							<input asp-for="AboutMeImage" type="file" /> <!--Ändra inte denna till en .-->
-							<br />
+						<input asp-for="AboutMe.Id" type="hidden" />
+						<input asp-for="AboutMe.UserId" type="hidden" />
+						<label asp-for="AboutMe.Title"></label>
+						<input asp-for="AboutMe.Title" class="form-control" placeholder="Ange titel här" maxlength="100" />
+						<span asp-validation-for="AboutMe.Title" class="text-danger"></span>
+						<br />
+						<label asp-for="AboutMe.Content"></label>
+						<textarea asp-for="AboutMe.Content" id="AboutMeEditor" class="form-control" placeholder="Ange innehåll här" rows="10" cols="60"></textarea>
+						<span asp-validation-for="AboutMe.Content" class="text-danger"></span>
+						<br />
+						<!-- Bildhantering -->
+						<label asp-for="AboutMe.Image"></label>
+						<input asp-for="AboutMeImage" type="file" /> <!--Ändra inte denna till en .-->
+						<br />
 						<input type="hidden" name="CroppedImageData" id="croppedData" />
 
 						@if (!string.IsNullOrEmpty(Model.AboutMe.Image))
@@ -85,17 +87,17 @@
 								</div>
 							</div>
 						}
-							else
-							{
-								<p>Ingen bild vald.</p>
-							}
-							<br />
+						else
+						{
+							<p>Ingen bild vald.</p>
+						}
+						<br />
 						<button type="submit" class="btn btn-success" data-busy-text="Sparar…">Spara ändringar</button>
-						</form>
-					</div>
+					</form>
 				</div>
 			</div>
 		</div>
+	</div>
 	<!-- Cropper-modal -->
 	<div class="modal fade" id="cropperModal"
 		 tabindex="-1" aria-hidden="true"
@@ -122,3 +124,8 @@
 		</div>
 	</div>
 </div>
+@section Scripts {
+	<script src="https://cdn.tiny.cloud/1/w08a15i4apxeim3cv9u3cawuv0j8l8dwrd5o54igvvybtyh1/tinymce/7/tinymce.min.js"
+			referrerpolicy="origin"></script>
+	<script src="~/js/tinymce-config.js"></script>
+}

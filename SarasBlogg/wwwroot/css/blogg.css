@@ -322,6 +322,101 @@ a.blogg-link:visited {
     text-decoration: none;
     /* OBS: ingen font-weight här → titeln förblir fet */
 }
+
+.blogg-content.prose {
+    display: block;
+}
+
+.blogg-content.prose > *:first-child {
+    margin-top: 0;
+}
+
+.blogg-content.prose > *:last-child {
+    margin-bottom: 0;
+}
+
+.blogg-content.prose p {
+    margin-bottom: 1.25rem;
+}
+
+.blogg-content.prose h1,
+.blogg-content.prose h2,
+.blogg-content.prose h3 {
+    font-family: 'Cormorant SC', serif;
+    color: #7e6655;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.blogg-content.prose h1 { font-size: 2rem; }
+.blogg-content.prose h2 { font-size: 1.6rem; }
+.blogg-content.prose h3 { font-size: 1.3rem; }
+
+.blogg-content.prose ul,
+.blogg-content.prose ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.blogg-content.prose blockquote {
+    border-left: 4px solid #c48a7d;
+    background: #fdf3eb;
+    padding: .75rem 1.25rem;
+    margin: 1.75rem 0;
+}
+
+.blogg-content.prose blockquote > :first-child { margin-top: 0; }
+.blogg-content.prose blockquote > :last-child { margin-bottom: 0; }
+
+.blogg-content.prose a {
+    color: #a87363;
+    text-decoration: underline;
+}
+
+.blogg-content.prose table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.blogg-content.prose table th,
+.blogg-content.prose table td {
+    border: 1px solid #e2d5c3;
+    padding: .5rem;
+    vertical-align: top;
+}
+
+.soft-box {
+    background: #fdf7f0;
+    border: 1px solid #eadfd2;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.sara-quote {
+    border-left: 4px solid #b77966;
+    background: #fff9f5;
+    padding: 1.25rem 1.75rem;
+    font-style: italic;
+    margin: 1.5rem 0;
+}
+
+.image-collage {
+    display: grid;
+    gap: .75rem;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    margin: 1.5rem 0;
+}
+
+.image-collage img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 12px;
+}
 /* Kommentar-sektion titel */
 #comments h5 {
     font-family: 'Cormorant SC', serif;
