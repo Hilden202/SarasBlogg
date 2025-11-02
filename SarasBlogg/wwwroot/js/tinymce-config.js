@@ -2,6 +2,7 @@
     const baseOptions = {
         menubar: false,
         branding: false,
+        license_key: 'gpl',
         height: 500,
         plugins: "lists link table code",
         toolbar:
