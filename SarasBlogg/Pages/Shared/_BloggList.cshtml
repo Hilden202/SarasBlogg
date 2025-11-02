@@ -49,7 +49,9 @@
 								 alt="Bild för @blogg.Title" />
 						</div>
 						<h5 class="card-title blogg-title">@blogg.Title</h5>
-						<p class="card-text blogg-content">@blogg.Content.LimitLength(120)</p>
+						<div class="card-text blogg-content prose">
+							@Html.Raw(blogg.Content.LimitLength(200, true))
+							</div>
 						<p class="text-faded">
 							<small class="text-faded">
 								Publicerad: @blogg.LaunchDate.ToSwedishTime().ToString("yyyy-MM-dd")

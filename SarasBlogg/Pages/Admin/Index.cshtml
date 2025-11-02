@@ -116,7 +116,7 @@
 										</div>
 									}
 								</td>
-								<td class="text-lg-start align-middle border d-none d-md-table-cell">@item.Blogg.Content?.LimitLength(10)</td>
+								<td class="text-lg-start align-middle border d-none d-md-table-cell">@item.Blogg.Content?.LimitLength(10, true)</td>
 								<td class="text-center align-middle border d-none d-md-table-cell">@item.Blogg.Author</td>
 								<td class="text-center align-middle border d-none d-md-table-cell">
 									@{
@@ -396,7 +396,7 @@
 										</div>
 									}
 								</td>
-								<td class="text-lg-start align-middle border d-none d-md-table-cell">@item.Blogg.Content?.LimitLength(10)</td>
+								<td class="text-lg-start align-middle border d-none d-md-table-cell">@item.Blogg.Content?.LimitLength(10, true)</td>
 								<td class="text-center align-middle border d-none d-md-table-cell">@item.Blogg.Author</td>
 								<td class="text-center align-middle border d-none d-md-table-cell">
 									@{
@@ -435,104 +435,9 @@
 </div>
 
 @section Scripts {
-        <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-        <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                  const form = document.getElementById("blogForm");
-                  const editorSelector = "#ContentEditor";
-                  const apiBase = (document.documentElement.dataset.apiBaseUrl || "").replace(/\/+$/, "");
-                  const editorToken = form?.dataset?.editorToken?.trim();
-
-                  if (form && typeof tinymce !== "undefined") {
-                        const contentStyle = `
-body { font-family: 'Cormorant Garamond', serif; color: #7e6655; line-height: 1.6; font-size: 16px; }
-h1, h2, h3 { font-family: 'Cormorant SC', serif; color: #7e6655; text-transform: uppercase; letter-spacing: 0.05em; }
-h1 { font-size: 2rem; }
-h2 { font-size: 1.6rem; }
-h3 { font-size: 1.3rem; }
-a { color: #a87363; text-decoration: underline; }
-blockquote { border-left: 4px solid #c48a7d; margin: 1.5rem 0; padding: .75rem 1.25rem; background: #fdf3eb; }
-ul, ol { padding-left: 1.5rem; }
-table { border-collapse: collapse; width: 100%; }
-table th, table td { border: 1px solid #e2d5c3; padding: .5rem; }
-.soft-box { background: #fdf7f0; border: 1px solid #eadfd2; border-radius: 12px; padding: 1.25rem; }
-.sara-quote { border-left: 4px solid #b77966; padding: 1rem 1.5rem; background: #fff9f5; font-style: italic; }
-.image-collage { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
-.image-collage img { width: 100%; height: auto; border-radius: 10px; object-fit: cover; }
-`;
-
-                        tinymce.init({
-                          selector: editorSelector,
-                          menubar: false,
-                          branding: false,
-                          height: 520,
-                          plugins: "lists link image table code",
-                          toolbar: "undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | blockquote | link image | removeformat",
-                          block_formats: "Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3",
-                          convert_urls: false,
-                          automatic_uploads: false,
-                          images_upload_handler: (blobInfo, progress) => new Promise(async (resolve, reject) => {
-                                try {
-                                  if (!apiBase) throw new Error("API-bas saknas.");
-                                  if (!editorToken) throw new Error("Ingen token för bilduppladdning.");
-
-                                  const uploadUrl = `${apiBase}/api/editor/upload-image`;
-                                  const formData = new FormData();
-                                  formData.append("file", blobInfo.blob(), blobInfo.filename());
-
-                                  const response = await fetch(uploadUrl, {
-                                        method: "POST",
-                                        headers: { "Authorization": `Bearer ${editorToken}` },
-                                        body: formData
-                                  });
-
-                                  if (!response.ok) {
-                                        const errorText = await response.text();
-                                        throw new Error(`Uppladdning misslyckades (${response.status}): ${errorText}`.trim());
-                                  }
-
-                                  const json = await response.json();
-                                  if (!json?.location) {
-                                        throw new Error("Svar saknar fil-URL.");
-                                  }
-
-                                  resolve(json.location);
-                                } catch (err) {
-                                  console.error("TinyMCE image upload error", err);
-                                  const message = err instanceof Error
-                                        ? err.message
-                                        : (typeof err === "string" ? err : "Uppladdning misslyckades.");
-                                  reject(message);
-                                }
-                          }),
-                          setup: (editor) => {
-                                editor.on("change input undo redo", () => {
-                                  editor.save();
-                                });
-                          },
-                          content_style: contentStyle
-                        });
-                  }
-
-                  if (!form) return;
-
-                  form.addEventListener("submit", (e) => {
-                        if (typeof tinymce !== "undefined") {
-                          tinymce.triggerSave();
-                        }
-
-                        // Låt HTML5-validering hindra submit om något är fel (annars fastnar knappen)
-                        if (!form.checkValidity()) return;
-
-                        // Lås endast den knapp som faktiskt skickade
-                        const btn = e.submitter;
-                        if (!btn) return;
-                        if (btn.disabled) { e.preventDefault(); return; }
-
-                        const busyText = btn.getAttribute("data-busy-text") || "Sparar…";
-                        btn.disabled = true;
-                        btn.textContent = busyText;
-                  });
-                });
-        </script>
+	<script src="https://cdn.tiny.cloud/1/w08a15i4apxeim3cv9u3cawuv0j8l8dwrd5o54igvvybtyh1/tinymce/7/tinymce.min.js"
+			referrerpolicy="origin"></script>
+	<script src="~/js/tinymce-config.js"></script>
 }
+
+
