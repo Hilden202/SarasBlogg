@@ -21,6 +21,10 @@ namespace SarasBlogg
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // 🔹 Frontend base-URL (används t.ex. i e-postlänkar)
+            var frontendBase = builder.Configuration["Frontend:BaseUrl"]
+                ?? (builder.Environment.IsDevelopment() ? "https://localhost:7130" : "https://sarasblogg.onrender.com");
+
             // Bind endast i container (Render). Lokalt låter vi launchSettings styra.
             var portEnv = Environment.GetEnvironmentVariable("PORT");
             if (!string.IsNullOrEmpty(portEnv))
