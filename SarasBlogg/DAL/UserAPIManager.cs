@@ -298,5 +298,38 @@ namespace SarasBlogg.DAL
             return await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct)
                    ?? new BasicResultDto { Succeeded = res.IsSuccessStatusCode, Message = res.ReasonPhrase };
         }
+        
+        public async Task<UserDto?> GetUserByEmailAsync(string email)
+        {
+            var response = await _http.GetAsync($"api/users/by-email/{Uri.EscapeDataString(email)}");
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            return await response.Content.ReadFromJsonAsync<UserDto>(_json);
+        }
+        
+        public async Task<BasicResultDto?> SendResetLinkAsync(string email, CancellationToken ct = default)
+        {
+            var payload = new EmailDto(email);
+            using var res = await _http.PostAsJsonAsync("api/auth/send-reset-link", payload, _json, ct);
+
+            // Försök läsa som BasicResultDto direkt
+            var body = await res.Content.ReadFromJsonAsync<BasicResultDto>(_json, ct);
+
+            // Om inget kommer tillbaka (t.ex. null) → skapa fallback
+            if (body == null)
+            {
+                var raw = await res.Content.ReadAsStringAsync(ct);
+                return new BasicResultDto
+                {
+                    Succeeded = res.IsSuccessStatusCode,
+                    Message = string.IsNullOrWhiteSpace(raw)
+                        ? $"HTTP {(int)res.StatusCode}"
+                        : raw
+                };
+            }
+
+            return body;
+        }
     }
 }

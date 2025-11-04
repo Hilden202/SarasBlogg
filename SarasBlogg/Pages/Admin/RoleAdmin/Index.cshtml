@@ -1,6 +1,21 @@
 ﻿@page
 @model SarasBlogg.Pages.Admin.RoleAdmin.IndexModel
 
+@if (TempData["SuccessMessage"] is string success)
+{
+	<div class="alert alert-success">@success</div>
+}
+@if (TempData["ErrorMessage"] is string error)
+{
+	<div class="alert alert-danger">@error</div>
+}
+@if (TempData["ManualResetLink"] is string resetLink)
+{
+	<div class="alert alert-info">
+		<strong>Dev-läge:</strong> Skicka manuellt följande länk till användaren:<br />
+		<a href="@resetLink" target="_blank">@resetLink</a>
+	</div>
+}
 <div class="container-site">
 	@if (Model.IsApiAdminOrSuper)
 	{
@@ -14,15 +29,16 @@
 		<div class="table-responsive-lg">
 			<table class="border table table-striped shadow-sm align-middle admin-table">
 				<thead>
-					<tr>
-						<th>Ta bort</th>
-						<th>Användare</th>
-						<th class="d-none d-md-table-cell">Byt användarnamn</th>
-						@foreach (var role in Model.Roles)
-						{
-							<th class="d-none d-md-table-cell">@role</th>
-						}
-					</tr>
+				<tr>
+					<th>Ta bort</th>
+					<th>Återställ lösenord</th>
+					<th>Användare</th>
+					<th class="d-none d-md-table-cell">Byt användarnamn</th>
+					@foreach (var role in Model.Roles)
+					{
+						<th class="d-none d-md-table-cell">@role</th>
+					}
+				</tr>
 				</thead>
 				<tbody>
 					@foreach (var user in Model.Users)
@@ -36,8 +52,8 @@
 									@if (Model.IsApiSuperadmin)
 									{
 										<form method="post" asp-page-handler="DeleteUser"
-											  onsubmit="return handleDeleteSubmit(event, this)"
-											  data-confirm="Ta bort användare @user.Email?">
+										      onsubmit="return handleDeleteSubmit(event, this)"
+										      data-confirm="Ta bort användare @user.Email?">
 											<input type="hidden" name="DeleteUserId" value="@user.Id" />
 											<button class="btn btn-sm btn-outline-danger">🗑</button>
 										</form>
@@ -45,8 +61,23 @@
 									else
 									{
 										<span class="btn btn-sm btn-outline-secondary disabled"
-											  title="Endast superadmin kan ta bort">🗑</span>
+										      title="Endast superadmin kan ta bort">🗑</span>
 									}
+								}
+							</td>
+							<td>
+								@if (Model.IsApiSuperadmin && !user.Email.Equals("admin@sarasblogg.se", StringComparison.OrdinalIgnoreCase))
+								{
+									<form method="post" asp-page-handler="SendResetLink"
+									      onsubmit="return confirm('Skicka återställningslänk till @user.Email?')"
+									      class="d-inline">
+										<input type="hidden" name="TargetUserEmail" value="@user.Email" />
+										<button class="btn btn-sm btn-outline-warning" title="Skicka återställningslänk">🔑</button>
+									</form>
+								}
+								else
+								{
+									<span class="btn btn-sm btn-outline-secondary disabled" title="Endast superadmin kan återställa">🔑</span>
 								}
 							</td>
 
