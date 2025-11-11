@@ -116,10 +116,10 @@
 							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/AboutMe" ? "fw-bold" : "")"
 							   asp-area="" asp-page="/AboutMe">Om mig</a>
 						</li>
-						<li class="nav-item me-3">
+						@*<li class="nav-item me-3">
 							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Arkiv" ? "fw-bold" : "")"
 							   asp-area="" asp-page="/Arkiv">Arkiv</a>
-						</li>
+						</li>*@
 						<li class="nav-item me-3">
 							<a class="menutext nav-link theme-dependent @(ViewContext.RouteData.Values["page"]?.ToString() == "/Contact" ? "fw-bold" : "")"
 							   asp-area="" asp-page="/Contact">Kontakt</a>
@@ -147,10 +147,16 @@
 
 		<footer class="border-top footer text-faded">
 			<div class="footer-inner container d-flex flex-column align-items-center text-center">
-				<span class="theme-dependent small">
-					&copy; 2025 Med Hjärtat som Kompass<br />
-					Skapad av<br />
-					<a href="https://hildenmedia.se" class="theme-dependent text-reset text-decoration-none fw-semibold">HildenMedia</a>
+				<span class="theme-dependent small" style="line-height:1.6; color: #5a4839 !important; font-weight: 600; font-family: 'Playfair Display', serif;">
+					<strong>
+						&copy; 2025 Med Hjärtat som Kompass<br />
+						Skapad med kärlek av<br />
+						<a href="https://hildenmedia.se"
+						   class="theme-dependent text-reset fw-semibold"
+						   style="transition: color 0.3s ease;">
+							HildenMedia
+						</a>
+					</strong>
 				</span>
 				<div class="social-icons d-flex gap-3 justify-content-center mt-2">
 					<a href="https://www.instagram.com/saragurrasson/" target="_blank" aria-label="Instagram">

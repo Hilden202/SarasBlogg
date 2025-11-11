@@ -1258,3 +1258,13 @@ body > #cookieConsentdiv {
     pointer-events: auto !important;
 }
 /* ===== END: Cropper customization (AboutMe) ===== */
+
+footer .footer-inner a {
+    color: #8c7454 !important;
+    transition: color 0.3s ease;
+}
+
+footer .footer-inner a:hover {
+    color: #a08666 !important;
+    text-decoration: underline !important;
+}
